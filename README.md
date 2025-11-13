@@ -1,73 +1,73 @@
-# Welcome to your Lovable project
+# SkillBridge High-Fidelity Prototype
 
-## Project info
+## Overview
 
-**URL**: https://lovable.dev/projects/3ab7fa5f-6da2-4dcd-93c8-30eb3178c754
+This repository contains the source for the SkillBridge high-fidelity prototype web application. SkillBridge is a platform connecting university students to real-world industry projects, enabling skill development, verified micro-credentials, and career readiness.
 
-## How can I edit this code?
+The prototype demonstrates an interactive, polished MVP design covering key user journeys for students, employers, and universities. It uses modern React, TailwindCSS, ShadCN UI components, and framer-motion animations.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## Design System & Technology Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/3ab7fa5f-6da2-4dcd-93c8-30eb3178c754) and start prompting.
+- **Color Palette:** Muted, professional tones including Slate Blue, Soft Grey, and Muted Sky Blue
+- **Typography:** Inter / Poppins with medium font weights for clear readability
+- **Components:** ShadCN UI React components with Radix UI primitives
+- **Icons:** Minimal line icons via Lucide
+- **Animations:** Framer Motion for smooth transitions and hover effects
+- **Layout:** Responsive grid-based layouts with a consistent top navigation bar and sidebar
+- **Package Manager:** `pnpm` (preferred), compatible with Bun if needed
+- **Tooling:** Vite.js (React framework), TailwindCSS with extended design tokens
 
-Changes made via Lovable will be committed automatically to this repo.
+---
 
-**Use your preferred IDE**
+## Key Pages & Features
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### 1. Landing Page
+- Introduces platform and core value proposition
+- Prominent call-to-actions for sign-up or learning more
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+### 2. Signup / Login
+- Role-select tabs: Student, Employer, University
+- University SSO support and secure login flows
 
-Follow these steps:
+### 3. Student Dashboard
+- Welcome banner with progress summary
+- Searchable and filterable project feed
+- Application status panel with real-time updates
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+### 4. Browse Projects
+- Industry, Duration, Skill filters
+- Detailed project cards and pagination
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 5. Project Details
+- Tabbed interface showing Overview, Requirements, Deliverables
+- Direct "Apply Now" CTA with micro-credential preview
 
-# Step 3: Install the necessary dependencies.
-npm i
+### 6. Application Form
+- Multi-field forms with portfolio upload and availability picker
+- Confirmation dialogs and error validation
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+### 7. Application Status
+- Process tracker and chat communication with employer
+- Option to withdraw applications
 
-**Edit a file directly in GitHub**
+### 8. Micro-Credentials
+- Verified badges and digital certificates viewable in modal
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+### 9. Employer & University Dashboards
+- Manage projects, applicants, analytics
+- Data export and dashboard overview cards
 
-**Use GitHub Codespaces**
+### 10. Profile & Settings
+- Editable user profile and skills
+- Security controls with password/reset and 2FA
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+---
 
-## What technologies are used for this project?
+## Developer Setup
 
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/3ab7fa5f-6da2-4dcd-93c8-30eb3178c754) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+1. Clone repository  
+2. Install dependencies:  
+3. Set up Tailwind config and global styles as per `tailwind.config.js` and `app/globals.css`  
+4. Run the development server
