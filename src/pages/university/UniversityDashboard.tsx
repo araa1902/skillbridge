@@ -1,5 +1,3 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +7,6 @@ import { Users, Briefcase, Award, Download, TrendingUp } from "lucide-react";
 const UniversityDashboard = () => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
 
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 py-8">
@@ -230,8 +227,6 @@ const UniversityDashboard = () => {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

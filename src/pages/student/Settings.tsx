@@ -1,5 +1,3 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -29,7 +27,6 @@ const Settings = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
 
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 py-12 max-w-4xl">
@@ -250,8 +247,6 @@ const Settings = () => {
           </Tabs>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

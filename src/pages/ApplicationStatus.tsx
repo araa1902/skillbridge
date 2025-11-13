@@ -1,6 +1,4 @@
 import { useState } from "react";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -29,11 +27,9 @@ const ApplicationStatus = () => {
   if (!project) {
     return (
       <div className="flex flex-col min-h-screen">
-        <Header />
         <main className="flex-1 flex items-center justify-center">
           <p>Project not found</p>
         </main>
-        <Footer />
       </div>
     );
   }
@@ -62,7 +58,6 @@ const ApplicationStatus = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 py-12">
@@ -244,8 +239,6 @@ const ApplicationStatus = () => {
           </div>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };

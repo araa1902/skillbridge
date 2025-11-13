@@ -4,8 +4,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { GraduationCap, Building2, School } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
@@ -28,7 +26,6 @@ const Auth = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       
       <main className="flex-1 flex items-center justify-center py-12 px-4">
         <Card className="w-full max-w-md shadow-elegant">
@@ -106,8 +103,6 @@ const Auth = () => {
           </CardContent>
         </Card>
       </main>
-
-      <Footer />
     </div>
   );
 };

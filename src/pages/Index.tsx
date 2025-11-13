@@ -1,7 +1,5 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Link } from "react-router-dom";
 import { Award, Briefcase, Users, ArrowRight } from "lucide-react";
@@ -14,7 +12,6 @@ const Index = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
       
       <main className="flex-1">
         {/* Hero Section */}
@@ -184,8 +181,6 @@ const Index = () => {
           </div>
         </section>
       </main>
-
-      <Footer />
     </div>
   );
 };

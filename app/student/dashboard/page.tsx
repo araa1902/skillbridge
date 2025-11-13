@@ -1,25 +1,41 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+"use client";
+
+import { Badge } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/badge";
+import { Button } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/card";
+import { Progress } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/tabs";
+import { Avatar, AvatarFallback, AvatarImage } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/avatar";
 import { Bell, Briefcase, Award, TrendingUp, Clock, Star } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ProjectCard } from "@/components/ProjectCard";
-import { projects } from "@/lib/data";
+import Link from "next/link";
 
-const StudentDashboard = () => {
-  const recommendedProjects = projects.slice(0, 3);
-
+export default function StudentDashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
+      {/* Header */}
+      <header className="bg-white border-b sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+          <h1 className="text-2xl font-bold text-gray-900">SkillBridge</h1>
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon">
+              <Bell className="h-5 w-5" />
+            </Button>
+            <Avatar>
+              <AvatarImage src="/placeholder-avatar.jpg" />
+              <AvatarFallback>JD</AvatarFallback>
+            </Avatar>
+          </div>
+        </div>
+      </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Welcome Section */}
         <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Sarah</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, John!</h2>
           <p className="text-gray-600">University of Oxford · Computer Science · 2nd Year</p>
         </div>
 
+        {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
@@ -58,13 +74,15 @@ const StudentDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">4.9</div>
-              <p className="text-xs text-gray-600">From 8 references</p>
+              <p className="text-xs text-gray-600">From 8 reviews</p>
             </CardContent>
           </Card>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Main Content */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Active Projects */}
             <Card>
               <CardHeader>
                 <CardTitle>Active Projects</CardTitle>
@@ -110,25 +128,73 @@ const StudentDashboard = () => {
               </CardContent>
             </Card>
 
+            {/* Recommended Projects */}
             <Card>
               <CardHeader>
                 <CardTitle>Recommended for You</CardTitle>
                 <CardDescription>AI-matched projects based on your skills</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {recommendedProjects.map((project) => (
-                    <ProjectCard key={project.id} {...project} />
-                  ))}
+                <div className="border rounded-lg p-4 hover:border-blue-600 transition-colors cursor-pointer">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-semibold">Social Media Campaign Manager</h4>
+                      <p className="text-sm text-gray-600">EcoRetail Ltd · Marketing</p>
+                    </div>
+                    <Badge variant="secondary">£450</Badge>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-3">
+                    Create and manage a 2-week social media campaign for sustainable fashion launch...
+                  </p>
+                  <div className="flex gap-2 flex-wrap mb-3">
+                    <Badge variant="outline">Social Media</Badge>
+                    <Badge variant="outline">Content Creation</Badge>
+                    <Badge variant="outline">20 hours</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      Posted 2 hours ago
+                    </span>
+                    <Button size="sm">Apply Now</Button>
+                  </div>
                 </div>
-                <Link to="/browse-projects">
+
+                <div className="border rounded-lg p-4 hover:border-blue-600 transition-colors cursor-pointer">
+                  <div className="flex justify-between items-start mb-2">
+                    <div>
+                      <h4 className="font-semibold">User Research Sprint</h4>
+                      <p className="text-sm text-gray-600">HealthTech Innovations · Research</p>
+                    </div>
+                    <Badge variant="secondary">£300</Badge>
+                  </div>
+                  <p className="text-sm text-gray-700 mb-3">
+                    Conduct user interviews and create insights report for mobile health app...
+                  </p>
+                  <div className="flex gap-2 flex-wrap mb-3">
+                    <Badge variant="outline">User Research</Badge>
+                    <Badge variant="outline">Analysis</Badge>
+                    <Badge variant="outline">10 hours</Badge>
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-gray-600 flex items-center gap-1">
+                      <Clock className="h-4 w-4" />
+                      Posted 1 day ago
+                    </span>
+                    <Button size="sm">Apply Now</Button>
+                  </div>
+                </div>
+
+                <Link href="/student/projects">
                   <Button variant="outline" className="w-full">Browse All Projects</Button>
                 </Link>
               </CardContent>
             </Card>
           </div>
 
+          {/* Sidebar */}
           <div className="space-y-6">
+            {/* Profile Completion */}
             <Card>
               <CardHeader>
                 <CardTitle>Profile Strength</CardTitle>
@@ -150,12 +216,13 @@ const StudentDashboard = () => {
                     <span>Add portfolio projects</span>
                   </li>
                 </ul>
-                <Link to="/student/settings">
+                <Link href="/student/profile">
                   <Button variant="outline" className="w-full mt-4">Complete Profile</Button>
                 </Link>
               </CardContent>
             </Card>
 
+            {/* Earned Badges */}
             <Card>
               <CardHeader>
                 <CardTitle>Your Credentials</CardTitle>
@@ -184,12 +251,11 @@ const StudentDashboard = () => {
                     <p className="text-xs text-gray-500">EQF Level 5</p>
                   </div>
                 </div>
-                <Link to="/student/credentials">
-                  <Button variant="outline" className="w-full mt-4">View All Badges</Button>
-                </Link>
+                <Button variant="outline" className="w-full mt-4">View All Badges</Button>
               </CardContent>
             </Card>
 
+            {/* Mentor Connection */}
             <Card>
               <CardHeader>
                 <CardTitle>Your Mentor</CardTitle>
@@ -212,6 +278,4 @@ const StudentDashboard = () => {
       </div>
     </div>
   );
-};
-
-export default StudentDashboard;
+}

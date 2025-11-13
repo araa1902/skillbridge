@@ -1,5 +1,3 @@
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -12,13 +10,12 @@ const EmployerDashboard = () => {
 
   return (
     <div className="flex flex-col min-h-screen">
-      <Header />
 
       <main className="flex-1 bg-background">
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8 flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Employer Dashboard</h1>
+              <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
               <p className="text-muted-foreground">
                 Manage your projects and connect with talented students
               </p>
@@ -202,8 +199,6 @@ const EmployerDashboard = () => {
           </Card>
         </div>
       </main>
-
-      <Footer />
     </div>
   );
 };
