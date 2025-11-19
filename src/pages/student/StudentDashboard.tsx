@@ -1,15 +1,22 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Briefcase, Award, TrendingUp, Clock, Star } from "lucide-react";
+import { Bell, Briefcase, Award, TrendingUp, Clock, Star, MessageSquare } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ProjectCard } from "@/components/ProjectCard";
 import { projects } from "@/lib/data";
+import { studentReferences } from "@/lib/references-data";
+import { ReferenceCard } from "@/components/ReferenceCard";
 
 const StudentDashboard = () => {
   const recommendedProjects = projects.slice(0, 3);
+  const recentReferences = studentReferences.slice(0, 2);
+  const averageRating = (
+    studentReferences.reduce((sum, ref) => sum + ref.rating, 0) / 
+    studentReferences.length
+  ).toFixed(1);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -51,16 +58,22 @@ const StudentDashboard = () => {
               <p className="text-xs text-gray-600">+£400 this month</p>
             </CardContent>
           </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Rating</CardTitle>
-              <Star className="h-4 w-4 text-yellow-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">4.9</div>
-              <p className="text-xs text-gray-600">From 8 references</p>
-            </CardContent>
-          </Card>
+            <Link to="/student/references">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+              <CardTitle className="text-sm font-medium">References</CardTitle>
+              <Star className="h-5 w-5 text-yellow-500" />
+              </CardHeader>
+              <CardContent>
+              <div className="flex items-center gap-2">
+                <div className="text-2xl font-bold">{studentReferences.length}</div>
+                <div className="flex items-center gap-1 text-xs text-gray-600">
+                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+                </div>
+              </div>
+              </CardContent>
+            </Card>
+            </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

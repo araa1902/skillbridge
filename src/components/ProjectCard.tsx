@@ -30,9 +30,6 @@ export const ProjectCard = ({
           <h3 className="font-semibold text-lg leading-tight group-hover:text-accent transition-smooth">
             {title}
           </h3>
-          {credential && (
-            <Award className="h-5 w-5 text-accent shrink-0" />
-          )}
         </div>
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
           <Building2 className="h-4 w-4" />
@@ -52,7 +49,7 @@ export const ProjectCard = ({
 
         <div className="flex flex-wrap gap-2">
           {tags.map((tag) => (
-            <Badge key={tag} variant="secondary" className="text-xs">
+            <Badge key={tag} variant="outline" className="text-xs text-muted-foreground px-2 py-1">
               {tag}
             </Badge>
           ))}

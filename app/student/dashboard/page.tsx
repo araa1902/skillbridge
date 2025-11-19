@@ -141,7 +141,7 @@ export default function StudentDashboard() {
                       <h4 className="font-semibold">Social Media Campaign Manager</h4>
                       <p className="text-sm text-gray-600">EcoRetail Ltd · Marketing</p>
                     </div>
-                    <Badge variant="secondary">£450</Badge>
+                    <Badge variant="outline">£450</Badge>
                   </div>
                   <p className="text-sm text-gray-700 mb-3">
                     Create and manage a 2-week social media campaign for sustainable fashion launch...
@@ -166,7 +166,7 @@ export default function StudentDashboard() {
                       <h4 className="font-semibold">User Research Sprint</h4>
                       <p className="text-sm text-gray-600">HealthTech Innovations · Research</p>
                     </div>
-                    <Badge variant="secondary">£300</Badge>
+                    <Badge variant="outline">£300</Badge>
                   </div>
                   <p className="text-sm text-gray-700 mb-3">
                     Conduct user interviews and create insights report for mobile health app...

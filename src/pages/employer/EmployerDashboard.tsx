@@ -2,11 +2,14 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Users, Briefcase, CheckCircle2, XCircle } from "lucide-react";
+import { Plus, Users, Briefcase, CheckCircle2, XCircle, Star } from "lucide-react";
 import { projects } from "@/lib/data";
+import { pendingReferenceRequests } from "@/lib/references-data";
+import { Link } from "react-router-dom";
 
 const EmployerDashboard = () => {
   const myProjects = projects.slice(0, 3);
+  const pendingReferences = pendingReferenceRequests.filter(req => req.employerId === "emp-1");
 
   return (
     <div className="flex flex-col min-h-screen">
@@ -71,7 +74,52 @@ const EmployerDashboard = () => {
                 <div className="text-3xl font-bold">5</div>
               </CardContent>
             </Card>
+
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Pending References
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center justify-between">
+                  <div className="text-3xl font-bold">{pendingReferences.length}</div>
+                  <Star className="w-6 h-6 text-yellow-500" />
+                </div>
+                {pendingReferences.length > 0 && (
+                  <Link to="/employer/references">
+                    <Button variant="link" size="sm" className="p-0 h-auto mt-2">
+                      Write references
+                    </Button>
+                  </Link>
+                )}
+              </CardContent>
+            </Card>
           </div>
+
+          {/* Pending References Alert */}
+          {pendingReferences.length > 0 && (
+            <Card className="mb-8 border-yellow-200 bg-yellow-50">
+              <CardContent className="p-6">
+                <div className="flex items-start gap-4">
+                  <Star className="w-6 h-6 text-yellow-600 flex-shrink-0 mt-1" />
+                  <div className="flex-1">
+                    <h3 className="font-semibold text-yellow-900 mb-1">
+                      {pendingReferences.length} student{pendingReferences.length !== 1 ? 's' : ''} waiting for your reference
+                    </h3>
+                    <p className="text-sm text-yellow-800 mb-3">
+                      Help students showcase their work by providing professional feedback
+                    </p>
+                    <Link to="/employer/references">
+                      <Button size="sm" variant="outline" className="border-yellow-300">
+                        Write References
+                      </Button>
+                    </Link>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {/* My Projects */}
           <Card className="mb-8">
@@ -130,8 +178,8 @@ const EmployerDashboard = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Badge variant="secondary" className="text-xs">Marketing</Badge>
-                        <Badge variant="secondary" className="text-xs">Analytics</Badge>
+                        <Badge variant="outline" className="text-xs">Marketing</Badge>
+                        <Badge variant="outline" className="text-xs">Analytics</Badge>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -156,8 +204,8 @@ const EmployerDashboard = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Badge variant="secondary" className="text-xs">UX Design</Badge>
-                        <Badge variant="secondary" className="text-xs">Figma</Badge>
+                        <Badge variant="outline" className="text-xs">UX Design</Badge>
+                        <Badge variant="outline" className="text-xs">Figma</Badge>
                       </div>
                     </TableCell>
                     <TableCell>
@@ -182,12 +230,12 @@ const EmployerDashboard = () => {
                     </TableCell>
                     <TableCell>
                       <div className="flex gap-1">
-                        <Badge variant="secondary" className="text-xs">Content</Badge>
-                        <Badge variant="secondary" className="text-xs">SEO</Badge>
+                        <Badge variant="outline" className="text-xs">Content</Badge>
+                        <Badge variant="outline" className="text-xs">SEO</Badge>
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge variant="secondary">Accepted</Badge>
+                      <Badge variant="outline">Accepted</Badge>
                     </TableCell>
                     <TableCell className="text-right">
                       <Button size="sm" variant="outline">Message</Button>

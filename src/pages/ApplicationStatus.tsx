@@ -186,7 +186,7 @@ const ApplicationStatus = () => {
                       <p className="text-sm text-muted-foreground mb-1">Tags</p>
                       <div className="flex flex-wrap gap-2">
                         {project.tags.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="text-xs">
+                          <Badge key={tag} variant="outline" className="text-xs">
                             {tag}
                           </Badge>
                         ))}

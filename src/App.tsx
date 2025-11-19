@@ -10,12 +10,15 @@ import ProjectDetails from "./pages/ProjectDetails";
 import ApplicationForm from "./pages/ApplicationForm";
 import ApplicationStatus from "./pages/ApplicationStatus";
 import StudentDashboard from "./pages/student/StudentDashboard";
+import StudentReferences from "./pages/student/StudentReferences";
 import Credentials from "./pages/student/Credentials";
+import StudentApplications from "./pages/student/Applications";
 import Settings from "./pages/student/Settings";
 import EmployerDashboard from "./pages/employer/EmployerDashboard";
+import EmployerReferences from "./pages/employer/EmployerReferences";
 import NewProject from "./pages/employer/NewProject";
 import ManageProjects from "./pages/employer/ManageProjects";
-import Applications from "./pages/employer/Applications";
+import EmployerApplications from "./pages/employer/Applications";
 import UniversityDashboard from "./pages/university/UniversityDashboard";
 import AllPages from "./pages/AllPages";
 import NotFound from "./pages/NotFound";
@@ -67,13 +70,15 @@ const App = () => (
             <Route path="/project/:id/apply" element={<ApplicationForm />} />
             <Route path="/project/:id/application-status" element={<ApplicationStatus />} />
             <Route path="/student/dashboard" element={<StudentDashboard />} />
+            <Route path="/student/references" element={<StudentReferences />} />
             <Route path="/student/credentials" element={<Credentials />} />
-            <Route path="/student/applications" element={<Applications />} />
+            <Route path="/student/applications" element={<StudentApplications />} />
             <Route path="/student/settings" element={<Settings />} />
             <Route path="/employer/dashboard" element={<EmployerDashboard />} />
+            <Route path="/employer/references" element={<EmployerReferences />} />
             <Route path="/employer/projects/new" element={<NewProject />} />
             <Route path="/employer/projects/manage" element={<ManageProjects />} />
-            <Route path="/employer/applications" element={<Applications />} />
+            <Route path="/employer/applications" element={<EmployerApplications />} />
             <Route path="/university/dashboard" element={<UniversityDashboard />} />
             <Route path="*" element={<NotFound />} />
           </Routes>

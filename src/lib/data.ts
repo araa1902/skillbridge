@@ -7,35 +7,24 @@ export const projects = [
     company: "TechStart Solutions",
     companyLogo: "TS",
     duration: "4 weeks",
-    timeline: "Flexible - Start within 2 weeks",
-    budget: "$1,200",
-    location: "Remote",
     tags: ["Marketing", "Analytics", "Social Media"],
-    skills: ["Google Analytics", "Excel", "Social Media Marketing", "Data Analysis"],
-    description: "Analyse the effectiveness of a multi-channel digital marketing campaign for a B2B SaaS company. You'll work with real campaign data, identify key performance indicators, and provide actionable recommendations for optimization. This project includes competitor analysis and audience segmentation.",
+    description: "Dive deep into the performance of a multi-channel digital marketing campaign for a B2B SaaS product, including email marketing, paid search, social media ads, and content marketing. Analyze key metrics such as click-through rates, conversion rates, cost per acquisition, and ROI across platforms like Google Ads, Facebook, and LinkedIn. Identify trends, audience engagement patterns, and campaign bottlenecks. Provide data-driven recommendations for optimization, such as budget reallocation, ad copy improvements, and targeting refinements, to enhance overall campaign effectiveness and align with business goals.",
     requirements: [
       "Currently pursuing Marketing, Business, or related degree",
-      "Understanding of digital marketing concepts and KPIs",
-      "Proficiency with Excel or Google Sheets for data analysis",
-      "Strong analytical and communication skills",
-      "Ability to work independently and meet deadlines"
+      "Understanding of digital marketing concepts",
+      "Proficiency with Excel or Google Sheets",
+      "Strong analytical and communication skills"
     ],
     deliverables: [
-      "Comprehensive campaign performance report (15-20 pages)",
-      "Detailed competitor analysis with SWOT framework",
-      "Strategic recommendations presentation with implementation timeline",
-      "Social media content calendar template for Q2",
-      "Executive summary for stakeholders"
+      "Campaign performance report with key metrics",
+      "Competitor analysis",
+      "Strategic recommendations presentation",
+      "Social media content calendar template"
     ],
-    companyInfo: "TechStart Solutions is a growing digital agency with 50+ employees, helping B2B companies establish their online presence. Founded in 2018, we've worked with 200+ clients across tech, healthcare, and finance sectors.",
-    contactPerson: "Maria Rodriguez",
-    contactEmail: "maria.rodriguez@techstartsolutions.com",
+    companyInfo: "TechStart Solutions is a growing digital agency helping businesses establish their online presence.",
     status: "open",
     applicants: 12,
-    maxApplicants: 25,
-    urgent: false,
-    credential: true,
-    credentialValue: "Digital Marketing Analytics Specialist"
+    credential: true
   },
   {
     id: "2",
@@ -43,35 +32,24 @@ export const projects = [
     company: "HealthFirst App",
     companyLogo: "HF",
     duration: "6 weeks",
-    timeline: "Must start by April 15th",
-    budget: "$2,500",
-    location: "Remote with optional onsite meetings",
     tags: ["UX Design", "Research", "Mobile"],
-    skills: ["Figma", "User Research", "Wireframing", "Prototyping", "Usability Testing"],
-    description: "Conduct comprehensive user research and design wireframes for a new health tracking mobile application targeting millennials. You'll interview potential users, analyze competitors, and create an intuitive design that balances functionality with user experience.",
+    description: "Conduct comprehensive user research for a new mobile health tracking app aimed at individuals managing chronic conditions like diabetes and hypertension. This includes designing and executing surveys, user interviews, and usability testing sessions with target demographics. Analyze findings to develop detailed user personas, empathy maps, and user journey maps. Create low-fidelity wireframes for key screens such as dashboard, data entry, and reporting, followed by high-fidelity prototypes incorporating feedback. Ensure designs adhere to accessibility standards and mobile UX best practices, focusing on intuitive navigation, data visualization, and motivational elements to encourage user adherence.",
     requirements: [
-      "Design, HCI, or Computer Science degree programme",
-      "Familiarity with Figma, Sketch, or Adobe XD",
-      "Understanding of UX principles and mobile design patterns",
-      "Portfolio demonstrating previous design work",
-      "Experience with user research methods preferred"
+      "Design or HCI degree programme",
+      "Familiarity with Figma or similar tools",
+      "Understanding of UX principles",
+      "Portfolio of previous work"
     ],
     deliverables: [
-      "User research findings report (20+ pages)",
-      "5 detailed user personas and journey maps",
-      "Low and high-fidelity wireframes for 10 key screens",
-      "Interactive prototype with navigation flow",
-      "Usability testing results and recommendations"
+      "User research findings report",
+      "User personas and journey maps",
+      "Low and high-fidelity wireframes",
+      "Interactive prototype"
     ],
-    companyInfo: "HealthFirst is a Series A startup developing innovative mobile solutions for personal health management. Our app has 50K+ downloads and we're backed by top-tier VCs including Sequoia Capital.",
-    contactPerson: "Dr. Alex Chen",
-    contactEmail: "alex.chen@healthfirstapp.com",
+    companyInfo: "HealthFirst is developing innovative mobile solutions for personal health management.",
     status: "open",
     applicants: 8,
-    maxApplicants: 15,
-    urgent: true,
-    credential: true,
-    credentialValue: "UX Research & Design Specialist"
+    credential: true
   },
   {
     id: "3",
@@ -79,35 +57,24 @@ export const projects = [
     company: "InvestWise Capital",
     companyLogo: "IW",
     duration: "8 weeks",
-    timeline: "Rolling start - applications reviewed weekly",
-    budget: "$3,000",
-    location: "Remote",
     tags: ["Finance", "Data Analysis", "Python"],
-    skills: ["Python", "Pandas", "Plotly/Dash", "SQL", "Financial Modeling"],
-    description: "Build an interactive dashboard to visualize financial market data and trends for institutional investors. You'll work with real market data APIs, create predictive models, and design a user-friendly interface for portfolio analysis.",
+    description: "Develop an interactive financial data analysis dashboard to visualize and analyze market trends for equities, bonds, and commodities. Use Python libraries such as Pandas for data cleaning and manipulation, Matplotlib and Plotly for visualizations, and Streamlit or Dash for the web interface. Integrate real-time data from APIs like Alpha Vantage or Yahoo Finance. The dashboard should include features like customizable charts, trend analysis tools, risk assessment metrics (e.g., Sharpe ratio, volatility), and predictive modeling for short-term price forecasts. Ensure the code is modular, well-documented, and includes error handling for data inconsistencies.",
     requirements: [
-      "Finance, Economics, Computer Science, or Mathematics student",
-      "Python programming skills (intermediate level)",
-      "Knowledge of data visualization libraries (Plotly, Matplotlib)",
-      "Understanding of financial markets and instruments",
-      "Experience with SQL or database querying"
+      "Finance, Economics, or Computer Science student",
+      "Python programming skills",
+      "Knowledge of data visualisation libraries",
+      "Understanding of financial markets"
     ],
     deliverables: [
-      "Clean, well-documented Python codebase (GitHub repository)",
-      "Interactive dashboard with 5+ key visualizations",
-      "Data analysis report with insights and recommendations",
-      "Technical documentation and deployment guide",
-      "Presentation demo for the investment team"
+      "Clean, documented Python code",
+      "Interactive dashboard prototype",
+      "Data analysis report",
+      "Technical documentation"
     ],
-    companyInfo: "InvestWise Capital is a fintech company managing $2B+ in assets, providing investment research and analytics to institutional clients. We've been in business for 15 years and serve 200+ clients globally.",
-    contactPerson: "Sarah Kim",
-    contactEmail: "sarah.kim@investwisecapital.com",
+    companyInfo: "InvestWise Capital is a fintech company providing investment research and analytics.",
     status: "open",
     applicants: 15,
-    maxApplicants: 20,
-    urgent: false,
-    credential: true,
-    credentialValue: "Financial Data Analytics Specialist"
+    credential: true
   },
   {
     id: "4",
@@ -115,35 +82,24 @@ export const projects = [
     company: "EduTech Platform",
     companyLogo: "ET",
     duration: "3 weeks",
-    timeline: "Immediate start needed",
-    budget: "$800",
-    location: "Remote",
     tags: ["Content", "Strategy", "Education"],
-    skills: ["Content Marketing", "SEO", "Copywriting", "Content Management Systems"],
-    description: "Develop a comprehensive content strategy for an online learning platform targeting working professionals in tech. You'll audit existing content, identify gaps, and create a 6-month content calendar with SEO-optimized topics.",
+    description: "Craft a tailored content strategy for an online learning platform targeting mid-career professionals in tech and business fields. Begin with a content audit of existing articles, videos, and courses to identify gaps in topics like leadership development, emerging technologies, and skill-building. Develop a 3-month editorial calendar with themes, keywords for SEO optimization, and content types (e.g., blog posts, webinars, infographics). Create 5 sample blog posts on topics such as 'Navigating Career Transitions in Tech' or 'Building Emotional Intelligence in Leadership.' Outline content guidelines covering tone, style, and distribution channels to ensure consistency and engagement.",
     requirements: [
-      "Marketing, Communications, Journalism, or related student",
-      "Strong writing and editing skills with portfolio",
-      "Understanding of SEO basics and content marketing",
-      "Creativity and strategic thinking abilities",
-      "Experience with content management systems preferred"
+      "Marketing, Communications, or Journalism student",
+      "Strong writing and editing skills",
+      "Understanding of SEO basics",
+      "Creativity and strategic thinking"
     ],
     deliverables: [
-      "Comprehensive content audit and gap analysis (15 pages)",
-      "6-month content calendar with 50+ topics",
-      "5 sample blog posts (1500+ words each)",
-      "Content guidelines and style guide document",
-      "SEO keyword research and implementation plan"
+      "Content audit and gap analysis",
+      "3-month content calendar",
+      "5 sample blog posts",
+      "Content guidelines document"
     ],
-    companyInfo: "EduTech Platform offers professional development courses for working adults in technology fields. We have 100K+ registered users and partner with 50+ Fortune 500 companies for corporate training.",
-    contactPerson: "Michael Torres",
-    contactEmail: "michael.torres@edutechplatform.com",
+    companyInfo: "EduTech Platform offers professional development courses for working adults.",
     status: "open",
     applicants: 6,
-    maxApplicants: 12,
-    urgent: true,
-    credential: true,
-    credentialValue: "Content Strategy Specialist"
+    credential: true
   },
   {
     id: "5",
@@ -151,35 +107,24 @@ export const projects = [
     company: "GreenFuture Enterprises",
     companyLogo: "GF",
     duration: "5 weeks",
-    timeline: "Start within 3 weeks",
-    budget: "$1,800",
-    location: "Hybrid - Remote with 2 onsite visits",
     tags: ["Sustainability", "Research", "ESG"],
-    skills: ["ESG Analysis", "Sustainability Reporting", "Data Collection", "Stakeholder Engagement"],
-    description: "Assess the environmental impact of manufacturing operations for a mid-sized company and propose sustainability improvements. You'll collect data on energy usage, waste management, and carbon emissions to create an ESG report.",
+    description: "Perform a thorough sustainability impact assessment for a manufacturing company's operations, focusing on environmental, social, and governance (ESG) factors. Collect data on energy consumption, waste generation, supply chain emissions, and water usage through audits and stakeholder interviews. Calculate the company's carbon footprint using tools like GHG Protocol and benchmark against industry standards. Identify key impact areas and propose actionable improvements, such as renewable energy adoption, waste reduction initiatives, and supplier diversity programs. Develop a phased implementation roadmap with timelines, responsible parties, and measurable KPIs to track progress toward net-zero goals.",
     requirements: [
-      "Environmental Science, Business, or Sustainability student",
-      "Knowledge of sustainability frameworks (GRI, SASB)",
+      "Environmental Science or Business student",
+      "Knowledge of sustainability frameworks",
       "Research and data analysis skills",
-      "Report writing and presentation abilities",
-      "Interest in corporate sustainability"
+      "Report writing ability"
     ],
     deliverables: [
-      "Carbon footprint analysis with emissions breakdown",
-      "Comprehensive sustainability audit report (25 pages)",
-      "Prioritized improvement recommendations with ROI analysis",
-      "6-month implementation roadmap with KPIs",
-      "Executive presentation for company leadership"
+      "Carbon footprint analysis",
+      "Sustainability audit report",
+      "Improvement recommendations",
+      "Implementation roadmap"
     ],
-    companyInfo: "GreenFuture Enterprises is a manufacturing company committed to sustainable business practices. We produce eco-friendly building materials and have won multiple sustainability awards including the EPA Green Business Award.",
-    contactPerson: "Dr. Emma Wilson",
-    contactEmail: "emma.wilson@greenfuture.com",
+    companyInfo: "GreenFuture is committed to sustainable business practices and environmental responsibility.",
     status: "open",
     applicants: 10,
-    maxApplicants: 18,
-    urgent: false,
-    credential: true,
-    credentialValue: "Sustainability Assessment Specialist"
+    credential: true
   },
   {
     id: "6",
@@ -187,251 +132,24 @@ export const projects = [
     company: "FoodieHub",
     companyLogo: "FH",
     duration: "4 weeks",
-    timeline: "Must start by May 1st",
-    budget: "$1,500",
-    location: "Remote with content shoots in city center",
     tags: ["Video", "Content Creation", "Social Media"],
-    skills: ["Video Editing", "Scriptwriting", "Social Media Marketing", "Adobe Creative Suite"],
-    description: "Create engaging video content for social media channels to promote food delivery services. You'll script, shoot, and edit short-form videos showcasing local restaurants and food trends for TikTok, Instagram, and YouTube.",
+    description: "Produce engaging short-form video content to boost brand awareness and user acquisition for a food delivery app. Conceptualize and script 10 videos (15-60 seconds each) covering themes like behind-the-scenes restaurant tours, user testimonials, recipe hacks, and promotional challenges. Use video editing software to incorporate animations, music, and calls-to-action optimized for platforms like TikTok, Instagram Reels, and YouTube Shorts. Develop a content strategy document outlining posting schedules, target audiences, and hashtag strategies. Analyze initial performance metrics post-launch and compile a best practices guide for future content creation, including tips on storytelling and trend utilization.",
     requirements: [
-      "Media, Marketing, Communications, or related student",
-      "Video editing skills (Adobe Premiere, Final Cut, CapCut)",
-      "Understanding of social media algorithms and trends",
-      "Creative storytelling and scriptwriting abilities",
-      "Access to basic video equipment preferred"
+      "Media, Marketing, or related student",
+      "Video editing skills (Adobe Premiere, Final Cut, etc.)",
+      "Understanding of social media platforms",
+      "Creative storytelling ability"
     ],
     deliverables: [
-      "15 short-form videos (15-60 seconds each) across platforms",
-      "3-month content strategy document with performance goals",
-      "Performance metrics analysis and optimization recommendations",
-      "Brand style guide for video content",
-      "Behind-the-scenes documentation"
+      "10 short-form videos (15-60 seconds)",
+      "Content strategy document",
+      "Performance metrics analysis",
+      "Best practices guide"
     ],
-    companyInfo: "FoodieHub connects food lovers with 500+ local restaurants through innovative technology. We've facilitated 2M+ deliveries and raised $25M in Series B funding from top investors.",
-    contactPerson: "Carlos Mendoza",
-    contactEmail: "carlos.mendoza@foodiehub.com",
+    companyInfo: "FoodieHub connects food lovers with local restaurants through innovative technology.",
     status: "open",
     applicants: 9,
-    maxApplicants: 16,
-    urgent: false,
-    credential: true,
-    credentialValue: "Social Media Video Content Creator"
-  },
-  {
-    id: "7",
-    title: "E-commerce Website Optimization",
-    company: "RetailTech Solutions",
-    companyLogo: "RT",
-    duration: "6 weeks",
-    timeline: "Flexible start",
-    budget: "$2,200",
-    location: "Remote",
-    tags: ["E-commerce", "Web Development", "SEO"],
-    skills: ["HTML/CSS", "JavaScript", "Google Analytics", "A/B Testing", "Conversion Optimization"],
-    description: "Optimize an e-commerce website for better user experience and conversion rates. You'll analyze user behavior, implement A/B tests, and recommend technical improvements to increase sales and customer satisfaction.",
-    requirements: [
-      "Computer Science, Web Development, or Marketing student",
-      "Basic HTML/CSS and JavaScript knowledge",
-      "Understanding of e-commerce platforms (Shopify, WooCommerce)",
-      "Analytical mindset with data-driven approach",
-      "Experience with Google Analytics preferred"
-    ],
-    deliverables: [
-      "Website audit report with identified issues",
-      "A/B test results and recommendations",
-      "Optimized landing pages with improved conversion rates",
-      "Technical implementation guide",
-      "Performance metrics dashboard"
-    ],
-    companyInfo: "RetailTech Solutions provides e-commerce solutions to 1000+ retailers worldwide. Our platform processes $500M+ in annual transactions and we've been featured in Forbes and TechCrunch.",
-    contactPerson: "Lisa Park",
-    contactEmail: "lisa.park@retailtech.com",
-    status: "open",
-    applicants: 14,
-    maxApplicants: 22,
-    urgent: false,
-    credential: true,
-    credentialValue: "E-commerce Optimization Specialist"
-  },
-  {
-    id: "8",
-    title: "AI-Powered Customer Support Chatbot",
-    company: "ServiceBot Inc",
-    companyLogo: "SB",
-    duration: "8 weeks",
-    timeline: "Start within 4 weeks",
-    budget: "$3,500",
-    location: "Remote with weekly video calls",
-    tags: ["AI", "Machine Learning", "Customer Service"],
-    skills: ["Python", "NLP", "Dialogflow", "API Integration", "Testing"],
-    description: "Develop and train an AI-powered chatbot for customer support using natural language processing. You'll work with real customer service data to create a conversational AI that can handle common inquiries and route complex issues.",
-    requirements: [
-      "Computer Science, AI, or Data Science student",
-      "Python programming experience",
-      "Knowledge of NLP concepts and libraries",
-      "Understanding of chatbot platforms (Dialogflow, Rasa)",
-      "Problem-solving and debugging skills"
-    ],
-    deliverables: [
-      "Functional chatbot with 80%+ accuracy on test queries",
-      "Training data set and model documentation",
-      "Integration guide for existing systems",
-      "Performance metrics and improvement recommendations",
-      "User testing results and UX feedback"
-    ],
-    companyInfo: "ServiceBot Inc develops AI solutions for customer service automation. Our chatbots handle 1M+ conversations monthly and serve Fortune 500 companies across healthcare, finance, and retail.",
-    contactPerson: "Dr. Raj Patel",
-    contactEmail: "raj.patel@servicebot.com",
-    status: "open",
-    applicants: 11,
-    maxApplicants: 15,
-    urgent: true,
-    credential: true,
-    credentialValue: "AI Chatbot Development Specialist"
-  },
-  {
-    id: "9",
-    title: "Brand Identity Redesign",
-    company: "CreativeAgency Co",
-    companyLogo: "CA",
-    duration: "5 weeks",
-    timeline: "Rolling applications",
-    budget: "$2,000",
-    location: "Remote with design reviews",
-    tags: ["Branding", "Graphic Design", "Creative"],
-    skills: ["Adobe Creative Suite", "Brand Strategy", "Typography", "Color Theory"],
-    description: "Redesign the brand identity for a growing startup in the wellness industry. You'll research the target audience, analyze competitors, and create a cohesive visual identity including logo, color palette, and brand guidelines.",
-    requirements: [
-      "Graphic Design, Fine Arts, or Marketing student",
-      "Proficiency in Adobe Creative Suite (Illustrator, Photoshop)",
-      "Understanding of branding principles and visual design",
-      "Portfolio demonstrating design skills",
-      "Research and conceptual thinking abilities"
-    ],
-    deliverables: [
-      "Brand research report with audience insights",
-      "Complete logo set (primary, secondary, icon variations)",
-      "Color palette and typography specifications",
-      "Brand guidelines document (50+ pages)",
-      "Mockups for website, social media, and packaging"
-    ],
-    companyInfo: "CreativeAgency Co is a full-service creative agency specializing in brand development. We've worked with 300+ clients and our work has been featured in Communication Arts and Print Magazine.",
-    contactPerson: "Sophie Laurent",
-    contactEmail: "sophie.laurent@creativeagency.com",
-    status: "open",
-    applicants: 7,
-    maxApplicants: 14,
-    urgent: false,
-    credential: true,
-    credentialValue: "Brand Identity Design Specialist"
-  },
-  {
-    id: "10",
-    title: "Cybersecurity Risk Assessment",
-    company: "SecureTech Systems",
-    companyLogo: "SS",
-    duration: "7 weeks",
-    timeline: "Start within 6 weeks",
-    budget: "$2,800",
-    location: "Remote",
-    tags: ["Cybersecurity", "Risk Assessment", "IT"],
-    skills: ["Risk Analysis", "Security Frameworks", "Vulnerability Assessment", "Report Writing"],
-    description: "Conduct a comprehensive cybersecurity risk assessment for a mid-sized financial services company. You'll identify vulnerabilities, assess threats, and provide recommendations for improving their security posture.",
-    requirements: [
-      "Computer Science, Cybersecurity, or IT student",
-      "Knowledge of cybersecurity principles and frameworks",
-      "Understanding of risk assessment methodologies",
-      "Strong analytical and research skills",
-      "Familiarity with security tools preferred"
-    ],
-    deliverables: [
-      "Comprehensive risk assessment report (30+ pages)",
-      "Vulnerability analysis with severity ratings",
-      "Risk mitigation strategy and implementation plan",
-      "Security policy recommendations",
-      "Executive summary for board presentation"
-    ],
-    companyInfo: "SecureTech Systems provides cybersecurity solutions to financial institutions. We protect $100B+ in assets and have achieved SOC 2 Type II compliance for our services.",
-    contactPerson: "David Chen",
-    contactEmail: "david.chen@securetech.com",
-    status: "open",
-    applicants: 13,
-    maxApplicants: 20,
-    urgent: false,
-    credential: true,
-    credentialValue: "Cybersecurity Risk Assessment Specialist"
-  },
-  {
-    id: "11",
-    title: "Mobile Game Level Design",
-    company: "GameDev Studios",
-    companyLogo: "GS",
-    duration: "6 weeks",
-    timeline: "Must start by June 1st",
-    budget: "$2,300",
-    location: "Remote with playtesting sessions",
-    tags: ["Game Design", "Mobile", "Creativity"],
-    skills: ["Level Design", "Game Mechanics", "Unity", "Player Experience", "Prototyping"],
-    description: "Design engaging levels for a mobile puzzle game targeting casual gamers. You'll create level layouts, balance difficulty curves, and ensure optimal player progression and retention.",
-    requirements: [
-      "Game Design, Computer Science, or related student",
-      "Experience with Unity or similar game engines",
-      "Understanding of game design principles",
-      "Creative problem-solving skills",
-      "Interest in mobile gaming trends"
-    ],
-    deliverables: [
-      "10 fully designed game levels with mechanics",
-      "Level difficulty balancing documentation",
-      "Player progression flowchart",
-      "UI/UX recommendations for level navigation",
-      "Playtesting results and iteration notes"
-    ],
-    companyInfo: "GameDev Studios creates mobile games with 50M+ downloads across our portfolio. Our games have been featured in App Store 'Best of' categories and we've raised $15M in venture funding.",
-    contactPerson: "Jake Thompson",
-    contactEmail: "jake.thompson@gamedevstudios.com",
-    status: "open",
-    applicants: 16,
-    maxApplicants: 25,
-    urgent: true,
-    credential: true,
-    credentialValue: "Mobile Game Level Design Specialist"
-  },
-  {
-    id: "12",
-    title: "HR Analytics Dashboard",
-    company: "PeopleFirst HR",
-    companyLogo: "PF",
-    duration: "5 weeks",
-    timeline: "Flexible start",
-    budget: "$1,900",
-    location: "Remote",
-    tags: ["HR", "Analytics", "People Analytics"],
-    skills: ["Data Analysis", "HR Metrics", "Visualization", "SQL", "Excel"],
-    description: "Build an HR analytics dashboard to track employee engagement, retention, and performance metrics. You'll analyze workforce data to provide insights for improving organizational effectiveness.",
-    requirements: [
-      "Business, HR, Psychology, or Data Science student",
-      "Strong analytical skills with Excel or similar tools",
-      "Understanding of HR processes and metrics",
-      "Data visualization experience preferred",
-      "Attention to detail and confidentiality"
-    ],
-    deliverables: [
-      "Interactive HR dashboard with key metrics",
-      "Employee engagement analysis report",
-      "Retention and turnover insights",
-      "Recommendations for HR strategy improvements",
-      "Data privacy and compliance documentation"
-    ],
-    companyInfo: "PeopleFirst HR provides HR consulting to 200+ companies ranging from startups to Fortune 500 corporations. We specialize in people analytics and organizational development.",
-    contactPerson: "Amanda Foster",
-    contactEmail: "amanda.foster@peoplefirsthr.com",
-    status: "open",
-    applicants: 8,
-    maxApplicants: 16,
-    urgent: false,
-    credential: true,
-    credentialValue: "HR Analytics Specialist"
+    credential: true
   }
 ];
 
@@ -441,104 +159,21 @@ export const credentials = [
     title: "Digital Marketing Analytics",
     issuer: "TechStart Solutions",
     date: "March 2024",
-    category: "Marketing",
-    verified: true,
-    skills: ["Google Analytics", "Campaign Analysis", "Data Visualization", "Strategic Recommendations"],
-    description: "Successfully completed digital marketing campaign analysis project, analyzing multi-channel performance and providing optimization recommendations.",
-    certificateUrl: "https://skillbridge.com/certificates/digital-marketing-1",
-    grade: "A",
-    hours: 160
+    description: "Successfully completed digital marketing campaign analysis project"
   },
   {
     id: "2",
     title: "UX Research Fundamentals",
     issuer: "HealthFirst App",
     date: "February 2024",
-    category: "Design",
-    verified: true,
-    skills: ["User Research", "Wireframing", "Prototyping", "Usability Testing"],
-    description: "Conducted comprehensive user research and created design prototypes for a health tracking mobile application, including user personas and journey maps.",
-    certificateUrl: "https://skillbridge.com/certificates/ux-research-1",
-    grade: "A-",
-    hours: 240
+    description: "Conducted comprehensive user research and created design prototypes"
   },
   {
     id: "3",
     title: "Financial Data Analysis",
     issuer: "InvestWise Capital",
     date: "January 2024",
-    category: "Finance",
-    verified: true,
-    skills: ["Python", "Financial Modeling", "Data Visualization", "Dashboard Development"],
-    description: "Built interactive financial dashboard using Python and data visualization libraries, analyzing market trends and creating predictive models.",
-    certificateUrl: "https://skillbridge.com/certificates/financial-analysis-1",
-    grade: "B+",
-    hours: 320
-  },
-  {
-    id: "4",
-    title: "Content Strategy Development",
-    issuer: "EduTech Platform",
-    date: "December 2023",
-    category: "Marketing",
-    verified: true,
-    skills: ["Content Marketing", "SEO", "Content Planning", "Copywriting"],
-    description: "Developed comprehensive content strategy for online learning platform, including content audit, calendar creation, and SEO optimization.",
-    certificateUrl: "https://skillbridge.com/certificates/content-strategy-1",
-    grade: "A",
-    hours: 120
-  },
-  {
-    id: "5",
-    title: "Sustainability Assessment",
-    issuer: "GreenFuture Enterprises",
-    date: "November 2023",
-    category: "Sustainability",
-    verified: true,
-    skills: ["ESG Analysis", "Carbon Footprint", "Sustainability Reporting", "Stakeholder Engagement"],
-    description: "Conducted environmental impact assessment for manufacturing operations, analyzing carbon emissions and proposing sustainability improvements.",
-    certificateUrl: "https://skillbridge.com/certificates/sustainability-1",
-    grade: "A-",
-    hours: 200
-  },
-  {
-    id: "6",
-    title: "Video Content Creation",
-    issuer: "FoodieHub",
-    date: "October 2023",
-    category: "Media",
-    verified: true,
-    skills: ["Video Editing", "Scriptwriting", "Social Media Marketing", "Content Strategy"],
-    description: "Created engaging video content for social media platforms, producing 15 short-form videos and developing content strategy for food delivery brand.",
-    certificateUrl: "https://skillbridge.com/certificates/video-content-1",
-    grade: "B+",
-    hours: 160
-  },
-  {
-    id: "7",
-    title: "E-commerce Optimization",
-    issuer: "RetailTech Solutions",
-    date: "September 2023",
-    category: "Technology",
-    verified: true,
-    skills: ["Web Analytics", "A/B Testing", "Conversion Optimization", "User Experience"],
-    description: "Optimized e-commerce website for improved user experience and conversion rates, implementing A/B tests and analyzing performance metrics.",
-    certificateUrl: "https://skillbridge.com/certificates/ecommerce-1",
-    grade: "A",
-    hours: 240
-  },
-  {
-    id: "8",
-    title: "AI Chatbot Development",
-    issuer: "ServiceBot Inc",
-    date: "August 2023",
-    category: "Technology",
-    verified: true,
-    skills: ["Python", "NLP", "Machine Learning", "API Integration"],
-    description: "Developed and trained AI-powered chatbot for customer support using natural language processing, achieving 80%+ accuracy on test queries.",
-    certificateUrl: "https://skillbridge.com/certificates/chatbot-1",
-    grade: "A-",
-    hours: 320
+    description: "Built interactive financial dashboard using Python and data visualisation"
   }
 ];
 
@@ -547,54 +182,14 @@ export const testimonials = [
     name: "Sarah Thompson",
     role: "Final Year Business Student",
     university: "University of Manchester",
-    content: "SkillBridge gave me hands-on experience that my lectures couldn't provide. The digital marketing project I completed has been invaluable in my job applications and helped me land my dream internship.",
-    avatar: "ST",
-    rating: 5,
-    project: "Digital Marketing Campaign Analysis"
+    content: "SkillBridge gave me hands-on experience that my lectures couldn't provide. The digital marketing project I completed has been invaluable in my job applications.",
+    avatar: "ST"
   },
   {
     name: "James Patterson",
     role: "Recruitment Manager",
     company: "TechStart Solutions",
-    content: "The students we've worked with through SkillBridge have been exceptional. It's a brilliant way to identify talent early and give back to the next generation of marketers.",
-    avatar: "JP",
-    rating: 5,
-    project: "Digital Marketing Campaign Analysis"
-  },
-  {
-    name: "Dr. Maria Rodriguez",
-    role: "Professor of Design",
-    university: "Royal College of Art",
-    content: "SkillBridge provides our students with real-world experience that complements their academic learning perfectly. The UX projects are particularly valuable for building professional portfolios.",
-    avatar: "MR",
-    rating: 5,
-    project: "Mobile App UX Research & Design"
-  },
-  {
-    name: "Alex Chen",
-    role: "Product Manager",
-    company: "HealthFirst App",
-    content: "Working with SkillBridge students has been incredibly rewarding. Their fresh perspectives and enthusiasm bring new ideas to our product development process.",
-    avatar: "AC",
-    rating: 5,
-    project: "Mobile App UX Research & Design"
-  },
-  {
-    name: "Michael Johnson",
-    role: "Recent Graduate",
-    university: "London School of Economics",
-    content: "The financial analytics project I completed through SkillBridge was the highlight of my university experience. It directly led to my current role in fintech.",
-    avatar: "MJ",
-    rating: 5,
-    project: "Financial Data Analysis Dashboard"
-  },
-  {
-    name: "Lisa Wong",
-    role: "HR Director",
-    company: "EduTech Platform",
-    content: "SkillBridge helps us discover talented content creators and marketers. The quality of work from students often exceeds our expectations and we've hired several graduates.",
-    avatar: "LW",
-    rating: 5,
-    project: "Content Strategy Development"
+    content: "The students we've worked with through SkillBridge have been exceptional. It's a brilliant way to identify talent and give back to the next generation.",
+    avatar: "JP"
   }
 ];

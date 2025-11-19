@@ -125,7 +125,7 @@ export default function BusinessDashboard() {
                       <h4 className="font-semibold">Market Research Analysis</h4>
                       <p className="text-sm text-gray-600">Research · £400</p>
                     </div>
-                    <Badge variant="secondary">Review Required</Badge>
+                    <Badge variant="outline">Review Required</Badge>
                   </div>
                   <div className="flex items-center gap-3 mb-3">
                     <Avatar className="h-8 w-8">
@@ -168,9 +168,9 @@ export default function BusinessDashboard() {
                     Applied for: Social Media Campaign Manager
                   </p>
                   <div className="flex gap-2 mb-3">
-                    <Badge variant="secondary">Marketing</Badge>
-                    <Badge variant="secondary">Social Media</Badge>
-                    <Badge variant="secondary">4.8★</Badge>
+                    <Badge variant="outline">Marketing</Badge>
+                    <Badge variant="outline">Social Media</Badge>
+                    <Badge variant="outline">4.8★</Badge>
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm">View Application</Button>
@@ -195,9 +195,9 @@ export default function BusinessDashboard() {
                     Applied for: Social Media Campaign Manager
                   </p>
                   <div className="flex gap-2 mb-3">
-                    <Badge variant="secondary">Marketing</Badge>
-                    <Badge variant="secondary">Content</Badge>
-                    <Badge variant="secondary">4.9★</Badge>
+                    <Badge variant="outline">Marketing</Badge>
+                    <Badge variant="outline">Content</Badge>
+                    <Badge variant="outline">4.9★</Badge>
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm">View Application</Button>

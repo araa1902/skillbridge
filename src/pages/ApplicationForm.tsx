@@ -205,7 +205,7 @@ const ApplicationForm = () => {
                   {selectedSkills.length > 0 && (
                     <div className="flex flex-wrap gap-2 mt-3">
                       {selectedSkills.map((skill) => (
-                        <Badge key={skill} variant="secondary" className="text-sm py-1">
+                        <Badge key={skill} variant="outline" className="text-sm py-1">
                           {skill}
                           <button
                             type="button"

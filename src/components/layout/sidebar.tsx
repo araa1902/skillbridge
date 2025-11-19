@@ -24,7 +24,6 @@ const studentNavigation = [
   { name: "Browse Projects", href: "/browse-projects", icon: Briefcase },
   { name: "My Credentials", href: "/student/credentials", icon: Award },
   { name: "Applications", href: "/student/applications", icon: FileText },
-  { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Settings", href: "/student/settings", icon: Settings },
 ]
 
@@ -33,7 +32,6 @@ const employerNavigation = [
   { name: "Post Project", href: "/employer/projects/new", icon: Briefcase },
   { name: "Manage Projects", href: "/employer/projects/manage", icon: BarChart3 },
   { name: "Applications", href: "/employer/applications", icon: FileText },
-  { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Settings", href: "/employer/settings", icon: Settings },
 ]
 
@@ -42,7 +40,6 @@ const universityNavigation = [
   { name: "Students", href: "/university/students", icon: GraduationCap },
   { name: "Projects", href: "/university/projects", icon: Briefcase },
   { name: "Analytics", href: "/university/analytics", icon: BarChart3 },
-  { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Settings", href: "/university/settings", icon: Settings },
 ]
 
@@ -76,7 +73,7 @@ export function Sidebar({ userType = 'student' }: SidebarProps) {
             return (
               <Link key={item.name} to={item.href}>
                 <Button
-                  variant={isActive ? "secondary" : "ghost"}
+                  variant={isActive ? "outline" : "ghost"}
                   className={cn(
                     "w-full justify-start transition-all duration-200 hover:scale-[1.02]",
                     isActive

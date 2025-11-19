@@ -52,13 +52,12 @@ const BrowseProjects = () => {
   };
 
   return (
-    <div className="flex flex-col min-h-screen bg-gray-50/30">
-      
+    <div className="min-h-screen bg-gray-50/30">
       <main className="flex-1">
-        <div className="container mx-auto px-4 py-8">
-          {/* Hero Section */}
-          <div className="mb-10">
-            <div className="flex items-center gap-3 mb-4">
+        <div className="max-w-7xl mx-auto px-6 py-10">
+          {/* Hero */}
+          <div className="mb-8">
+            <div className="flex items-center gap-4">
               <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
                 <Briefcase className="h-6 w-6 text-white" />
               </div>
@@ -67,63 +66,12 @@ const BrowseProjects = () => {
                 <p className="text-gray-600 mt-1">Discover opportunities to build your portfolio and gain experience</p>
               </div>
             </div>
-
-            {/* Stats Cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-              <Card className="bg-white/60 backdrop-blur-sm border-gray-200/60">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-gray-600">Available</p>
-                      <p className="text-2xl font-bold text-gray-800">{stats.total}</p>
-                    </div>
-                    <Briefcase className="h-5 w-5 text-gray-600" />
-                  </div>
-                </CardContent>
-              </Card>
-              
-              <Card className="bg-white/60 backdrop-blur-sm border-gray-200/60">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-gray-600">Remote</p>
-                      <p className="text-2xl font-bold text-gray-800">{stats.remote}</p>
-                    </div>
-                    <MapPin className="h-5 w-5 text-gray-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/60 backdrop-blur-sm border-gray-200/60">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-gray-600">Urgent</p>
-                      <p className="text-2xl font-bold text-gray-800">{stats.urgent}</p>
-                    </div>
-                    <Clock className="h-5 w-5 text-gray-600" />
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card className="bg-white/60 backdrop-blur-sm border-gray-200/60">
-                <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs text-gray-600">Avg Budget</p>
-                      <p className="text-2xl font-bold text-gray-800">${stats.avgBudget}</p>
-                    </div>
-                    <DollarSign className="h-5 w-5 text-gray-600" />
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
           </div>
 
-          {/* Search and Quick Filters */}
+          {/* Search + Filters Card */}
           <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60 mb-8">
             <CardContent className="p-6">
-              <div className="flex flex-col lg:flex-row gap-4">
+              <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <Input
@@ -133,18 +81,19 @@ const BrowseProjects = () => {
                     className="pl-10 bg-white/70 border-gray-200 text-gray-800"
                   />
                 </div>
-                
-                <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
+
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="outline"
                     onClick={() => setShowFilters(!showFilters)}
                     className="bg-white/70 border-gray-200 text-gray-700 hover:bg-gray-100"
                   >
                     <SlidersHorizontal className="mr-2 h-4 w-4" />
                     Filters
                   </Button>
-                  <Button 
-                    variant="ghost" 
+
+                  <Button
+                    variant="ghost"
                     onClick={clearFilters}
                     className="text-gray-600 hover:text-gray-800"
                   >
@@ -155,7 +104,7 @@ const BrowseProjects = () => {
 
               {showFilters && (
                 <div className="mt-6 pt-6 border-t border-gray-200">
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
                     <div>
                       <label className="text-sm font-medium text-gray-700 mb-2 block">Industry</label>
                       <Select value={industryFilter} onValueChange={setIndustryFilter}>
@@ -228,60 +177,75 @@ const BrowseProjects = () => {
           </Card>
 
           {/* Active Filters */}
-          {(searchQuery || industryFilter !== "all" || durationFilter !== "all" || locationFilter !== "all") && (
+          {(searchQuery || industryFilter !== "all" || durationFilter !== "all" || locationFilter !== "all" || budgetFilter !== "all") && (
             <div className="mb-6">
               <div className="flex flex-wrap gap-2 items-center">
                 <span className="text-sm text-gray-600">Active filters:</span>
+
                 {searchQuery && (
                   <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                     Search: {searchQuery}
                   </Badge>
                 )}
+
                 {industryFilter !== "all" && (
                   <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                     {industryFilter}
                   </Badge>
                 )}
+
                 {durationFilter !== "all" && (
                   <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                     {durationFilter}
                   </Badge>
                 )}
+
                 {locationFilter !== "all" && (
                   <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
                     {locationFilter}
+                  </Badge>
+                )}
+
+                {budgetFilter !== "all" && (
+                  <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                    {budgetFilter}
                   </Badge>
                 )}
               </div>
             </div>
           )}
 
-          {/* Results */}
-          <div className="mb-6 flex items-center justify-between">
+          {/* Results header */}
+          <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
               Showing <span className="font-medium">{filteredProjects.length}</span> of <span className="font-medium">{projects.length}</span> projects
             </p>
-            <Select defaultValue="recent">
-              <SelectTrigger className="w-48 bg-white/70 border-gray-200">
-                <SelectValue placeholder="Sort by" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="recent">Most Recent</SelectItem>
-                <SelectItem value="budget">Highest Budget</SelectItem>
-                <SelectItem value="duration">Shortest Duration</SelectItem>
-                <SelectItem value="alphabetical">A to Z</SelectItem>
-              </SelectContent>
-            </Select>
+
+            <div className="w-full sm:w-48">
+              <Select defaultValue="recent">
+                <SelectTrigger className="w-full bg-white/70 border-gray-200">
+                  <SelectValue placeholder="Sort by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="recent">Most Recent</SelectItem>
+                  <SelectItem value="budget">Highest Budget</SelectItem>
+                  <SelectItem value="duration">Shortest Duration</SelectItem>
+                  <SelectItem value="alphabetical">A to Z</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
+          {/* Project grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
               <ProjectCard key={project.id} {...project} />
             ))}
           </div>
 
+          {/* Empty state */}
           {filteredProjects.length === 0 && (
-            <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60">
+            <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60 mt-8">
               <CardContent className="text-center py-16">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
                   <Search className="h-10 w-10 text-gray-400" />

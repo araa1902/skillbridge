@@ -131,7 +131,7 @@ const Settings = () => {
 
                   <div className="flex flex-wrap gap-2">
                     {skills.map((skill) => (
-                      <Badge key={skill} variant="secondary" className="text-sm py-2 px-3">
+                      <Badge key={skill} variant="outline" className="text-sm py-2 px-3">
                         {skill}
                         <button
                           onClick={() => handleRemoveSkill(skill)}

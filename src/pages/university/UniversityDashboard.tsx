@@ -118,7 +118,7 @@ const UniversityDashboard = () => {
                     <TableCell>3</TableCell>
                     <TableCell>2</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">Active</Badge>
+                      <Badge variant="outline">Active</Badge>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -128,7 +128,7 @@ const UniversityDashboard = () => {
                     <TableCell>5</TableCell>
                     <TableCell>4</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">Active</Badge>
+                      <Badge variant="outline">Active</Badge>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -138,7 +138,7 @@ const UniversityDashboard = () => {
                     <TableCell>2</TableCell>
                     <TableCell>1</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">Active</Badge>
+                      <Badge variant="outline">Active</Badge>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -148,7 +148,7 @@ const UniversityDashboard = () => {
                     <TableCell>4</TableCell>
                     <TableCell>3</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">Active</Badge>
+                      <Badge variant="outline">Active</Badge>
                     </TableCell>
                   </TableRow>
                   <TableRow>
@@ -158,7 +158,7 @@ const UniversityDashboard = () => {
                     <TableCell>3</TableCell>
                     <TableCell>2</TableCell>
                     <TableCell>
-                      <Badge variant="secondary">Active</Badge>
+                      <Badge variant="outline">Active</Badge>
                     </TableCell>
                   </TableRow>
                 </TableBody>

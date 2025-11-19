@@ -63,7 +63,7 @@ const ProjectDetails = () => {
 
                 <div className="flex flex-wrap gap-2 mb-6">
                   {project.tags.map((tag) => (
-                    <Badge key={tag} variant="secondary">{tag}</Badge>
+                    <Badge key={tag} variant="outline">{tag}</Badge>
                   ))}
                 </div>
               </div>
@@ -181,7 +181,7 @@ const ProjectDetails = () => {
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Status</span>
-                    <Badge variant="secondary">{project.status}</Badge>
+                    <Badge variant="outline">{project.status}</Badge>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Credential</span>

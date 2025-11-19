@@ -164,8 +164,8 @@ export default function DashboardPage() {
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-1 mb-3">
-                    <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">React</Badge>
-                    <Badge variant="secondary" className="text-xs bg-purple-100 text-purple-700">Node.js</Badge>
+                    <Badge variant="outline" className="text-xs bg-blue-100 text-blue-700">React</Badge>
+                    <Badge variant="outline" className="text-xs bg-purple-100 text-purple-700">Node.js</Badge>
                   </div>
                   <Button size="sm" className="w-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600">
                     Connect
