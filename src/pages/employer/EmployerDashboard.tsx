@@ -23,9 +23,11 @@ const EmployerDashboard = () => {
                 Manage your projects and connect with talented students
               </p>
             </div>
-            <Button size="lg">
-              <Plus className="mr-2 h-5 w-5" />
-              Post New Project
+            <Button size="lg" asChild>
+              <Link to="/employer/projects/new">
+                <Plus className="mr-2 h-5 w-5" />
+                Post New Project
+              </Link>
             </Button>
           </div>
 

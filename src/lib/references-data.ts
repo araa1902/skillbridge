@@ -4,9 +4,9 @@ export const studentReferences: Reference[] = [
   {
     id: "ref-1",
     studentId: "student-1",
-    studentName: "Sarah Wilson",
+    studentName: "Aisha Patel",
     employerId: "emp-1",
-    employerName: "Michael Chen",
+    employerName: "Rajesh Kumar",
     employerTitle: "Marketing Director",
     companyName: "TechStart Ltd",
     projectId: "1",
@@ -22,7 +22,7 @@ export const studentReferences: Reference[] = [
     areasForImprovement: [
       "Could explore more advanced animation techniques"
     ],
-    overallFeedback: "Sarah was an outstanding contributor to our website redesign project. Her design work exceeded our expectations, and she demonstrated a deep understanding of user experience principles. She was proactive in communication, always kept us updated on progress, and delivered high-quality work consistently. I would highly recommend Sarah for any design-related opportunities and would definitely work with her again.",
+    overallFeedback: "Aisha was an outstanding contributor to our website redesign project. Her design work exceeded our expectations, and she demonstrated a deep understanding of user experience principles. She was proactive in communication, always kept us updated on progress, and delivered high-quality work consistently. I would highly recommend Aisha for any design-related opportunities and would definitely work with her again.",
     workQuality: 5,
     communication: 5,
     professionalism: 5,
@@ -35,9 +35,9 @@ export const studentReferences: Reference[] = [
   {
     id: "ref-2",
     studentId: "student-1",
-    studentName: "Sarah Wilson",
+    studentName: "Aisha Patel",
     employerId: "emp-2",
-    employerName: "Jennifer Park",
+    employerName: "Maria Gonzalez",
     employerTitle: "Head of Analytics",
     companyName: "FinCorp Solutions",
     projectId: "2",
@@ -54,7 +54,7 @@ export const studentReferences: Reference[] = [
       "Could improve statistical modeling knowledge",
       "More experience with big data tools would be beneficial"
     ],
-    overallFeedback: "Sarah delivered solid work on our data analysis project. She quickly grasped complex datasets and provided valuable insights. Her Python skills are strong, and she created clear, professional visualizations. While there's room to grow in advanced statistical techniques, her foundation is excellent and she's clearly eager to learn.",
+    overallFeedback: "Aisha delivered solid work on our data analysis project. She quickly grasped complex datasets and provided valuable insights. Her Python skills are strong, and she created clear, professional visualizations. While there's room to grow in advanced statistical techniques, her foundation is excellent and she's clearly eager to learn.",
     workQuality: 4,
     communication: 5,
     professionalism: 5,
@@ -67,9 +67,9 @@ export const studentReferences: Reference[] = [
   {
     id: "ref-3",
     studentId: "student-1",
-    studentName: "Sarah Wilson",
+    studentName: "Aisha Patel",
     employerId: "emp-3",
-    employerName: "David Rodriguez",
+    employerName: "Ahmed Hassan",
     employerTitle: "CEO",
     companyName: "GreenTech Innovations",
     projectId: "3",
@@ -85,7 +85,7 @@ export const studentReferences: Reference[] = [
     areasForImprovement: [
       "Could explore more paid advertising channels"
     ],
-    overallFeedback: "Working with Sarah was a pleasure. She brought fresh, creative ideas to our marketing campaign and backed them up with solid research and data. Her content was engaging and on-brand, and she showed genuine interest in understanding our business goals. The campaign exceeded our engagement targets by 40%. Highly recommended!",
+    overallFeedback: "Working with Aisha was a pleasure. She brought fresh, creative ideas to our marketing campaign and backed them up with solid research and data. Her content was engaging and on-brand, and she showed genuine interest in understanding our business goals. The campaign exceeded our engagement targets by 40%. Highly recommended!",
     workQuality: 5,
     communication: 5,
     professionalism: 5,
@@ -101,7 +101,7 @@ export const pendingReferenceRequests: ReferenceRequest[] = [
   {
     id: "req-1",
     studentId: "student-2",
-    studentName: "James Thompson",
+    studentName: "Carlos Ramirez",
     employerId: "emp-1",
     projectId: "4",
     projectTitle: "Mobile App Development",

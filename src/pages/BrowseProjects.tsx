@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Search, Filter, SlidersHorizontal, Briefcase, Clock, DollarSign, MapPin } from "lucide-react";
+import { Search, Filter, SlidersHorizontal, Briefcase, Clock, DollarSign, MapPin, Star, Sparkles } from "lucide-react";
 import { projects } from "@/lib/data";
 
 const BrowseProjects = () => {
@@ -15,8 +15,51 @@ const BrowseProjects = () => {
   const [locationFilter, setLocationFilter] = useState("all");
   const [budgetFilter, setBudgetFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
+  const [showMatchingScores, setShowMatchingScores] = useState(true);
 
-  const filteredProjects = projects.filter((project) => {
+  // Student profile for matching (in real app, this would come from context/state)
+  const studentProfile = {
+    skills: ["React", "TypeScript", "Python"],
+    interests: ["Web Development", "Data Science"],
+    careerAspiration: "Full-Stack Developer"
+  };
+
+  // Calculate match score for each project
+  const calculateMatchScore = (project: any) => {
+    let score = 0;
+    const projectSkills = project.tags || [];
+    
+    // Skill matching (40%)
+    const skillMatches = projectSkills.filter((skill: string) => 
+      studentProfile.skills.some(s => s.toLowerCase() === skill.toLowerCase())
+    ).length;
+    score += (skillMatches / Math.max(projectSkills.length, 1)) * 40;
+    
+    // Interest matching (30%)
+    const interestMatch = studentProfile.interests.some(interest =>
+      project.title.toLowerCase().includes(interest.toLowerCase()) ||
+      project.description.toLowerCase().includes(interest.toLowerCase())
+    );
+    if (interestMatch) score += 30;
+    
+    // Career path alignment (30%)
+    const careerKeywords = ["developer", "engineering", "software"];
+    const careerMatch = careerKeywords.some(keyword =>
+      project.title.toLowerCase().includes(keyword) ||
+      project.description.toLowerCase().includes(keyword)
+    );
+    if (careerMatch) score += 30;
+    
+    return Math.min(Math.round(score), 100);
+  };
+
+  // Add match scores to projects
+  const projectsWithScores = projects.map(project => ({
+    ...project,
+    matchScore: calculateMatchScore(project)
+  }));
+
+  const filteredProjects = projectsWithScores.filter((project) => {
     const matchesSearch = project.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          project.company.toLowerCase().includes(searchQuery.toLowerCase()) ||
                          project.description.toLowerCase().includes(searchQuery.toLowerCase());
@@ -25,7 +68,7 @@ const BrowseProjects = () => {
     const matchesLocation = locationFilter === "all" || (("location" in project) && (project as any).location === locationFilter);
     
     return matchesSearch && matchesIndustry && matchesDuration && matchesLocation;
-  });
+  }).sort((a, b) => b.matchScore - a.matchScore); // Sort by match score
 
   const stats = {
     total: projects.length,
@@ -63,10 +106,33 @@ const BrowseProjects = () => {
               </div>
               <div>
                 <h1 className="text-3xl font-bold text-gray-800">Browse Projects</h1>
-                <p className="text-gray-600 mt-1">Discover opportunities to build your portfolio and gain experience</p>
+                <p className="text-gray-600 mt-1">Discover opportunities matched to your skills and career goals</p>
               </div>
             </div>
           </div>
+
+          {/* AI Matching Toggle */}
+          <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <Sparkles className="h-5 w-5 text-purple-600" />
+                  <div>
+                    <p className="font-medium text-gray-900">AI Career Matching Active</p>
+                    <p className="text-sm text-gray-600">Projects sorted by your profile match score</p>
+                  </div>
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowMatchingScores(!showMatchingScores)}
+                  className="bg-white"
+                >
+                  {showMatchingScores ? "Hide" : "Show"} Match Scores
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* Search + Filters Card */}
           <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60 mb-8">
@@ -219,14 +285,16 @@ const BrowseProjects = () => {
           <div className="mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
             <p className="text-sm text-gray-600">
               Showing <span className="font-medium">{filteredProjects.length}</span> of <span className="font-medium">{projects.length}</span> projects
+              {showMatchingScores && <span className="text-purple-600 ml-2">• Sorted by match score</span>}
             </p>
 
             <div className="w-full sm:w-48">
-              <Select defaultValue="recent">
+              <Select defaultValue="match">
                 <SelectTrigger className="w-full bg-white/70 border-gray-200">
                   <SelectValue placeholder="Sort by" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="match">Best Match</SelectItem>
                   <SelectItem value="recent">Most Recent</SelectItem>
                   <SelectItem value="budget">Highest Budget</SelectItem>
                   <SelectItem value="duration">Shortest Duration</SelectItem>
@@ -239,7 +307,23 @@ const BrowseProjects = () => {
           {/* Project grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProjects.map((project) => (
-              <ProjectCard key={project.id} {...project} />
+              <div key={project.id} className="relative">
+                {showMatchingScores && project.matchScore > 0 && (
+                  <div className="absolute -top-2 -right-2 z-10">
+                    <Badge 
+                      className={`${
+                        project.matchScore >= 80 ? 'bg-green-500' :
+                        project.matchScore >= 60 ? 'bg-blue-500' :
+                        'bg-orange-500'
+                      } text-white border-0 shadow-lg`}
+                    >
+                      <Star className="h-3 w-3 mr-1 fill-current" />
+                      {project.matchScore}% Match
+                    </Badge>
+                  </div>
+                )}
+                <ProjectCard {...project} />
+              </div>
             ))}
           </div>
 

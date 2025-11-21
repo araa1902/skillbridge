@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Building2, GraduationCap, Home, Play, Target, Lightbulb } from "lucide-react";
+import { ArrowRight, Users, Building2, GraduationCap, Home, Play, Target, Lightbulb, ExternalLink } from "lucide-react";
 
 export default function AllPages() {
   const walkthroughPath = [
@@ -16,7 +16,7 @@ export default function AllPages() {
       step: 2, 
       path: "/browse-projects", 
       name: "Browse Projects", 
-      scriptPointer: "Show real-world projects that bridge academic learning with industry needs",
+      scriptPointer: "Show real-world projects with AI-powered matching scores. Demonstrate how the intelligent matching engine pairs students with opportunities based on their skills, interests, and career goals - helping them discover relevant projects and explore new fields risk-free.",
       duration: "45s"
     },
     { 
@@ -97,7 +97,7 @@ export default function AllPages() {
       { path: "/employer/dashboard", name: "Dashboard", description: "Business projects hub" },
       { path: "/employer/applications", name: "Review Applications", description: "Review and manage student applications" },
       { path: "/employer/references", name: "References", description: "Write student references" },
-      { path: "/employer/projects/new", name: "New Project", description: "Post a new project" },
+      { path: "/employer/projects/new", name: "New Project", description: "Post a new project - Create industry-relevant learning opportunities" },
       { path: "/employer/projects/manage", name: "Manage Projects", description: "View and manage posted projects" },
     ],
     university: [
@@ -141,7 +141,7 @@ export default function AllPages() {
           <CardContent>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {walkthroughPath.map((item) => (
-                <Link key={item.path} to={item.path}>
+                <Link key={item.path} to={item.path} className="block">
                   <div className="p-4 border rounded-lg hover:border-blue-600 hover:shadow-md transition-all cursor-pointer group bg-gradient-to-r from-blue-50 to-white">
                     <div className="flex items-start gap-3">
                       <div className="flex-shrink-0 w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-bold">
@@ -149,8 +149,9 @@ export default function AllPages() {
                       </div>
                       <div className="flex-1">
                         <div className="flex items-start justify-between mb-2">
-                          <h3 className="font-semibold text-gray-900 group-hover:text-blue-600">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-blue-600 flex items-center gap-2">
                             {item.name}
+                            <ExternalLink className="h-3 w-3 opacity-50" />
                           </h3>
                           <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
                             {item.duration}
@@ -168,7 +169,7 @@ export default function AllPages() {
               <h4 className="font-semibold text-amber-800 mb-2">Script Key Points:</h4>
               <ul className="text-sm text-amber-700 space-y-1">
                 <li>• Emphasize the disconnect between theoretical education and practical skills</li>
-                <li>• Highlight how real projects provide hands-on learning with industry mentorship</li>
+                <li>• Highlight how the AI matching engine personalizes learning paths and career exploration</li>
                 <li>• Show the validation system that proves student capabilities to employers</li>
                 <li>• Demonstrate the circular ecosystem: students learn, employers get talent, universities stay relevant</li>
               </ul>
@@ -192,7 +193,7 @@ export default function AllPages() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pages.general.map((page) => (
-                  <Link key={page.path} to={page.path}>
+                  <Link key={page.path} to={page.path} className="block">
                     <div className="p-4 border rounded-lg hover:border-blue-600 hover:shadow-md transition-all cursor-pointer group">
                       <div className="flex items-start justify-between mb-2">
                         <h3 className="font-semibold text-gray-900 group-hover:text-blue-600">
@@ -224,7 +225,7 @@ export default function AllPages() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pages.student.map((page) => (
-                  <Link key={page.path} to={page.path}>
+                  <Link key={page.path} to={page.path} className="block">
                     <div className="p-4 border rounded-lg hover:border-purple-600 hover:shadow-md transition-all cursor-pointer group">
                       <div className="flex items-start justify-between mb-2">
                         <h3 className="font-semibold text-gray-900 group-hover:text-purple-600">
@@ -256,11 +257,14 @@ export default function AllPages() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pages.employer.map((page) => (
-                  <Link key={page.path} to={page.path}>
+                  <Link key={page.path} to={page.path} className="block">
                     <div className="p-4 border rounded-lg hover:border-green-600 hover:shadow-md transition-all cursor-pointer group">
                       <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-semibold text-gray-900 group-hover:text-green-600">
+                        <h3 className="font-semibold text-gray-900 group-hover:text-green-600 flex items-center gap-2">
                           {page.name}
+                          {page.path === "/employer/projects/new" && (
+                            <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">Key Flow</span>
+                          )}
                         </h3>
                         <ArrowRight className="h-4 w-4 text-gray-400 group-hover:text-green-600 group-hover:translate-x-1 transition-transform" />
                       </div>
@@ -288,7 +292,7 @@ export default function AllPages() {
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {pages.university.map((page) => (
-                  <Link key={page.path} to={page.path}>
+                  <Link key={page.path} to={page.path} className="block">
                     <div className="p-4 border rounded-lg hover:border-orange-600 hover:shadow-md transition-all cursor-pointer group">
                       <div className="flex items-start justify-between mb-2">
                         <h3 className="font-semibold text-gray-900 group-hover:text-orange-600">
@@ -323,6 +327,11 @@ export default function AllPages() {
                 <strong className="text-orange-600">Universities</strong> stay relevant with industry-aligned curricula
               </div>
             </div>
+          </div>
+          <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              <strong>Note:</strong> If the "Post New Project" button isn't working, ensure the route <code>/employer/projects/new</code> is defined in your router configuration.
+            </p>
           </div>
           <Button variant="outline" asChild>
             <Link to="/">Start Video Walkthrough from Landing Page</Link>

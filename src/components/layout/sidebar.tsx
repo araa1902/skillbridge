@@ -21,17 +21,17 @@ import { Link, useLocation } from "react-router-dom"
 
 const studentNavigation = [
   { name: "Dashboard", href: "/student/dashboard", icon: Home },
-  { name: "Browse Projects", href: "/browse-projects", icon: Briefcase },
-  { name: "My Credentials", href: "/student/credentials", icon: Award },
-  { name: "Applications", href: "/student/applications", icon: FileText },
+  { name: "Explore Opportunities", href: "/browse-projects", icon: Briefcase },
+  { name: "My Portfolio", href: "/student/credentials", icon: Award },
+  { name: "My Applications", href: "/student/applications", icon: FileText },
   { name: "Settings", href: "/student/settings", icon: Settings },
 ]
 
 const employerNavigation = [
   { name: "Dashboard", href: "/employer/dashboard", icon: Home },
-  { name: "Post Project", href: "/employer/projects/new", icon: Briefcase },
-  { name: "Manage Projects", href: "/employer/projects/manage", icon: BarChart3 },
-  { name: "Applications", href: "/employer/applications", icon: FileText },
+  { name: "Create Project", href: "/employer/projects/new", icon: Briefcase },
+  { name: "My Projects", href: "/employer/projects/manage", icon: BarChart3 },
+  { name: "Received Applications", href: "/employer/applications", icon: FileText },
   { name: "Settings", href: "/employer/settings", icon: Settings },
 ]
 
