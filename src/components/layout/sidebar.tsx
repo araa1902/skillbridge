@@ -21,17 +21,19 @@ import { Link, useLocation } from "react-router-dom"
 
 const studentNavigation = [
   { name: "Dashboard", href: "/student/dashboard", icon: Home },
-  { name: "Explore Opportunities", href: "/browse-projects", icon: Briefcase },
-  { name: "My Portfolio", href: "/student/credentials", icon: Award },
+  { name: "Browse Projects", href: "/browse-projects", icon: Briefcase },
   { name: "My Applications", href: "/student/applications", icon: FileText },
+  { name: "My Portfolio", href: "/student/credentials", icon: Award },
+  { name: "References", href: "/student/references", icon: Award },
   { name: "Settings", href: "/student/settings", icon: Settings },
 ]
 
 const employerNavigation = [
   { name: "Dashboard", href: "/employer/dashboard", icon: Home },
-  { name: "Create Project", href: "/employer/projects/new", icon: Briefcase },
+  { name: "Post Project", href: "/employer/projects/new", icon: Briefcase },
   { name: "My Projects", href: "/employer/projects/manage", icon: BarChart3 },
-  { name: "Received Applications", href: "/employer/applications", icon: FileText },
+  { name: "Applications", href: "/employer/applications", icon: FileText },
+  { name: "References", href: "/employer/references", icon: Award },
   { name: "Settings", href: "/employer/settings", icon: Settings },
 ]
 
@@ -47,20 +49,56 @@ interface SidebarProps {
   userType?: 'student' | 'employer' | 'university'
 }
 
-export function Sidebar({ userType = 'student' }: SidebarProps) {
+export function Sidebar({ userType }: SidebarProps) {
   const location = useLocation()
 
-  const navigation = userType === 'employer' ? employerNavigation : 
-                    userType === 'university' ? universityNavigation : 
-                    studentNavigation
+  // Auto-detect user type from current route
+  const detectedUserType = (() => {
+    // First priority: explicit userType prop
+    if (userType) return userType;
+    
+    // Second priority: detect from URL path
+    const path = location.pathname;
+    if (path.startsWith('/employer')) return 'employer';
+    if (path.startsWith('/university')) return 'university';
+    if (path.startsWith('/student')) return 'student';
+    
+    // Default fallback
+    return 'student';
+  })();
+
+  const navigation = detectedUserType === 'employer' ? employerNavigation : 
+                    detectedUserType === 'university' ? universityNavigation : 
+                    studentNavigation;
+
+  const getUserTypeLabel = () => {
+    switch (detectedUserType) {
+      case 'employer': return 'Employer Portal';
+      case 'university': return 'University Portal';
+      case 'student': return 'Student Portal';
+      default: return 'Student Portal';
+    }
+  };
+
+  const getUserTypeColor = () => {
+    switch (detectedUserType) {
+      case 'employer': return 'from-green-600 via-green-700 to-green-800';
+      case 'university': return 'from-orange-600 via-orange-700 to-orange-800';
+      case 'student': return 'from-blue-600 via-blue-700 to-blue-800';
+      default: return 'from-blue-600 via-blue-700 to-blue-800';
+    }
+  };
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-gradient-to-b from-gray-50 via-gray-50/30 to-gray-50/50 backdrop-blur-sm">
       {/* Logo */}
       <div className="flex h-16 items-center border-b border-gray-200/60 px-6 bg-white/80 backdrop-blur-sm">
-        <Link to="/" className="flex items-center space-x-2 group">
+        <Link to="/" className="flex flex-col group">
           <span className="text-xl font-bold bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 bg-clip-text text-transparent group-hover:from-gray-800 group-hover:via-gray-900 group-hover:to-black transition-all duration-300">
             SkillBridge
+          </span>
+          <span className={`text-xs font-medium bg-gradient-to-r ${getUserTypeColor()} bg-clip-text text-transparent`}>
+            {getUserTypeLabel()}
           </span>
         </Link>
       </div>
@@ -92,7 +130,6 @@ export function Sidebar({ userType = 'student' }: SidebarProps) {
 
       {/* User Profile & Actions */}
       <div className="border-t border-gray-200/60 p-3 space-y-3 bg-white/60 backdrop-blur-sm">
-        
         <div className="space-y-1">
           <Link to="/notifications">
             <Button

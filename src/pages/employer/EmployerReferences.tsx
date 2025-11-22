@@ -23,8 +23,7 @@ const EmployerReferences = () => {
     overallFeedback: "",
     strengths: "",
     areasForImprovement: "",
-    wouldWorkAgain: true,
-    isPublic: true
+    wouldWorkAgain: true
   });
 
   const completedReferences = studentReferences.filter(ref => ref.employerId === "emp-1");
@@ -328,22 +327,6 @@ const EmployerReferences = () => {
                         id="work-again"
                         checked={formData.wouldWorkAgain}
                         onCheckedChange={(checked) => setFormData(prev => ({ ...prev, wouldWorkAgain: checked }))}
-                      />
-                    </div>
-
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div>
-                        <Label htmlFor="public" className="font-medium">
-                          Make reference public
-                        </Label>
-                        <p className="text-sm text-gray-600">
-                          Visible on student's profile and to other employers
-                        </p>
-                      </div>
-                      <Switch
-                        id="public"
-                        checked={formData.isPublic}
-                        onCheckedChange={(checked) => setFormData(prev => ({ ...prev, isPublic: checked }))}
                       />
                     </div>
                   </div>

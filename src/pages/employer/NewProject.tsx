@@ -12,12 +12,84 @@ import { ArrowLeft, HelpCircle } from "lucide-react";
 
 export default function NewProject() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [form, setForm] = useState({
+    title: "",
+    category: "",
+    description: "",
+    deliverables: "",
+    budget: "",
+    duration: "10",
+    mentor: false,
+    deadline: ""
+  });
 
   const skills = [
     "Web Development", "Mobile Development", "UI/UX Design", "Graphic Design",
     "Data Analysis", "Machine Learning", "Content Writing", "Copywriting",
     "Social Media", "Marketing", "Research", "Business Analysis"
   ];
+
+  const templates: Record<string, {
+    title: string;
+    category: string;
+    description: string;
+    deliverables: string;
+    skills: string[];
+    duration: string;
+    budget: string;
+  }> = {
+    "Website Development": {
+      title: "E-commerce Website Revamp",
+      category: "web-dev",
+      description: "Redesign and optimize our existing e-commerce website for performance, accessibility, and mobile responsiveness. Implement improved navigation, product filtering, and SEO best practices.",
+      deliverables: "1. High-fidelity UI mockups\n2. Responsive React/Next.js implementation\n3. Performance report (Lighthouse)\n4. Accessibility audit\n5. Deployment instructions",
+      skills: ["Web Development", "UI/UX Design", "Data Analysis"],
+      duration: "20",
+      budget: "800"
+    },
+    "Marketing Campaign": {
+      title: "Student Targeted Digital Marketing Campaign",
+      category: "marketing",
+      description: "Design and execute a digital marketing campaign targeting university students to increase sign-ups. Include channel strategy, content calendar, and performance tracking.",
+      deliverables: "1. Campaign brief\n2. 4-week content calendar\n3. Ad copy + creative concepts\n4. Analytics tracking plan\n5. Post-campaign performance summary",
+      skills: ["Marketing", "Social Media", "Content Writing", "Data Analysis"],
+      duration: "20",
+      budget: "600"
+    },
+    "User Research": {
+      title: "User Research for New Mobile App Feature",
+      category: "research",
+      description: "Conduct qualitative and quantitative research to validate a new feature concept for our mobile app. Include user interviews, survey, and insights synthesis.",
+      deliverables: "1. Research plan\n2. Interview summaries\n3. Survey dataset\n4. Insight report\n5. Feature recommendation",
+      skills: ["Research", "UI/UX Design", "Data Analysis"],
+      duration: "10",
+      budget: "400"
+    },
+    "Data Analysis": {
+      title: "Sales Funnel Performance Analysis",
+      category: "data",
+      description: "Analyze our sales funnel data to identify drop-off points and recommend optimization strategies. Use historical CRM/export data.",
+      deliverables: "1. Data cleaning notebook\n2. Funnel visualization\n3. KPI dashboard concept\n4. Findings report\n5. Optimization recommendations",
+      skills: ["Data Analysis", "Business Analysis", "Research"],
+      duration: "20",
+      budget: "900"
+    }
+  };
+
+  const applyTemplate = (name: string) => {
+    const t = templates[name];
+    if (!t) return;
+    setForm(f => ({
+      ...f,
+      title: t.title,
+      category: t.category,
+      description: t.description,
+      deliverables: t.deliverables,
+      duration: t.duration,
+      budget: t.budget
+    }));
+    setSelectedSkills(t.skills);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -46,19 +118,23 @@ export default function NewProject() {
                 <CardDescription>Provide information about your project</CardDescription>
               </CardHeader>
               <CardContent className="space-y-6">
-                {/* ...existing form fields... */}
                 <div className="space-y-2">
                   <Label htmlFor="title">Project Title *</Label>
                   <Input
                     id="title"
                     placeholder="e.g., Website Redesign for E-commerce Platform"
+                    value={form.title}
+                    onChange={(e) => setForm(f => ({ ...f, title: e.target.value }))}
                   />
                   <p className="text-xs text-gray-500">Clear, descriptive titles get more applications</p>
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="category">Category *</Label>
-                  <Select>
+                  <Select
+                    value={form.category}
+                    onValueChange={(val) => setForm(f => ({ ...f, category: val }))}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -80,6 +156,8 @@ export default function NewProject() {
                     id="description"
                     placeholder="Describe what you need, project goals, and any specific requirements..."
                     rows={6}
+                    value={form.description}
+                    onChange={(e) => setForm(f => ({ ...f, description: e.target.value }))}
                   />
                   <p className="text-xs text-gray-500">Be specific about deliverables and expectations</p>
                 </div>
@@ -110,7 +188,10 @@ export default function NewProject() {
 
                 <div className="space-y-2">
                   <Label>Project Duration *</Label>
-                  <RadioGroup defaultValue="10">
+                  <RadioGroup
+                    value={form.duration}
+                    onValueChange={(val) => setForm(f => ({ ...f, duration: val }))}
+                  >
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="10" id="10" />
                       <label htmlFor="10" className="text-sm cursor-pointer">
@@ -142,6 +223,8 @@ export default function NewProject() {
                         placeholder="200"
                         min="200"
                         max="2000"
+                        value={form.budget}
+                        onChange={(e) => setForm(f => ({ ...f, budget: e.target.value }))}
                       />
                     </div>
                     <div className="flex items-center text-sm text-gray-600">
@@ -156,6 +239,8 @@ export default function NewProject() {
                   <Input
                     id="deadline"
                     type="date"
+                    value={form.deadline}
+                    onChange={(e) => setForm(f => ({ ...f, deadline: e.target.value }))}
                   />
                 </div>
 
@@ -165,11 +250,19 @@ export default function NewProject() {
                     id="deliverables"
                     placeholder="List specific deliverables (e.g., wireframes, code repository, final report)..."
                     rows={4}
+                    value={form.deliverables}
+                    onChange={(e) => setForm(f => ({ ...f, deliverables: e.target.value }))}
                   />
                 </div>
 
                 <div className="flex items-center space-x-2 p-4 bg-blue-50 rounded-lg">
-                  <Checkbox id="mentor" />
+                  <Checkbox
+                    id="mentor"
+                    checked={form.mentor}
+                    onCheckedChange={(checked) =>
+                      setForm(f => ({ ...f, mentor: Boolean(checked) }))
+                    }
+                  />
                   <label htmlFor="mentor" className="text-sm cursor-pointer">
                     <span className="font-medium">Include mentor matching</span> - Connect student with an industry mentor for guidance
                   </label>
@@ -196,16 +289,24 @@ export default function NewProject() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button variant="outline" size="sm" className="w-full justify-start"
+                  onClick={() => applyTemplate("Website Development")}
+                >
                   Website Development
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button variant="outline" size="sm" className="w-full justify-start"
+                  onClick={() => applyTemplate("Marketing Campaign")}
+                >
                   Marketing Campaign
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button variant="outline" size="sm" className="w-full justify-start"
+                  onClick={() => applyTemplate("User Research")}
+                >
                   User Research
                 </Button>
-                <Button variant="outline" size="sm" className="w-full justify-start">
+                <Button variant="outline" size="sm" className="w-full justify-start"
+                  onClick={() => applyTemplate("Data Analysis")}
+                >
                   Data Analysis
                 </Button>
               </CardContent>

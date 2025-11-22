@@ -32,6 +32,26 @@ const Credentials = () => {
     verified: (credentials as any[]).filter((c) => (c as any).verified).length,
   };
 
+  const handleDownloadCredential = async (credential: any) => {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF();
+    doc.setFontSize(20);
+    doc.text("Credential Certificate", 20, 25);
+    doc.setFontSize(14);
+    doc.text(credential.title, 20, 40);
+    doc.setFontSize(11);
+    doc.text(`Issuer: ${credential.issuer}`, 20, 50);
+    doc.text(`Date: ${credential.date}`, 20, 58);
+    if (credential.category) doc.text(`Category: ${credential.category}`, 20, 66);
+    if (credential.verified) doc.text("Status: Verified", 20, 74);
+    const bodyYStart = 86;
+    const wrapped = doc.splitTextToSize(credential.description, 170);
+    doc.text(wrapped, 20, bodyYStart);
+    doc.setFontSize(9);
+    doc.text("Generated via SkillBridge", 20, 285);
+    doc.save(`${credential.title.replace(/\s+/g, "_").toLowerCase()}_certificate.pdf`);
+  };
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50/30">
       
@@ -177,7 +197,12 @@ const Credentials = () => {
                     )}
                   </div>
                   <div className="flex gap-2">
-                    <Button variant="outline" size="sm" className="flex-1 bg-white/70 hover:bg-gray-50 border-gray-200 text-gray-700">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="flex-1 bg-white/70 hover:bg-gray-50 border-gray-200 text-gray-700"
+                      onClick={() => handleDownloadCredential(credential)}
+                    >
                       <Download className="mr-2 h-4 w-4" />
                       Download
                     </Button>

@@ -1,15 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ReferenceCard } from "@/components/ReferenceCard";
 import { studentReferences } from "@/lib/references-data";
-import { Star, Award, TrendingUp, Eye, EyeOff, Download, Share2 } from "lucide-react";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
+import { Star, Award, TrendingUp, Download, Share2 } from "lucide-react";
 
 const StudentReferences = () => {
   const [showPrivate, setShowPrivate] = useState(true);
+  const [showManageProjects, setShowManageProjects] = useState(false);
+  const refsSectionRef = useRef<HTMLDivElement | null>(null);
   
   const publicReferences = studentReferences.filter(ref => ref.isPublic);
   const privateReferences = studentReferences.filter(ref => !ref.isPublic);
@@ -26,6 +26,70 @@ const StudentReferences = () => {
     communication: (studentReferences.reduce((sum, ref) => sum + ref.communication, 0) / totalRatings).toFixed(1),
     professionalism: (studentReferences.reduce((sum, ref) => sum + ref.professionalism, 0) / totalRatings).toFixed(1),
     technicalSkills: (studentReferences.reduce((sum, ref) => sum + ref.technicalSkills, 0) / totalRatings).toFixed(1)
+  };
+
+  const projectsMap = studentReferences.reduce((acc, ref) => {
+    if (!acc[ref.projectId]) acc[ref.projectId] = { ratings: [], refs: [] };
+    acc[ref.projectId].ratings.push(ref.rating);
+    acc[ref.projectId].refs.push(ref);
+    return acc;
+  }, {} as Record<string, { ratings: number[]; refs: typeof studentReferences }>);
+
+  const projectSummaries = Object.entries(projectsMap).map(([project, data]) => {
+    const avg = data.ratings.reduce((s, r) => s + r, 0) / data.ratings.length;
+    return { project, count: data.refs.length, avg: Number(avg.toFixed(2)), refs: data.refs };
+  });
+
+  const handleExportReferencesPdf = async () => {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF();
+    let y = 20;
+    doc.setFontSize(18);
+    doc.text("Professional References", 20, y);
+    y += 10;
+    doc.setFontSize(11);
+      studentReferences.forEach((ref, idx) => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.setFont(undefined, "bold");
+      doc.text(`${idx + 1}. ${ref.projectId}`, 20, y);
+      y += 6;
+      doc.setFont(undefined, "normal");
+      doc.text(`Provider: ${(ref as any).provider} | Rating: ${ref.rating}/5`, 20, y);
+      y += 5;
+      const wrapped = doc.splitTextToSize(String((ref as any).feedback || ""), 170);
+      wrapped.forEach((line: string) => {
+        if (y > 280) { doc.addPage(); y = 20; }
+        doc.text(line, 24, y);
+        y += 5;
+      });
+      y += 4;
+    });
+    doc.save("references.pdf");
+  };
+
+  const handleExportProjectPdf = async (project: string, refs: typeof studentReferences) => {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF();
+    let y = 20;
+    doc.setFontSize(16);
+    doc.text(`Project: ${project}`, 20, y);
+    y += 8;
+    doc.setFontSize(11);
+    refs.forEach((ref, idx) => {
+      if (y > 270) { doc.addPage(); y = 20; }
+      doc.setFont(undefined, "bold");
+      doc.text(`${idx + 1}. Provider: ${(ref as any).provider} (${ref.rating}/5)`, 20, y);
+      y += 5;
+      doc.setFont(undefined, "normal");
+      const wrapped = doc.splitTextToSize(String((ref as any).feedback || ""), 170);
+      wrapped.forEach(line => {
+        if (y > 280) { doc.addPage(); y = 20; }
+        doc.text(line, 24, y);
+        y += 4;
+      });
+      y += 3;
+    });
+    doc.save(`${project.replace(/\s+/g, "_")}_references.pdf`);
   };
 
   return (
@@ -89,10 +153,13 @@ const StudentReferences = () => {
                   Make your profile stand out with verified employer feedback
                 </p>
               </div>
-              <div className="flex gap-3">
-                <Button variant="outline">
+              <div className="flex gap-3 flex-wrap">
+                <Button variant="outline" onClick={handleExportReferencesPdf}>
                   <Download className="w-4 h-4 mr-2" />
                   Export PDF
+                </Button>
+                <Button variant={showManageProjects ? "default" : "outline"} onClick={() => setShowManageProjects(s => !s)}>
+                  Manage Projects
                 </Button>
                 <Button>
                   <Share2 className="w-4 h-4 mr-2" />
@@ -103,56 +170,56 @@ const StudentReferences = () => {
           </CardContent>
         </Card>
 
-        {/* Privacy Toggle */}
-        <div className="flex items-center justify-between mb-6">
+        {showManageProjects && (
+          <Card className="mb-8 border-blue-200">
+            <CardHeader className="pb-2">
+              <CardTitle className="text-lg">Project Reference Summary</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {projectSummaries.length === 0 && (
+                <p className="text-sm text-gray-500">No project references yet.</p>
+              )}
+              <div className="space-y-3">
+                {projectSummaries.map(p => (
+                  <div
+                    key={p.project}
+                    className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-md border p-3 bg-white"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium text-sm truncate">{p.project}</p>
+                      <p className="text-xs text-gray-500">
+                        {p.count} reference{p.count > 1 ? "s" : ""} • Avg {p.avg}/5
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <Badge variant="secondary" className="text-xs">
+                        {p.avg}/5
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleExportProjectPdf(p.project, p.refs)}
+                      >
+                        <Download className="w-3 h-3 mr-1" />
+                        Export
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* All References */}
+        <div ref={refsSectionRef} className="space-y-6 mb-8">
           <h2 className="text-2xl font-bold">
             All References ({studentReferences.length})
           </h2>
-          <div className="flex items-center gap-3">
-            <Label htmlFor="show-private" className="text-sm">
-              Show private references
-            </Label>
-            <Switch
-              id="show-private"
-              checked={showPrivate}
-              onCheckedChange={setShowPrivate}
-            />
-          </div>
-        </div>
-
-        {/* Public References */}
-        <div className="space-y-6 mb-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Eye className="w-5 h-5 text-green-600" />
-            <h3 className="text-xl font-semibold">
-              Public References ({publicReferences.length})
-            </h3>
-            <Badge variant="outline" className="bg-green-50 text-green-700">
-              Visible to employers
-            </Badge>
-          </div>
-          {publicReferences.map((reference) => (
+          {studentReferences.map((reference) => (
             <ReferenceCard key={reference.id} reference={reference} />
           ))}
         </div>
-
-        {/* Private References */}
-        {showPrivate && privateReferences.length > 0 && (
-          <div className="space-y-6">
-            <div className="flex items-center gap-2 mb-4">
-              <EyeOff className="w-5 h-5 text-gray-600" />
-              <h3 className="text-xl font-semibold">
-                Private References ({privateReferences.length})
-              </h3>
-              <Badge variant="outline" className="bg-gray-50 text-gray-700">
-                Only visible to you
-              </Badge>
-            </div>
-            {privateReferences.map((reference) => (
-              <ReferenceCard key={reference.id} reference={reference} />
-            ))}
-          </div>
-        )}
 
         {/* Empty State */}
         {studentReferences.length === 0 && (

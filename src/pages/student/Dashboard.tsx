@@ -47,7 +47,7 @@ export default function StudentDashboard() {
     {
       id: 1,
       title: "E-Commerce Platform Redesign",
-      company: "TechCorp Solutions",
+      company: "TechStart Solutions",
       matchScore: 95,
       matchReasons: [
         "Matches your React & TypeScript skills",

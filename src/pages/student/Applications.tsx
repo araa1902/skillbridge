@@ -42,14 +42,14 @@ export default function StudentApplications() {
     {
       id: 1,
       projectTitle: "Website Redesign Project",
-      companyName: "TechCorp Solutions",
+      companyName: "TechStart Solutions",
       companyLogo: "/placeholder-company.jpg",
       status: "pending",
       appliedDate: "2024-01-15",
       budget: "£500-£1000",
       description: "We need a modern, responsive website redesign for our e-commerce platform. The ideal candidate should have experience with React, Tailwind CSS, and responsive design principles.",
       coverLetter: "I have 2 years of experience in React and modern web development. I've completed similar e-commerce projects and am confident I can deliver excellent results for your website redesign.",
-      projectId: 101
+      projectId: 1
     },
     {
       id: 2,
@@ -62,7 +62,7 @@ export default function StudentApplications() {
       budget: "£1500-£2000",
       description: "Looking for a Flutter developer to build a fitness tracking mobile app with social features and data visualization.",
       coverLetter: "As a senior software engineering student with experience in Flutter and React Native, I'm excited about building your mobile application. I've built 3 production apps with similar features.",
-      projectId: 102
+      projectId: 2
     },
     {
       id: 3,
@@ -75,7 +75,7 @@ export default function StudentApplications() {
       budget: "£800-£1200",
       description: "Create an interactive dashboard for visualizing sales data using Python, Plotly, and Streamlit.",
       coverLetter: "I specialize in Python and data visualization tools. I have experience building interactive dashboards for business analytics.",
-      projectId: 103
+      projectId: 3
     }
   ]);
 
@@ -260,14 +260,25 @@ export default function StudentApplications() {
                   )}
                 </div>
                 <div className="flex justify-between items-center gap-2 mt-4 pt-4 border-t">
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={() => handleViewProjectDetails(application.projectId)}
-                  >
-                    <FileText className="h-4 w-4 mr-1" />
-                    View Project Details
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      asChild
+                    >
+                      <Link to={`/project/${application.projectId}/application-status`}>
+                        View Application Status
+                      </Link>
+                    </Button>
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleViewProjectDetails(application.projectId)}
+                    >
+                      <FileText className="h-4 w-4 mr-1" />
+                      View Project Details
+                    </Button>
+                  </div>
                   <div className="flex gap-2">
                     {application.status === "accepted" && (
                       <Button 
