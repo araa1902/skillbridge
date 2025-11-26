@@ -54,11 +54,14 @@ export function Sidebar({ userType }: SidebarProps) {
 
   // Auto-detect user type from current route
   const detectedUserType = (() => {
+
     // First priority: explicit userType prop
     if (userType) return userType;
     
     // Second priority: detect from URL path
     const path = location.pathname;
+    console.log("Current path:", path);
+    console.log("Detected user type:", userType);
     if (path.startsWith('/employer')) return 'employer';
     if (path.startsWith('/university')) return 'university';
     if (path.startsWith('/student')) return 'student';

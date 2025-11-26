@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,19 @@ const ApplicationForm = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // Mock user skills from profile (replace with actual data fetching logic)
+  const userSkills = ["JavaScript", "React", "Node.js"]; // Example skills
+
+  // Mock pre-attached CV file
+  const mockCV = new File(["mock content"], "resume.pdf", { type: "application/pdf" });
+
+  useEffect(() => {
+    // Auto-populate selectedSkills with user's skills on mount
+    setSelectedSkills(userSkills);
+    // Pre-attach mock CV
+    setUploadedFiles([mockCV]);
+  }, []);
+
   if (!project) {
     return (
       <div className="flex flex-col min-h-screen">
@@ -35,7 +48,7 @@ const ApplicationForm = () => {
       </div>
     );
   }
-
+  
   const suggestedSkills = project.tags || []; // Use project's tags as suggested skills
 
   const handleAddSkill = () => {

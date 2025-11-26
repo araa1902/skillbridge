@@ -11,6 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { pendingReferenceRequests, studentReferences } from "@/lib/references-data";
 import { CheckCircle2, Clock, Star, Send, AlertCircle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 
 const EmployerReferences = () => {
   const [selectedRequest, setSelectedRequest] = useState<string | null>(null);
@@ -25,6 +26,7 @@ const EmployerReferences = () => {
     areasForImprovement: "",
     wouldWorkAgain: true
   });
+  const [showSuccessDialog, setShowSuccessDialog] = useState(false);
 
   const completedReferences = studentReferences.filter(ref => ref.employerId === "emp-1");
   const pendingRequests = pendingReferenceRequests.filter(req => req.employerId === "emp-1");
@@ -35,7 +37,7 @@ const EmployerReferences = () => {
 
   const handleSubmitReference = () => {
     // Handle reference submission
-    alert("Reference submitted successfully!");
+    setShowSuccessDialog(true);
   };
 
   return (
@@ -361,6 +363,21 @@ const EmployerReferences = () => {
           </div>
         </div>
       </div>
+
+      {/* Success Dialog */}
+      <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Reference Submitted</DialogTitle>
+            <DialogDescription>
+              Your reference has been submitted successfully.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setShowSuccessDialog(false)}>Close</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

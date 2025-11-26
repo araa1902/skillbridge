@@ -35,20 +35,75 @@ const Credentials = () => {
   const handleDownloadCredential = async (credential: any) => {
     const { jsPDF } = await import("jspdf");
     const doc = new jsPDF();
-    doc.setFontSize(20);
-    doc.text("Credential Certificate", 20, 25);
-    doc.setFontSize(14);
-    doc.text(credential.title, 20, 40);
+    
+    // Set page dimensions and margins
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+    const contentWidth = pageWidth - 2 * margin;
+    
+    // Add a subtle background
+    doc.setFillColor(245, 245, 245);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    
+    // Add a border
+    doc.setDrawColor(100, 100, 100);
+    doc.setLineWidth(2);
+    doc.rect(margin, margin, contentWidth, pageHeight - 2 * margin);
+    
+    // Header with title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(24);
+    doc.setTextColor(50, 50, 50);
+    const title = "Certificate of Achievement";
+    const titleWidth = doc.getTextWidth(title);
+    doc.text(title, (pageWidth - titleWidth) / 2, margin + 30);
+    
+    // Credential title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(18);
+    doc.setTextColor(0, 0, 0);
+    const credTitle = credential.title;
+    const credTitleWidth = doc.getTextWidth(credTitle);
+    doc.text(credTitle, (pageWidth - credTitleWidth) / 2, margin + 60);
+    
+    // Issuer and date
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(100, 100, 100);
+    const issuerText = `Issued by: ${credential.issuer}`;
+    const dateText = `Date: ${credential.date}`;
+    doc.text(issuerText, margin + 10, margin + 90);
+    doc.text(dateText, pageWidth - margin - doc.getTextWidth(dateText) - 10, margin + 90);
+    
+    // Category and status if available
+    let yPos = margin + 110;
+    if (credential.category) {
+      doc.text(`Category: ${credential.category}`, margin + 10, yPos);
+      yPos += 10;
+    }
+    if (credential.verified) {
+      doc.setTextColor(34, 197, 94);
+      doc.text("Status: Verified", margin + 10, yPos);
+      doc.setTextColor(100, 100, 100);
+      yPos += 10;
+    }
+    
+    // Description
     doc.setFontSize(11);
-    doc.text(`Issuer: ${credential.issuer}`, 20, 50);
-    doc.text(`Date: ${credential.date}`, 20, 58);
-    if (credential.category) doc.text(`Category: ${credential.category}`, 20, 66);
-    if (credential.verified) doc.text("Status: Verified", 20, 74);
-    const bodyYStart = 86;
-    const wrapped = doc.splitTextToSize(credential.description, 170);
-    doc.text(wrapped, 20, bodyYStart);
+    doc.setTextColor(0, 0, 0);
+    const wrappedDesc = doc.splitTextToSize(credential.description, contentWidth - 20);
+    doc.text(wrappedDesc, margin + 10, yPos + 10);
+    
+    // Footer
+    doc.setFont("helvetica", "italic");
     doc.setFontSize(9);
-    doc.text("Generated via SkillBridge", 20, 285);
+    doc.setTextColor(150, 150, 150);
+    const footerText = "Generated via SkillBridge";
+    const footerWidth = doc.getTextWidth(footerText);
+    doc.text(footerText, (pageWidth - footerWidth) / 2, pageHeight - margin - 10);
+    
+    // Save the PDF
     doc.save(`${credential.title.replace(/\s+/g, "_").toLowerCase()}_certificate.pdf`);
   };
 
