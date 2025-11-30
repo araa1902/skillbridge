@@ -74,15 +74,6 @@ export function Sidebar({ userType }: SidebarProps) {
                     detectedUserType === 'university' ? universityNavigation : 
                     studentNavigation;
 
-  const getUserTypeLabel = () => {
-    switch (detectedUserType) {
-      case 'employer': return 'Employer Portal';
-      case 'university': return 'University Portal';
-      case 'student': return 'Student Portal';
-      default: return 'Student Portal';
-    }
-  };
-
   const getUserTypeColor = () => {
     switch (detectedUserType) {
       case 'employer': return 'from-green-600 via-green-700 to-green-800';
@@ -99,9 +90,6 @@ export function Sidebar({ userType }: SidebarProps) {
         <Link to="/" className="flex flex-col group">
           <span className="text-xl font-bold bg-gradient-to-r from-gray-700 via-gray-800 to-gray-900 bg-clip-text text-transparent group-hover:from-gray-800 group-hover:via-gray-900 group-hover:to-black transition-all duration-300">
             SkillBridge
-          </span>
-          <span className={`text-xs font-medium bg-gradient-to-r ${getUserTypeColor()} bg-clip-text text-transparent`}>
-            {getUserTypeLabel()}
           </span>
         </Link>
       </div>
