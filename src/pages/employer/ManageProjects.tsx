@@ -493,7 +493,7 @@ export default function ManageProjects() {
                             <span>Last touched {formatRelativeTime(project.updatedAt)}</span>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            <Link to={`/employer/projects/${project.id}/applications`}>
+                            <Link to={`/employer/applications`}>
                               <Button size="sm">
                                 <Users className="mr-1.5 h-4 w-4" />
                                 Review applicants
