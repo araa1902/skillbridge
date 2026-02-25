@@ -180,12 +180,133 @@ export interface Database {
           issued_at?: string
         }
       }
+      employer_references: {
+        Row: {
+          id: string // uuid
+          student_id: string // uuid references profiles(id)
+          employer_id: string // uuid references profiles(id)
+          project_id: string // uuid references projects(id)
+          student_name: string
+          employer_name: string
+          employer_title: string
+          company_name: string
+          company_logo: string | null
+          project_title: string
+          rating: number // 1-5
+          work_quality: number // 1-5
+          communication: number // 1-5
+          professionalism: number // 1-5
+          technical_skills: number // 1-5
+          skills: string[]
+          strengths: string[]
+          areas_for_improvement: string[]
+          overall_feedback: string
+          would_work_again: boolean
+          is_public: boolean
+          verified_by_platform: boolean
+          created_at: string // timestamptz
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          employer_id: string
+          project_id: string
+          student_name: string
+          employer_name: string
+          employer_title: string
+          company_name: string
+          company_logo?: string | null
+          project_title: string
+          rating: number
+          work_quality: number
+          communication: number
+          professionalism: number
+          technical_skills: number
+          skills?: string[]
+          strengths?: string[]
+          areas_for_improvement?: string[]
+          overall_feedback: string
+          would_work_again?: boolean
+          is_public?: boolean
+          verified_by_platform?: boolean
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          employer_id?: string
+          project_id?: string
+          student_name?: string
+          employer_name?: string
+          employer_title?: string
+          company_name?: string
+          company_logo?: string | null
+          project_title?: string
+          rating?: number
+          work_quality?: number
+          communication?: number
+          professionalism?: number
+          technical_skills?: number
+          skills?: string[]
+          strengths?: string[]
+          areas_for_improvement?: string[]
+          overall_feedback?: string
+          would_work_again?: boolean
+          is_public?: boolean
+          verified_by_platform?: boolean
+          created_at?: string
+        }
+      }
+      reference_requests: {
+        Row: {
+          id: string // uuid
+          student_id: string // uuid references profiles(id)
+          employer_id: string // uuid references profiles(id)
+          project_id: string // uuid references projects(id)
+          student_name: string
+          project_title: string
+          status: 'pending' | 'completed' | 'declined'
+          requested_at: string // timestamptz
+          completed_at: string | null // timestamptz
+        }
+        Insert: {
+          id?: string
+          student_id: string
+          employer_id: string
+          project_id: string
+          student_name: string
+          project_title: string
+          status?: 'pending' | 'completed' | 'declined'
+          requested_at?: string
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          student_id?: string
+          employer_id?: string
+          project_id?: string
+          student_name?: string
+          project_title?: string
+          status?: 'pending' | 'completed' | 'declined'
+          requested_at?: string
+          completed_at?: string | null
+        }
+      }
+    }
+    Views: {
+      [_ in never]: never
     }
     Functions: {
       get_user_role: {
         Args: Record<PropertyKey, never>
         Returns: UserRole
       }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
     }
   }
 }

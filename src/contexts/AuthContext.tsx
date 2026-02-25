@@ -78,12 +78,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // Profile doesn't exist — create default one
+          // Profile doesn't exist — create default one from user metadata if possible
           console.warn('[AuthContext] Profile missing for user', userId)
+          const { data: { user } } = await supabase.auth.getUser()
           setProfile({
             id: userId,
-            full_name: 'User',
-            role: 'student',
+            full_name: user?.user_metadata?.full_name || 'User',
+            role: user?.user_metadata?.role || 'student',
             avatar_url: null,
             company_name: null,
             university_id: null,
@@ -133,13 +134,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         // Try to restore the session from Supabase storage
         const { data: { session: restoredSession } } = await supabase.auth.getSession()
-        
+
         if (!mounted) return
 
         if (restoredSession) {
           setSession(restoredSession)
           // Don't await - fire and forget to avoid blocking
-          fetchProfile(restoredSession.user.id).catch(err => 
+          fetchProfile(restoredSession.user.id).catch(err =>
             console.error('[AuthContext] Profile fetch error:', err)
           )
         }

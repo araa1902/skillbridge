@@ -251,10 +251,12 @@ export default function Applications() {
 
                   {/* Action buttons */}
                   <div className="flex flex-wrap items-center justify-end gap-2 mt-2">
-                    <Button size="sm" variant="outline" onClick={() => handleNavigateToMessages(app.project_id, app.student_id, app.student_name)}>
-                      <MessageCircle className="h-4 w-4 mr-1" />
-                      Message
-                    </Button>
+                    {app.status === "accepted" && (
+                      <Button size="sm" variant="outline" onClick={() => handleNavigateToMessages(app.project_id, app.student_id, app.student_name)}>
+                        <MessageCircle className="h-4 w-4 mr-1" />
+                        Message
+                      </Button>
+                    )}
                     <Button size="sm" variant="outline" onClick={() => navigate("/employer/student-profile")}>
                       <Eye className="h-4 w-4 mr-1" />
                       View Profile

@@ -80,13 +80,20 @@ const Auth = () => {
       } else {
         // ── Sign Up ──────────────────────────────────────────────────────
         const fullName = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
+        const companyName = userType === "employer"
+          ? (form.elements.namedItem("company-name") as HTMLInputElement)?.value.trim()
+          : null;
         const role = ROLE_MAP[userType];
 
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
-            data: { full_name: fullName, role },
+            data: {
+              full_name: fullName,
+              role,
+              ...(companyName ? { company_name: companyName } : {}),
+            },
           },
         });
 
@@ -116,6 +123,7 @@ const Auth = () => {
                 id: data.user.id,
                 full_name: fullName,
                 role,
+                ...(companyName ? { company_name: companyName } : {})
               });
 
               if (!insertError) {
@@ -175,6 +183,18 @@ const Auth = () => {
   const config = userTypeConfig[userType];
   const IconComponent = config.icon;
 
+  const getHeaderContent = () => {
+    if (isLogin) {
+      if (userType === 'student') return { title: 'Student Login', desc: 'Sign in to access projects and applications' }
+      if (userType === 'employer') return { title: 'Employer Login', desc: 'Sign in to manage your company profile and projects' }
+      return { title: 'University Login', desc: 'Sign in to your university portal' }
+    }
+    if (userType === 'student') return { title: 'Join as a Student', desc: 'Create your student account to find projects' }
+    if (userType === 'employer') return { title: 'Join as an Employer', desc: 'Create your company account to post projects' }
+    return { title: 'Join as a University', desc: 'Create your university account to manage programs' }
+  }
+  const headerContent = getHeaderContent();
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 flex items-center justify-center py-12 px-4">
       <div className="w-full max-w-md">
@@ -191,21 +211,19 @@ const Auth = () => {
         <Card className="shadow-xl border-0 bg-white/95 backdrop-blur">
           <CardHeader className="space-y-3 text-center pb-6">
             <CardTitle className="text-3xl">
-              {isLogin ? "Welcome Back" : "Get Started"}
+              {headerContent.title}
             </CardTitle>
             <CardDescription className="text-base">
-              {isLogin 
-                ? "Sign in to your SkillBridge account" 
-                : "Create your account to begin your journey"}
+              {headerContent.desc}
             </CardDescription>
           </CardHeader>
 
           <CardContent>
             {/* User Type Selector */}
             <div className="mb-6">
-              <Tabs 
-                value={userType} 
-                onValueChange={(v) => setUserType(v as typeof userType)} 
+              <Tabs
+                value={userType}
+                onValueChange={(v) => setUserType(v as typeof userType)}
                 className="w-full"
               >
                 <TabsList className="grid w-full grid-cols-3 bg-gray-100/50">
@@ -239,26 +257,43 @@ const Auth = () => {
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               {!isLogin && (
-                <div className="space-y-2">
-                  <Label htmlFor="name" className="font-medium">Full Name</Label>
-                  <Input 
-                    id="name" 
-                    placeholder="John Smith"
-                    className="bg-white border-gray-300 placeholder:text-gray-400"
-                    required 
-                  />
-                </div>
+                <>
+                  <div className="space-y-2">
+                    <Label htmlFor="name" className="font-medium">
+                      {userType === "employer" ? "Full Name" : userType === "university" ? "Representative Name" : "Full Name"}
+                    </Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      placeholder="John Smith"
+                      className="bg-white border-gray-300 placeholder:text-gray-400"
+                      required
+                    />
+                  </div>
+                  {userType === "employer" && (
+                    <div className="space-y-2">
+                      <Label htmlFor="company-name" className="font-medium">Company Name</Label>
+                      <Input
+                        id="company-name"
+                        name="company-name"
+                        placeholder="Acme Corp"
+                        className="bg-white border-gray-300 placeholder:text-gray-400"
+                        required
+                      />
+                    </div>
+                  )}
+                </>
               )}
 
               <div className="space-y-2">
                 <Label htmlFor="email" className="font-medium">Email Address</Label>
-                <Input 
+                <Input
                   id="email"
                   name="email"
-                  type="email" 
+                  type="email"
                   placeholder="you@example.com"
                   className={`bg-white border-gray-300 placeholder:text-gray-400 ${errors.email ? "border-red-500" : ""}`}
-                  required 
+                  required
                 />
                 {errors.email && <p className="text-xs text-red-600">{errors.email}</p>}
               </div>
@@ -267,25 +302,25 @@ const Auth = () => {
                 <div className="flex items-center justify-between">
                   <Label htmlFor="password" className="font-medium">Password</Label>
                   {isLogin && (
-                    <Button 
+                    <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       className="h-auto p-0 text-xs text-blue-600 hover:text-blue-700"
-                      onClick={() => {}}
+                      onClick={() => { }}
                     >
                       Forgot?
                     </Button>
                   )}
                 </div>
                 <div className="relative">
-                  <Input 
+                  <Input
                     id="password"
                     name="password"
                     type={showPassword ? "text" : "password"}
                     placeholder="••••••••"
                     className="bg-white border-gray-300 placeholder:text-gray-400 pr-10"
-                    required 
+                    required
                   />
                   <button
                     type="button"
@@ -306,20 +341,20 @@ const Auth = () => {
                 <>
                   <div className="space-y-2">
                     <Label htmlFor="confirm-password" className="font-medium">Confirm Password</Label>
-                    <Input 
-                      id="confirm-password" 
+                    <Input
+                      id="confirm-password"
                       name="confirm-password"
                       type="password"
                       placeholder="••••••••"
                       className={`bg-white border-gray-300 placeholder:text-gray-400 ${errors.confirmPassword ? "border-red-500" : ""}`}
-                      required 
+                      required
                     />
                     {errors.confirmPassword && <p className="text-xs text-red-600">{errors.confirmPassword}</p>}
                   </div>
                   <div className="flex items-center space-x-2">
                     <Checkbox id="terms" />
-                    <Label 
-                      htmlFor="terms" 
+                    <Label
+                      htmlFor="terms"
                       className="text-sm font-normal text-gray-600 cursor-pointer"
                     >
                       I agree to the{" "}
@@ -331,8 +366,8 @@ const Auth = () => {
                 </>
               )}
 
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 disabled={loading}
                 className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-all"
               >
@@ -345,9 +380,9 @@ const Auth = () => {
               </Button>
 
               {userType === "student" && isLogin && (
-                <Button 
-                  type="button" 
-                  variant="outline" 
+                <Button
+                  type="button"
+                  variant="outline"
                   className="w-full h-12 border-gray-300"
                 >
                   Continue with University SSO

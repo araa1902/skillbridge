@@ -192,7 +192,7 @@ export default function StudentApplications() {
                 <p className="text-gray-500 mb-4">
                   {selectedFilter === "all" ? "You haven't applied to any projects yet" : `No ${selectedFilter} applications`}
                 </p>
-                <Link to="/projects">
+                <Link to="/browse-projects">
                   <Button>Browse Projects</Button>
                 </Link>
               </CardContent>

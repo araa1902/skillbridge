@@ -11,8 +11,8 @@ export interface ReferenceFromDB {
   employer_title: string
   company_name: string
   company_logo?: string
-  project_id: string | null
-  project_title: string | null
+  project_id: string
+  project_title: string
   rating: number
   skills: string[]
   strengths: string[]
@@ -47,7 +47,7 @@ export function useFetchStudentReferences(studentId: string | null) {
     setError(null)
 
     const { data, error: dbError } = await supabase
-      .from('references')
+      .from('employer_references')
       .select('*')
       .eq('student_id', studentId)
       .eq('is_public', true)
@@ -88,7 +88,7 @@ export function useFetchWrittenReferences(employerId: string | null) {
     setError(null)
 
     const { data, error: dbError } = await supabase
-      .from('references')
+      .from('employer_references')
       .select('*')
       .eq('employer_id', employerId)
       .order('created_at', { ascending: false })
@@ -120,8 +120,8 @@ export async function writeReference(payload: {
   employer_title: string
   company_name: string
   company_logo?: string
-  project_id: string | null
-  project_title: string | null
+  project_id: string
+  project_title: string
   rating: number
   skills: string[]
   strengths: string[]
@@ -135,9 +135,8 @@ export async function writeReference(payload: {
   is_public: boolean
 }): Promise<{ data: ReferenceFromDB | null; error: string | null }> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase
-      .from('references') as any)
+    const { data, error } = await supabase
+      .from('employer_references')
       .insert([
         {
           student_id: payload.student_id,
@@ -196,9 +195,8 @@ export async function updateReference(
   }
 ): Promise<{ data: ReferenceFromDB | null; error: string | null }> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase
-      .from('references') as any)
+    const { data, error } = await supabase
+      .from('employer_references')
       .update(updates)
       .eq('id', referenceId)
       .select()
@@ -224,7 +222,7 @@ export async function deleteReference(
 ): Promise<{ success: boolean; error: string | null }> {
   try {
     const { error } = await supabase
-      .from('references')
+      .from('employer_references')
       .delete()
       .eq('id', referenceId)
 
@@ -266,7 +264,7 @@ export function useFetchPendingRequests(employerId: string | null) {
         project:projects (id, title),
         student:profiles!student_id (id, full_name)
       `)
-      .eq('projects.employer_id', employerId)
+      .eq('projects.business_id', employerId)
       .eq('status', 'completed')
       .order('created_at', { ascending: false })
 
