@@ -17,9 +17,6 @@ export default function StudentDashboard() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
           <h1 className="text-2xl font-bold text-gray-900">SkillBridge</h1>
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5" />
-            </Button>
             <Avatar>
               <AvatarImage src="/placeholder-avatar.jpg" />
               <AvatarFallback>JD</AvatarFallback>

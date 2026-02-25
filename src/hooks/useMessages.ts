@@ -1,0 +1,273 @@
+import { useEffect, useState, useCallback } from 'react'
+import { supabase } from '@/lib/supabase'
+import { RealtimeChannel } from '@supabase/supabase-js'
+
+export interface Message {
+  id: string
+  project_id: string
+  sender_id: string
+  sender_name?: string
+  sender_avatar?: string
+  content: string
+  created_at: string
+  read_at?: string | null
+}
+
+export interface MessageThread {
+  project_id: string
+  project_title?: string
+  last_message?: string
+  last_message_at?: string
+  unread_count: number
+}
+
+// ─── Fetch messages for a project ──────────────────────────────────────────
+
+export function useFetchProjectMessages(projectId: string | null) {
+  const [messages, setMessages] = useState<Message[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  const channelRef = useCallback(() => {
+    if (!projectId) return null
+    return supabase.channel(`project:${projectId}:messages`)
+  }, [projectId])
+
+  const load = useCallback(async () => {
+    if (!projectId) {
+      setMessages([])
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    const { data, error: dbError } = await supabase
+      .from('messages')
+      .select(`
+        *,
+        sender:profiles!messages_sender_id_fkey (full_name, avatar_url)
+      `)
+      .eq('project_id', projectId)
+      .order('created_at', { ascending: true })
+
+    if (dbError) {
+      setError(dbError.message)
+      setMessages([])
+    } else {
+      const rows = (data ?? []).map((row: any) => ({
+        ...row,
+        sender_name: row.sender?.full_name ?? 'Unknown',
+        sender_avatar: row.sender?.avatar_url ?? null,
+      })) as Message[]
+      setMessages(rows)
+    }
+
+    setLoading(false)
+  }, [projectId])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  // Real-time subscription
+  useEffect(() => {
+    if (!projectId) return
+
+    const channel = supabase
+      .channel(`project:${projectId}:messages`)
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'messages',
+          filter: `project_id=eq.${projectId}`,
+        },
+        (payload: any) => {
+          const newRow = payload.new as any
+          setMessages((prev) => {
+            // Prevent duplicate if message already exists (e.g. from optimistic update or refetch)
+            if (prev.some(m => m.id === newRow.id)) return prev
+
+            const newMessage: Message = {
+              ...newRow,
+              sender_name: '...', // Fallback since real-time payload lacks joined data
+              sender_avatar: null,
+            }
+            return [...prev, newMessage]
+          })
+
+          // Trigger a load to fetch the missing joined names/avatars
+          load()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      channel.unsubscribe()
+    }
+  }, [projectId])
+
+  return { messages, loading, error, refetch: load }
+}
+
+// ─── Fetch message threads for user ────────────────────────────────────────
+
+export function useFetchMessageThreads(userId: string | null) {
+  const [threads, setThreads] = useState<MessageThread[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    if (!userId) {
+      setThreads([])
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    // Get all projects where user is involved (as creator or has applications/messages)
+    const { data: userMessages, error: msgError } = await supabase
+      .from('messages')
+      .select(`
+        project_id,
+        project:projects!messages_project_id_fkey (id, title)
+      `)
+      .or(`sender_id.eq.${userId}`)
+      .order('created_at', { ascending: false })
+
+    if (msgError) {
+      setError(msgError.message)
+      setThreads([])
+      setLoading(false)
+      return
+    }
+
+    // Get unread count for each project
+    const projectIds = Array.from(
+      new Set((userMessages ?? []).map((m: any) => m.project_id))
+    ) as string[]
+
+    if (projectIds.length === 0) {
+      setThreads([])
+      setLoading(false)
+      return
+    }
+
+    const threadList: MessageThread[] = []
+
+    for (const projId of projectIds) {
+      const { count, error: countError } = await supabase
+        .from('messages')
+        .select('*', { count: 'exact', head: true })
+        .eq('project_id', projId)
+        .eq('read_at', null)
+        .neq('sender_id', userId)
+
+      const projectData = userMessages.find((m: any) => m.project_id === projId) as any
+
+      threadList.push({
+        project_id: projId,
+        project_title: projectData?.project?.title ?? 'Unknown Project',
+        unread_count: !countError && count ? count : 0,
+      })
+    }
+
+    setThreads(threadList)
+    setLoading(false)
+  }, [userId])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  return { threads, loading, error, refetch: load }
+}
+
+// ─── Send message ─────────────────────────────────────────────────────────
+
+export async function sendMessage(payload: {
+  project_id: string
+  sender_id: string
+  receiver_id: string
+  content: string
+}): Promise<{ data: Message | null; error: string | null }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data, error } = await (supabase
+      .from('messages') as any)
+      .insert([
+        {
+          project_id: payload.project_id,
+          sender_id: payload.sender_id,
+          receiver_id: payload.receiver_id,
+          content: payload.content,
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      return { data: null, error: error.message }
+    }
+
+    return { data, error: null }
+  } catch (err) {
+    return {
+      data: null,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    }
+  }
+}
+
+// ─── Mark message as read ──────────────────────────────────────────────────
+
+export async function markMessageAsRead(messageId: string): Promise<{ error: string | null }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase
+      .from('messages') as any)
+      .update({ read_at: new Date().toISOString() })
+      .eq('id', messageId)
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { error: null }
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : 'Unknown error',
+    }
+  }
+}
+
+// ─── Mark all messages in project as read ──────────────────────────────────
+
+export async function markProjectMessagesAsRead(
+  projectId: string,
+  userId: string
+): Promise<{ error: string | null }> {
+  try {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error } = await (supabase
+      .from('messages') as any)
+      .update({ read_at: new Date().toISOString() })
+      .eq('project_id', projectId)
+      .neq('sender_id', userId)
+      .is('read_at', null)
+
+    if (error) {
+      return { error: error.message }
+    }
+
+    return { error: null }
+  } catch (err) {
+    return {
+      error: err instanceof Error ? err.message : 'Unknown error',
+    }
+  }
+}

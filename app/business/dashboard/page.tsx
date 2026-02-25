@@ -20,9 +20,6 @@ export default function BusinessDashboard() {
                 Post Project
               </Button>
             </Link>
-            <Button variant="ghost" size="icon">
-              <Bell className="h-5 w-5" />
-            </Button>
             <Avatar>
               <AvatarFallback>TC</AvatarFallback>
             </Avatar>

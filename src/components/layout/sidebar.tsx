@@ -2,11 +2,9 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Home,
-  Users,
-  Calendar,
-  MessageSquare,
   Bell,
   Settings,
   LogOut,
@@ -14,10 +12,10 @@ import {
   Briefcase,
   Award,
   FileText,
-  Building,
   GraduationCap,
 } from "lucide-react"
-import { Link, useLocation } from "react-router-dom"
+import { Link, useLocation, useNavigate } from "react-router-dom"
+import { useAuth } from "@/contexts/AuthContext"
 
 const studentNavigation = [
   { name: "Dashboard", href: "/student/dashboard", icon: Home },
@@ -46,42 +44,51 @@ const universityNavigation = [
 ]
 
 interface SidebarProps {
+  /** Kept for backward-compat; role from AuthContext takes priority when logged in */
   userType?: 'student' | 'employer' | 'university'
 }
 
 export function Sidebar({ userType }: SidebarProps) {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { profile, role, loading, signOut } = useAuth()
 
-  // Auto-detect user type from current route
+  // Derive display type: prefer live role, fall back to prop, then URL detection
   const detectedUserType = (() => {
+    if (role === 'business') return 'employer'
+    if (role === 'university') return 'university'
+    if (role === 'student') return 'student'
 
-    // First priority: explicit userType prop
-    if (userType) return userType;
-    
-    // Second priority: detect from URL path
-    const path = location.pathname;
-    console.log("Current path:", path);
-    console.log("Detected user type:", userType);
-    if (path.startsWith('/employer')) return 'employer';
-    if (path.startsWith('/university')) return 'university';
-    if (path.startsWith('/student')) return 'student';
-    
-    // Default fallback
-    return 'student';
-  })();
+    if (userType) return userType
 
-  const navigation = detectedUserType === 'employer' ? employerNavigation : 
-                    detectedUserType === 'university' ? universityNavigation : 
-                    studentNavigation;
+    const path = location.pathname
+    if (path.startsWith('/employer')) return 'employer'
+    if (path.startsWith('/university')) return 'university'
+    return 'student'
+  })()
 
-  const getUserTypeColor = () => {
-    switch (detectedUserType) {
-      case 'employer': return 'from-green-600 via-green-700 to-green-800';
-      case 'university': return 'from-orange-600 via-orange-700 to-orange-800';
-      case 'student': return 'from-blue-600 via-blue-700 to-blue-800';
-      default: return 'from-blue-600 via-blue-700 to-blue-800';
-    }
-  };
+  const navigation =
+    detectedUserType === 'employer' ? employerNavigation
+    : detectedUserType === 'university' ? universityNavigation
+    : studentNavigation
+
+  const handleSignOut = async () => {
+    await signOut()
+    navigate('/auth', { replace: true })
+  }
+
+  // Derive initials for the avatar fallback
+  const initials = profile?.full_name
+    ? profile.full_name.split(' ').map((n) => n[0]).join('').toUpperCase().slice(0, 2)
+    : '?'
+
+  const displayName = profile?.full_name ?? 'Loading…'
+  const displaySub =
+    detectedUserType === 'employer'
+      ? profile?.company_name ?? 'Business'
+      : detectedUserType === 'university'
+      ? 'University'
+      : 'Student'
 
   return (
     <div className="flex h-screen w-64 flex-col border-r bg-gradient-to-b from-gray-50 via-gray-50/30 to-gray-50/50 backdrop-blur-sm">
@@ -121,19 +128,36 @@ export function Sidebar({ userType }: SidebarProps) {
 
       {/* User Profile & Actions */}
       <div className="border-t border-gray-200/60 p-3 space-y-3 bg-white/60 backdrop-blur-sm">
+        {/* User info row */}
+        <div className="flex items-center gap-3 px-2 py-1">
+          {loading ? (
+            <>
+              <Skeleton className="h-9 w-9 rounded-full shrink-0" />
+              <div className="flex flex-col gap-1 flex-1">
+                <Skeleton className="h-3 w-28" />
+                <Skeleton className="h-3 w-20" />
+              </div>
+            </>
+          ) : (
+            <>
+              <Avatar className="h-9 w-9 shrink-0">
+                <AvatarImage src={profile?.avatar_url ?? undefined} alt={displayName} />
+                <AvatarFallback className="text-xs font-semibold bg-gray-200 text-gray-700">
+                  {initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-medium text-gray-900 truncate">{displayName}</span>
+                <span className="text-xs text-gray-500 truncate">{displaySub}</span>
+              </div>
+            </>
+          )}
+        </div>
+
         <div className="space-y-1">
-          <Link to="/notifications">
-            <Button
-              variant="ghost"
-              className="w-full justify-start text-gray-700 hover:bg-gray-50 hover:text-gray-800 transition-colors duration-200"
-            >
-              <Bell className="mr-3 h-4 w-4" />
-              Notifications
-            </Button>
-          </Link>
-          
           <Button
             variant="ghost"
+            onClick={handleSignOut}
             className="w-full justify-start text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-200"
           >
             <LogOut className="mr-3 h-4 w-4" />

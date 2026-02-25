@@ -1,0 +1,210 @@
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useState,
+  useCallback,
+  type ReactNode,
+} from 'react'
+import type { Session, User } from '@supabase/supabase-js'
+import { supabase } from '@/lib/supabase'
+import type { UserRole } from '@/types'
+
+// --------------------------------------------------------------------------
+// Shape of a fetched profile row
+// --------------------------------------------------------------------------
+interface Profile {
+  id: string
+  full_name: string
+  role: UserRole
+  avatar_url: string | null
+  company_name: string | null
+  university_id: string | null
+}
+
+// --------------------------------------------------------------------------
+// Context value
+// --------------------------------------------------------------------------
+interface AuthContextValue {
+  /** Raw Supabase session – null when logged-out */
+  session: Session | null
+  /** Shortcut to session.user */
+  user: User | null
+  /** Profile row fetched from public.profiles */
+  profile: Profile | null
+  /** Role shortcut – null while loading or logged-out */
+  role: UserRole | null
+  /** True while the initial session + profile are being resolved */
+  loading: boolean
+  /** Sign out the current user */
+  signOut: () => Promise<void>
+  /** Refresh the profile from the DB (useful after profile edits) */
+  refreshProfile: () => Promise<void>
+}
+
+// --------------------------------------------------------------------------
+// Context + hook
+// --------------------------------------------------------------------------
+const AuthContext = createContext<AuthContextValue | undefined>(undefined)
+
+export function useAuth(): AuthContextValue {
+  const ctx = useContext(AuthContext)
+  if (!ctx) {
+    throw new Error('useAuth must be used inside <AuthProvider>')
+  }
+  return ctx
+}
+
+// --------------------------------------------------------------------------
+// Provider
+// --------------------------------------------------------------------------
+interface AuthProviderProps {
+  children: ReactNode
+}
+
+export function AuthProvider({ children }: AuthProviderProps) {
+  const [session, setSession] = useState<Session | null>(null)
+  const [profile, setProfile] = useState<Profile | null>(null)
+  const [loading, setLoading] = useState(true)
+
+  // Fetch the profiles row for a given user ID
+  const fetchProfile = useCallback(async (userId: string): Promise<void> => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, full_name, role, avatar_url, company_name, university_id')
+        .eq('id', userId)
+        .single()
+
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile doesn't exist — create default one
+          console.warn('[AuthContext] Profile missing for user', userId)
+          setProfile({
+            id: userId,
+            full_name: 'User',
+            role: 'student',
+            avatar_url: null,
+            company_name: null,
+            university_id: null,
+          })
+          return
+        }
+        console.error('[AuthContext] Failed to fetch profile:', error.message)
+        setProfile(null)
+      } else {
+        setProfile(data as Profile)
+      }
+    } catch (err) {
+      console.error('[AuthContext] Profile fetch error:', err)
+      setProfile(null)
+    }
+  }, [])
+
+  // Public refresh so components can trigger a re-fetch after edits
+  const refreshProfile = useCallback(async (): Promise<void> => {
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession()
+      if (currentSession?.user) {
+        await fetchProfile(currentSession.user.id)
+      }
+    } catch (err) {
+      console.error('[AuthContext] Refresh profile error:', err)
+    }
+  }, [fetchProfile])
+
+  // Sign-out helper
+  const signOut = useCallback(async (): Promise<void> => {
+    try {
+      await supabase.auth.signOut()
+    } catch (err) {
+      console.error('[AuthContext] Sign out error:', err)
+    }
+    setSession(null)
+    setProfile(null)
+  }, [])
+
+  // Bootstrap: restore session and subscribe to auth changes
+  useEffect(() => {
+    let mounted = true
+    let authInitialized = false
+
+    const initAuth = async () => {
+      try {
+        // Try to restore the session from Supabase storage
+        const { data: { session: restoredSession } } = await supabase.auth.getSession()
+        
+        if (!mounted) return
+
+        if (restoredSession) {
+          setSession(restoredSession)
+          // Don't await - fire and forget to avoid blocking
+          fetchProfile(restoredSession.user.id).catch(err => 
+            console.error('[AuthContext] Profile fetch error:', err)
+          )
+        }
+
+        authInitialized = true
+        setLoading(false)
+      } catch (err) {
+        console.error('[AuthContext] Session restore error:', err)
+        if (mounted) {
+          authInitialized = true
+          setLoading(false)
+        }
+      }
+    }
+
+    // Initialize session on mount
+    initAuth()
+
+    // Subscribe to auth state changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange(async (_event, newSession) => {
+      if (!mounted) return
+
+      setSession(newSession)
+
+      if (newSession?.user) {
+        // Fire and forget - don't await
+        fetchProfile(newSession.user.id).catch(err =>
+          console.error('[AuthContext] Profile fetch on auth change error:', err)
+        )
+      } else {
+        setProfile(null)
+      }
+
+      // Always mark as initialized when auth state changes
+      if (!authInitialized) {
+        authInitialized = true
+      }
+      setLoading(false)
+    })
+
+    // Fallback: ensure loading is set to false after 2 seconds max
+    const timeoutId = setTimeout(() => {
+      if (mounted) {
+        setLoading(false)
+      }
+    }, 2000)
+
+    return () => {
+      mounted = false
+      clearTimeout(timeoutId)
+      subscription.unsubscribe()
+    }
+  }, [fetchProfile])
+
+  const value: AuthContextValue = {
+    session,
+    user: session?.user ?? null,
+    profile,
+    role: profile?.role ?? null,
+    loading,
+    signOut,
+    refreshProfile,
+  }
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+}

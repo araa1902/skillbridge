@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,10 +8,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, HelpCircle } from "lucide-react";
+import { ArrowLeft, HelpCircle, Loader2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { insertProject } from "@/hooks/useProjects";
+import { useToast } from "@/hooks/use-toast";
 
 export default function NewProject() {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);
+  const [submitting, setSubmitting] = useState(false);
   const [form, setForm] = useState({
     title: "",
     category: "",
@@ -89,6 +97,61 @@ export default function NewProject() {
       budget: t.budget
     }));
     setSelectedSkills(t.skills);
+  };
+
+  const handleSubmit = async (asDraft = false) => {
+    if (!user) {
+      toast({ title: "Not authenticated", description: "Please log in first.", variant: "destructive" });
+      return;
+    }
+    if (!form.title.trim() || !form.description.trim() || !form.deliverables.trim()) {
+      toast({ title: "Missing required fields", description: "Title, description, and deliverables are required.", variant: "destructive" });
+      return;
+    }
+    if (selectedSkills.length === 0) {
+      toast({ title: "Select at least one skill", variant: "destructive" });
+      return;
+    }
+    const budgetNum = parseFloat(form.budget);
+    if (!asDraft && (isNaN(budgetNum) || budgetNum < 200)) {
+      toast({ title: "Invalid budget", description: "Budget must be at least £200.", variant: "destructive" });
+      return;
+    }
+
+    setSubmitting(true);
+
+    const durationHours = form.duration === "ongoing" ? 0 : parseInt(form.duration, 10);
+
+    const { error } = await insertProject({
+      business_id: user.id,
+      title: form.title.trim(),
+      description: form.description.trim(),
+      deliverables: form.deliverables.trim(),
+      required_skills: selectedSkills,
+      budget: isNaN(budgetNum) ? 0 : budgetNum,
+      duration_hours: durationHours,
+      status: asDraft ? 'draft' : 'open',
+    });
+
+    setSubmitting(false);
+
+    if (error) {
+      toast({
+        title: "Failed to post project",
+        description: error,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: asDraft ? "Draft saved!" : "Project posted successfully! 🎉",
+      description: asDraft
+        ? "Your project has been saved as a draft."
+        : "Students can now discover and apply to your project.",
+    });
+
+    navigate("/employer/projects/manage");
   };
 
   return (
@@ -269,10 +332,24 @@ export default function NewProject() {
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <Button size="lg" className="flex-1">
-                    Post Project & Deposit to Escrow
+                  <Button
+                    size="lg"
+                    className="flex-1"
+                    disabled={submitting}
+                    onClick={() => handleSubmit(false)}
+                  >
+                    {submitting ? (
+                      <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Posting…</>
+                    ) : (
+                      "Post Project & Deposit to Escrow"
+                    )}
                   </Button>
-                  <Button size="lg" variant="outline">
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    disabled={submitting}
+                    onClick={() => handleSubmit(true)}
+                  >
                     Save as Draft
                   </Button>
                 </div>
