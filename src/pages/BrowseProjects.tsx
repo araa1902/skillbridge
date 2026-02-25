@@ -95,21 +95,23 @@ const BrowseProjects = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50/30">
-      <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-6 py-10">
-          {/* Hero */}
-          <div className="mb-8">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-xl flex items-center justify-center">
-                <Briefcase className="h-6 w-6 text-white" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-bold text-gray-800">Browse Projects</h1>
-                <p className="text-gray-600 mt-1">Discover opportunities matched to your skills and career goals</p>
-              </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="sticky top-0 z-30 bg-white border-b border-gray-200/50 backdrop-blur-sm">
+        <div className="max-w-7xl mx-auto px-6 py-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
+              <Briefcase className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Browse Projects</h1>
+              <p className="text-sm text-gray-600">Discover opportunities matched to your skills and career goals</p>
             </div>
           </div>
+        </div>
+      </div>
+
+      <main className="flex-1">
+        <div className="max-w-7xl mx-auto px-6 py-8">
 
           {/* AI Matching Toggle */}
           <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6">

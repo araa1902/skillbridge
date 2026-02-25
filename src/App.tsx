@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Link, useLocation } from "react-router-dom";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import BrowseProjects from "./pages/BrowseProjects";
@@ -46,22 +47,14 @@ const SidebarLayout = ({ children, userType }: { children: React.ReactNode, user
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        {/* Floating Prototype Navigation Button */}
-        <div className="fixed bottom-4 right-4 z-50">
-          <Link to="/all-pages">
-            <Button variant="outline" size="sm" className="shadow-lg">
-              📋 All Pages
-            </Button>
-          </Link>
-        </div>
-        
-        <SidebarLayout userType="student">
-          <Routes>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <SidebarLayout userType="student">
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/all-pages" element={<AllPages />} />
             <Route path="/auth" element={<Auth />} />
@@ -85,7 +78,8 @@ const App = () => (
         </SidebarLayout>
       </BrowserRouter>
     </TooltipProvider>
-  </QueryClientProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;

@@ -2,28 +2,33 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Users, Briefcase, CheckCircle2, XCircle, Star } from "lucide-react";
+import { Plus, Users, Briefcase, CheckCircle2, XCircle, Star, TrendingUp, ArrowUpRight } from "lucide-react";
 import { projects } from "@/lib/data";
 import { pendingReferenceRequests } from "@/lib/references-data";
 import { Link } from "react-router-dom";
+import { PageHeader } from "@/components/PageHeader";
 
 const EmployerDashboard = () => {
   const myProjects = projects.slice(0, 3);
   const pendingReferences = pendingReferenceRequests.filter(req => req.employerId === "emp-1");
 
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="min-h-screen bg-gray-50/50">
+      <PageHeader
+        title="Dashboard"
+        subtitle="Welcome back, TechStart Inc."
+        description="Manage your projects and connect with talented students"
+        userName="Tech Company"
+        userRole="Employer"
+      />
 
-      <main className="flex-1 bg-background">
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-8 flex items-center justify-between">
+      <main className="flex-1">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex items-center justify-between mb-8">
             <div>
-              <h1 className="text-3xl font-bold mb-2">Dashboard</h1>
-              <p className="text-muted-foreground">
-                Manage your projects and connect with talented students
-              </p>
+              <p className="text-sm text-gray-600">Quick actions</p>
             </div>
-            <Button size="lg" asChild>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" asChild>
               <Link to="/employer/projects/new">
                 <Plus className="mr-2 h-5 w-5" />
                 Post New Project
@@ -31,67 +36,84 @@ const EmployerDashboard = () => {
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid md:grid-cols-4 gap-4 mb-8">
-            <Card>
+          {/* Stats Grid */}
+          <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+            <Card className="hover:shadow-md transition-shadow duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Active Projects
+                <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                  <span>Active Projects</span>
+                  <Briefcase className="h-4 w-4 text-blue-600" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">3</div>
+                <div className="flex items-end justify-between">
+                  <div className="text-3xl font-bold text-gray-900">3</div>
+                  <div className="flex items-center text-green-600 text-xs font-medium">
+                    <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                    +1 new
+                  </div>
+                </div>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Total Applicants
+                <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                  <span>Total Applicants</span>
+                  <Users className="h-4 w-4 text-purple-600" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">35</div>
+                <div className="text-3xl font-bold text-gray-900">35</div>
+                <p className="text-xs text-gray-600 mt-1">8 new this week</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Students Hired
+                <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                  <span>Students Hired</span>
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">8</div>
+                <div className="text-3xl font-bold text-gray-900">8</div>
+                <p className="text-xs text-gray-600 mt-1">100% satisfaction</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className="hover:shadow-md transition-shadow duration-200">
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Completed Projects
+                <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                  <span>Completed Projects</span>
+                  <TrendingUp className="h-4 w-4 text-emerald-600" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-3xl font-bold">5</div>
+                <div className="text-3xl font-bold text-gray-900">5</div>
+                <p className="text-xs text-gray-600 mt-1">On budget & on time</p>
               </CardContent>
             </Card>
 
-            <Card>
+            <Card className={`hover:shadow-md transition-shadow duration-200 ${pendingReferences.length > 0 ? 'border-yellow-200 bg-yellow-50/50' : ''}`}>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  Pending References
+                <CardTitle className="text-sm font-medium text-gray-600 flex items-center justify-between">
+                  <span>Pending References</span>
+                  <Star className="h-4 w-4 text-yellow-600" />
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="flex items-center justify-between">
-                  <div className="text-3xl font-bold">{pendingReferences.length}</div>
-                  <Star className="w-6 h-6 text-yellow-500" />
+                <div className="flex items-end justify-between">
+                  <div className="text-3xl font-bold text-gray-900">{pendingReferences.length}</div>
                 </div>
                 {pendingReferences.length > 0 && (
                   <Link to="/employer/references">
-                    <Button variant="link" size="sm" className="p-0 h-auto mt-2">
-                      Write references
+                    <Button 
+                      variant="link" 
+                      size="sm" 
+                      className="p-0 h-auto mt-2 text-yellow-700 hover:text-yellow-800"
+                    >
+                      Write references →
                     </Button>
                   </Link>
                 )}

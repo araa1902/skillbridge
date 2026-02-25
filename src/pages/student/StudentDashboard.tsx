@@ -1,7 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Briefcase, Award, TrendingUp, Clock, Star, MessageSquare } from "lucide-react";
+import { Bell, Briefcase, Award, TrendingUp, Clock, Star, MessageSquare, ArrowUpRight, CheckCircle2 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -9,6 +9,7 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { projects } from "@/lib/data";
 import { studentReferences } from "@/lib/references-data";
 import { ReferenceCard } from "@/components/ReferenceCard";
+import { PageHeader } from "@/components/PageHeader";
 
 const StudentDashboard = () => {
   const recommendedProjects = projects.slice(0, 3);
@@ -19,127 +20,168 @@ const StudentDashboard = () => {
   ).toFixed(1);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50/50">
+      <PageHeader
+        title="Dashboard"
+        subtitle="University of Oxford · Computer Science · 2nd Year"
+        description="Welcome back, Sarah! Here's your project progress."
+        userName="Sarah Johnson"
+        userRole="Student"
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Welcome back, Sarah</h2>
-          <p className="text-gray-600">University of Oxford · Computer Science · 2nd Year</p>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
-              <Briefcase className="h-4 w-4 text-blue-600" />
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+          {/* Active Projects Card */}
+          <Card className="hover:shadow-md transition-shadow duration-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-sm font-medium text-gray-700">Active Projects</CardTitle>
+              <Briefcase className="h-5 w-5 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">3</div>
-              <p className="text-xs text-gray-600">2 in progress</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Earned Credits</CardTitle>
-              <Award className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">12</div>
-              <p className="text-xs text-gray-600">4 badges earned</p>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">Total Earnings</CardTitle>
-              <TrendingUp className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">£1,240</div>
-              <p className="text-xs text-gray-600">+£400 this month</p>
-            </CardContent>
-          </Card>
-            <Link to="/student/references">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between pb-2">
-              <CardTitle className="text-sm font-medium">References</CardTitle>
-              <Star className="h-5 w-5 text-yellow-500" />
-              </CardHeader>
-              <CardContent>
-              <div className="flex items-center gap-2">
-                <div className="text-2xl font-bold">{studentReferences.length}</div>
-                <div className="flex items-center gap-1 text-xs text-gray-600">
-                <Star className="h-3 w-3 fill-yellow-400 text-yellow-400" />
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">3</div>
+                  <p className="text-xs text-gray-600 mt-1">2 in progress</p>
+                </div>
+                <div className="flex items-center text-green-600 text-xs font-medium">
+                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                  +1 new
                 </div>
               </div>
+            </CardContent>
+          </Card>
+
+          {/* Earned Credits Card */}
+          <Card className="hover:shadow-md transition-shadow duration-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-sm font-medium text-gray-700">Earned Credits</CardTitle>
+              <Award className="h-5 w-5 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div>
+                <div className="text-3xl font-bold text-gray-900">12</div>
+                <p className="text-xs text-gray-600 mt-1">4 badges earned</p>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Total Earnings Card */}
+          <Card className="hover:shadow-md transition-shadow duration-200">
+            <CardHeader className="flex flex-row items-center justify-between pb-3">
+              <CardTitle className="text-sm font-medium text-gray-700">Total Earnings</CardTitle>
+              <TrendingUp className="h-5 w-5 text-green-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-end justify-between">
+                <div>
+                  <div className="text-3xl font-bold text-gray-900">£1,240</div>
+                  <p className="text-xs text-gray-600 mt-1">+£400 this month</p>
+                </div>
+                <div className="flex items-center text-green-600 text-xs font-medium">
+                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
+                  32%
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* References Card */}
+          <Link to="/student/references">
+            <Card className="hover:shadow-md transition-shadow duration-200 h-full">
+              <CardHeader className="flex flex-row items-center justify-between pb-3">
+                <CardTitle className="text-sm font-medium text-gray-700">References</CardTitle>
+                <Star className="h-5 w-5 text-yellow-500" />
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1">
+                    <div className="text-3xl font-bold text-gray-900">{studentReferences.length}</div>
+                    <div className="flex items-center gap-0.5">
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          className={`h-3.5 w-3.5 ${
+                            i < Math.round(Number(averageRating))
+                              ? "fill-yellow-400 text-yellow-400"
+                              : "text-gray-300"
+                          }`}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <p className="text-xs text-gray-600 mt-1">{averageRating} avg rating</p>
               </CardContent>
             </Card>
-            </Link>
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Active Projects</CardTitle>
-                <CardDescription>Your ongoing work and deliverables</CardDescription>
+              <CardTitle>Active Projects</CardTitle>
+              <CardDescription>Your ongoing work and deliverables</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-semibold">Website Redesign - TechStart</h4>
-                      <p className="text-sm text-gray-600">UI/UX Design · 20 hours</p>
-                    </div>
-                    <Badge>In Progress</Badge>
+              <CardContent className="space-y-3">
+              {[
+                {
+                title: "Website Redesign - TechStart",
+                meta: "UI/UX Design · 20 hours",
+                progress: 65,
+                status: "In Progress",
+                detail: "Due in 5 days"
+                },
+                {
+                title: "Data Analysis Project - FinCorp",
+                meta: "Python · 10 hours",
+                progress: 100,
+                status: "Review",
+                detail: "Submitted 2 days ago"
+                }
+              ].map((project, idx) => (
+                <div key={idx} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div className="flex justify-between items-start mb-3">
+                  <div className="flex-1">
+                  <h4 className="font-semibold text-sm">{project.title}</h4>
+                  <p className="text-xs text-gray-500 mt-0.5">{project.meta}</p>
                   </div>
-                  <Progress value={65} className="mb-2" />
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>65% Complete</span>
-                    <span>Due in 5 days</span>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <Button size="sm">Upload Deliverable</Button>
-                    <Button size="sm" variant="outline">Message Client</Button>
-                  </div>
+                  <Badge variant={project.status === "In Progress" ? "default" : "outline"} className="ml-2">
+                  {project.status}
+                  </Badge>
                 </div>
-
-                <div className="border rounded-lg p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="font-semibold">Data Analysis Project - FinCorp</h4>
-                      <p className="text-sm text-gray-600">Python · 10 hours</p>
-                    </div>
-                    <Badge variant="outline">Review</Badge>
-                  </div>
-                  <Progress value={100} className="mb-2" />
-                  <div className="flex justify-between text-sm text-gray-600">
-                    <span>Awaiting client review</span>
-                    <span>Submitted 2 days ago</span>
-                  </div>
-                  <div className="flex gap-2 mt-4">
-                    <Button size="sm" variant="outline">View Submission</Button>
-                  </div>
+                <Progress value={project.progress} className="mb-2 h-2" />
+                <div className="flex justify-between text-xs text-gray-600 mb-3">
+                  <span>{project.progress}% Complete</span>
+                  <span>{project.detail}</span>
                 </div>
+                <div className="flex gap-2">
+                  <Button size="sm" className="text-xs h-8">Upload</Button>
+                  <Button size="sm" variant="ghost" className="text-xs h-8">Message</Button>
+                </div>
+                </div>
+              ))}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Recommended for You</CardTitle>
-                <CardDescription>AI-matched projects based on your skills</CardDescription>
+              <CardTitle>Recommended for You</CardTitle>
+              <CardDescription>AI-matched projects based on your skills</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {recommendedProjects.map((project) => (
-                    <ProjectCard key={project.id} {...project} />
-                  ))}
-                </div>
-                <Link to="/browse-projects">
-                  <Button variant="outline" className="w-full">Browse All Projects</Button>
-                </Link>
+              <CardContent className="space-y-3">
+              <div className="grid gap-4">
+                {recommendedProjects.map((project) => (
+                <ProjectCard key={project.id} {...project} />
+                ))}
+              </div>
+              <Link to="/browse-projects">
+                <Button variant="outline" className="w-full">View All Projects</Button>
+              </Link>
               </CardContent>
             </Card>
-          </div>
+            </div>
 
           <div className="space-y-6">
             <Card>
