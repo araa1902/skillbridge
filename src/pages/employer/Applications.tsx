@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ArrowLeft, MessageCircle, CheckCircle, XCircle, Eye, User } from "lucide-react";
@@ -29,9 +28,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   useFetchProjectApplications,
   updateApplicationStatus,
+  approveApplicationAndIssueCredential,
   type ApplicationWithDetails,
   type ApplicationStatus,
 } from "@/hooks/useApplications";
+import { Star, Link as LinkIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 
 // ─── Status badge helper ──────────────────────────────────────────────────────
 
@@ -47,6 +51,8 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
       return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Rejected</Badge>;
     case "withdrawn":
       return <Badge variant="outline" className="bg-gray-100 text-gray-500 border-gray-200">Withdrawn</Badge>;
+    case "completed":
+      return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Completed</Badge>;
     default:
       return <Badge variant="outline">{status}</Badge>;
   }
@@ -94,8 +100,12 @@ export default function Applications() {
   const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [coverLetterDialogOpen, setCoverLetterDialogOpen] = useState(false);
+  const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationWithDetails | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+
+  const [rating, setRating] = useState<number>(5);
+  const [feedback, setFeedback] = useState<string>("");
 
   // Show error toast if data fetch fails
   useEffect(() => {
@@ -108,7 +118,7 @@ export default function Applications() {
 
   const handleStatusChange = async (newStatus: ApplicationStatus, app: ApplicationWithDetails) => {
     setActionLoading(true);
-    const { error: updateError } = await updateApplicationStatus(app.id, newStatus);
+    const { error: updateError } = await updateApplicationStatus(app.id, newStatus, app.project_id);
     setActionLoading(false);
 
     if (updateError) {
@@ -131,6 +141,35 @@ export default function Applications() {
     setSelectedApp(null);
   };
 
+  const handleApproveAndComplete = async () => {
+    if (!selectedApp) return;
+    setActionLoading(true);
+    const { error: completeErr } = await approveApplicationAndIssueCredential({
+      application_id: selectedApp.id,
+      project_id: selectedApp.project_id,
+      student_id: selectedApp.student_id,
+      business_id: selectedApp.business_id!,
+      rating,
+      feedback,
+      skills_verified: [] // Could add a skill selector here, leaving empty default for now
+    });
+    setActionLoading(false);
+
+    if (completeErr) {
+      toast({ title: "Action failed", description: completeErr, variant: "destructive" });
+    } else {
+      toast({
+        title: "Project Completed",
+        description: `You have approved ${selectedApp.student_name}'s work and issued a credential.`,
+      });
+      refetch();
+    }
+    setCompleteDialogOpen(false);
+    setSelectedApp(null);
+    setRating(5);
+    setFeedback("");
+  };
+
   const handleNavigateToMessages = (projectId: string, studentId: string, name: string | null) => {
     navigate(`/project/${projectId}/messages?to=${studentId}`);
   };
@@ -150,6 +189,7 @@ export default function Applications() {
     reviewing: applications.filter((a) => a.status === "reviewing").length,
     accepted: applications.filter((a) => a.status === "accepted").length,
     rejected: applications.filter((a) => a.status === "rejected").length,
+    completed: applications.filter((a) => a.status === "completed").length,
   };
 
   return (
@@ -174,7 +214,7 @@ export default function Applications() {
         {/* Filter and Sort Controls */}
         <div className="flex flex-col sm:flex-row gap-4 justify-between items-start sm:items-center mb-6">
           <div className="flex flex-wrap gap-2">
-            {(["all", "pending", "reviewing", "accepted", "rejected"] as const).map((f) => (
+            {(["all", "pending", "reviewing", "accepted", "completed", "rejected"] as const).map((f) => (
               <Button
                 key={f}
                 variant={selectedFilter === f ? "default" : "outline"}
@@ -218,10 +258,9 @@ export default function Applications() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3">
-                      <Avatar className="h-12 w-12">
-                        <AvatarImage src={app.student_avatar ?? undefined} />
-                        <AvatarFallback><User className="h-6 w-6" /></AvatarFallback>
-                      </Avatar>
+                      <div className="h-12 w-12 flex items-center justify-center rounded-full bg-muted">
+                        <User className="h-6 w-6 text-muted-foreground" />
+                      </div>
                       <div>
                         <CardTitle className="text-lg">{app.student_name ?? "Student"}</CardTitle>
                         <CardDescription>Applied for: {app.project_title ?? "—"}</CardDescription>
@@ -234,30 +273,57 @@ export default function Applications() {
                   </div>
                 </CardHeader>
                 <CardContent>
-                  {/* Cover letter preview */}
-                  {app.cover_letter && (
-                    <div className="mb-4">
-                      <p className="text-gray-600 text-sm line-clamp-2">{app.cover_letter}</p>
-                      <Button
-                        variant="link"
-                        size="sm"
-                        className="px-0 h-auto text-xs"
-                        onClick={() => { setSelectedApp(app); setCoverLetterDialogOpen(true); }}
-                      >
-                        Read full cover letter
-                      </Button>
-                    </div>
-                  )}
+                  {/* Cover letter & Deliverable preview */}
+                  <div className="mb-4 space-y-3">
+                    {app.cover_letter && (
+                      <div>
+                        <p className="text-gray-600 text-sm line-clamp-2">{app.cover_letter}</p>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          className="px-0 h-auto text-xs"
+                          onClick={() => { setSelectedApp(app); setCoverLetterDialogOpen(true); }}
+                        >
+                          Read full cover letter
+                        </Button>
+                      </div>
+                    )}
+
+                    {app.deliverable_link && (
+                      <div className="bg-blue-50/50 p-3 rounded border border-blue-100">
+                        <p className="text-xs font-medium text-blue-900 mb-1 flex items-center">
+                          <CheckCircle className="h-3.5 w-3.5 mr-1" /> Student submitted work
+                        </p>
+                        <a
+                          href={app.deliverable_link}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-sm text-blue-600 hover:text-blue-800 flex items-center bg-white border border-blue-200 py-1.5 px-3 rounded w-max transition-colors"
+                        >
+                          <LinkIcon className="h-3.5 w-3.5 mr-1.5" />
+                          View Deliverable
+                        </a>
+                      </div>
+                    )}
+                  </div>
 
                   {/* Action buttons */}
                   <div className="flex flex-wrap items-center justify-end gap-2 mt-2">
                     {app.status === "accepted" && (
-                      <Button size="sm" variant="outline" onClick={() => handleNavigateToMessages(app.project_id, app.student_id, app.student_name)}>
-                        <MessageCircle className="h-4 w-4 mr-1" />
-                        Message
-                      </Button>
+                      <div className="flex gap-2 w-full justify-end">
+                        {app.deliverable_link && (
+                          <Button size="sm" className="bg-blue-600 hover:bg-blue-700" onClick={() => { setSelectedApp(app); setCompleteDialogOpen(true); }}>
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                            Approve & Complete
+                          </Button>
+                        )}
+                        <Button size="sm" variant="outline" onClick={() => handleNavigateToMessages(app.project_id, app.student_id, app.student_name)}>
+                          <MessageCircle className="h-4 w-4 mr-1" />
+                          Message
+                        </Button>
+                      </div>
                     )}
-                    <Button size="sm" variant="outline" onClick={() => navigate("/employer/student-profile")}>
+                    <Button size="sm" variant="outline" onClick={() => navigate(`/student-profile/${app.student_id}`)}>
                       <Eye className="h-4 w-4 mr-1" />
                       View Profile
                     </Button>
@@ -345,6 +411,56 @@ export default function Applications() {
           </DialogHeader>
           <div className="mt-4">
             <p className="text-gray-700 whitespace-pre-wrap">{selectedApp?.cover_letter}</p>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Complete Project Dialog */}
+      <Dialog open={completeDialogOpen} onOpenChange={setCompleteDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Approve & Complete Project</DialogTitle>
+            <DialogDescription>
+              Review the submitted deliverable and provide feedback to {selectedApp?.student_name}.
+              This will mark the project as completed and issue a credential.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-4 space-y-4">
+            <div className="space-y-2">
+              <Label>Rating (out of 5)</Label>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    type="button"
+                    onClick={() => setRating(star)}
+                    className={`focus:outline-none transition-colors ${rating >= star ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}`}
+                  >
+                    <Star className={`h-6 w-6 ${rating >= star ? 'fill-current' : ''}`} />
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="feedback">Feedback for the student</Label>
+              <Textarea
+                id="feedback"
+                placeholder="Great work on this project! The final deliverables were exactly what we needed..."
+                className="resize-none"
+                rows={4}
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+              />
+            </div>
+            <div className="bg-yellow-50 text-yellow-800 p-3 rounded text-sm mb-2 border border-yellow-200">
+              <p><strong>Note:</strong> Completing this project will release payment to the student.</p>
+            </div>
+          </div>
+          <div className="flex justify-end gap-2 mt-2">
+            <Button variant="outline" onClick={() => setCompleteDialogOpen(false)} disabled={actionLoading}>Cancel</Button>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleApproveAndComplete} disabled={actionLoading || !feedback.trim()}>
+              Complete Project
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

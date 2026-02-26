@@ -3,7 +3,6 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Search, Star, MessageSquare, Calendar } from "lucide-react"
 
 export default function MentorsPage() {
@@ -34,11 +33,9 @@ export default function MentorsPage() {
             <Card key={i} className="bg-white shadow-sm hover:shadow-md transition-shadow">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4 mb-4">
-                  <Avatar className="h-16 w-16">
-                    <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white text-lg">
-                      M{i}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="h-16 w-16 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white text-lg font-bold">
+                    M{i}
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">Sarah Johnson</h3>
                     <p className="text-sm text-gray-600">Senior Software Engineer</p>

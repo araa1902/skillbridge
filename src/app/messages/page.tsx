@@ -2,7 +2,6 @@ import { AppLayout } from "@/components/layout/app-layout"
 import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Search, Send, Paperclip, MoreVertical } from "lucide-react"
 
@@ -27,11 +26,9 @@ export default function MessagesPage() {
                 >
                   <div className="flex items-start space-x-3">
                     <div className="relative">
-                      <Avatar>
-                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white">
-                          M{i}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white font-semibold">
+                        M{i}
+                      </div>
                       {i <= 2 && (
                         <div className="absolute -top-1 -right-1 h-3 w-3 bg-green-500 rounded-full border-2 border-white" />
                       )}
@@ -59,11 +56,9 @@ export default function MessagesPage() {
             {/* Chat Header */}
             <div className="p-4 border-b flex items-center justify-between bg-gradient-to-r from-blue-50 to-purple-50">
               <div className="flex items-center space-x-3">
-                <Avatar>
-                  <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white">
-                    SJ
-                  </AvatarFallback>
-                </Avatar>
+                <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white font-semibold">
+                  SJ
+                </div>
                 <div>
                   <p className="font-medium">Sarah Johnson</p>
                   <p className="text-xs text-green-600">● Online</p>
@@ -78,11 +73,9 @@ export default function MessagesPage() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4">
               {/* Received Message */}
               <div className="flex items-start space-x-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white text-xs">
-                    SJ
-                  </AvatarFallback>
-                </Avatar>
+                <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white text-xs font-semibold shrink-0">
+                  SJ
+                </div>
                 <div className="flex-1">
                   <div className="bg-gray-100 rounded-lg p-3 max-w-md">
                     <p className="text-sm">Hi! Thanks for booking the session. I'm looking forward to it!</p>
@@ -93,11 +86,9 @@ export default function MessagesPage() {
 
               {/* Sent Message */}
               <div className="flex items-start space-x-3 flex-row-reverse">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gradient-to-br from-green-400 to-blue-400 text-white text-xs">
-                    ME
-                  </AvatarFallback>
-                </Avatar>
+                <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-blue-400 text-white text-xs font-semibold">
+                  ME
+                </div>
                 <div className="flex-1 flex flex-col items-end">
                   <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white rounded-lg p-3 max-w-md">
                     <p className="text-sm">Me too! I have some questions about React hooks that I'd like to discuss.</p>
@@ -107,11 +98,9 @@ export default function MessagesPage() {
               </div>
 
               <div className="flex items-start space-x-3">
-                <Avatar className="h-8 w-8">
-                  <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white text-xs">
-                    SJ
-                  </AvatarFallback>
-                </Avatar>
+                <div className="h-8 w-8 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white text-xs font-semibold shrink-0">
+                  SJ
+                </div>
                 <div className="flex-1">
                   <div className="bg-gray-100 rounded-lg p-3 max-w-md">
                     <p className="text-sm">Perfect! We can cover that in detail. Feel free to prepare any specific examples.</p>

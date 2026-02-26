@@ -7,7 +7,6 @@ import { useFetchProjectMessages, sendMessage, markProjectMessagesAsRead } from 
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useToast } from '@/hooks/use-toast'
 import { format, isToday, isYesterday } from 'date-fns'
 import { ArrowLeft, ArrowUp } from 'lucide-react'
@@ -241,12 +240,9 @@ export default function MessagesPage() {
             {!isMine && (
               <div className="w-8 flex-shrink-0 self-end mb-0.5">
                 {isLastInGroup ? (
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage src={msg.sender_avatar ?? undefined} />
-                    <AvatarFallback className="text-xs font-semibold bg-neutral-100 text-neutral-600">
-                      {msg.sender_name?.charAt(0).toUpperCase() ?? '?'}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="h-8 w-8 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-600 text-[10px] font-semibold">
+                    {msg.sender_name?.charAt(0).toUpperCase() ?? '?'}
+                  </div>
                 ) : (
                   <div className="h-8 w-8" />
                 )}
@@ -326,12 +322,9 @@ export default function MessagesPage() {
           <ArrowLeft className="h-4 w-4" />
         </button>
 
-        <Avatar className="h-9 w-9">
-          <AvatarImage src={recipientAvatar} />
-          <AvatarFallback className="bg-neutral-100 text-neutral-700 text-sm font-semibold">
-            {recipientName.charAt(0).toUpperCase()}
-          </AvatarFallback>
-        </Avatar>
+        <div className="h-9 w-9 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 text-sm font-semibold">
+          {recipientName.charAt(0).toUpperCase()}
+        </div>
 
         <div className="flex flex-col min-w-0">
           <h2 className="text-sm font-semibold text-neutral-900 truncate leading-tight">{recipientName}</h2>

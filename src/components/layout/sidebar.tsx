@@ -1,7 +1,6 @@
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Skeleton } from "@/components/ui/skeleton"
 import { DropdownMenu, DropdownMenuGroup, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import {
@@ -82,7 +81,6 @@ const NavLink = ({ item, isActive }: { item: NavItem; isActive: boolean }) => (
 
 const UserSkeleton = () => (
   <div className="flex items-center gap-3 px-1">
-    <Skeleton className="h-8 w-8 rounded-full shrink-0" />
     <div className="flex flex-col gap-1.5 flex-1">
       <Skeleton className="h-3 w-24" />
       <Skeleton className="h-2.5 w-16" />
@@ -142,10 +140,6 @@ export function Sidebar({ userType }: SidebarProps) {
     navigate("/auth", { replace: true })
   }
 
-  const initials = profile?.full_name
-    ? profile.full_name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "?"
-
   // Split nav: all items except Settings / last item goes into main, Settings pinned
   const mainNav = navigation.filter((i) => i.name !== "Settings")
   const settingsNav = navigation.filter((i) => i.name === "Settings")
@@ -184,12 +178,8 @@ export function Sidebar({ userType }: SidebarProps) {
             <DropdownMenuTrigger asChild>
               <Button
                 variant="ghost"
-                className="w-full justify-start gap-3 px-2"
+                className="w-full justify-start gap-3 px-2 h-auto py-2"
               >
-                <Avatar className="h-8 w-8 rounded-full border">
-                  {profile?.avatar_url && <AvatarImage src={profile.avatar_url} />}
-                  <AvatarFallback className="text-[10px]">{initials}</AvatarFallback>
-                </Avatar>
                 <div className="flex flex-col items-start overflow-hidden text-left">
                   <span className="w-full truncate text-sm font-semibold">
                     {profile?.full_name || "User"}

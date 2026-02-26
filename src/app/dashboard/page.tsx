@@ -1,7 +1,6 @@
 import { AppLayout } from "@/components/layout/app-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Calendar, Users, MessageSquare, TrendingUp, Clock, ArrowRight } from "lucide-react"
 
@@ -87,11 +86,9 @@ export default function DashboardPage() {
             <CardContent className="space-y-4">
               {[1, 2, 3].map((i) => (
                 <div key={i} className="flex items-start space-x-4 p-3 rounded-lg bg-gradient-to-r from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-colors">
-                  <Avatar>
-                    <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white">
-                      M{i}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white font-semibold">
+                    M{i}
+                  </div>
                   <div className="flex-1 space-y-1">
                     <p className="text-sm font-medium">React Advanced Patterns</p>
                     <p className="text-xs text-gray-600">with Sarah Johnson</p>
@@ -153,11 +150,9 @@ export default function DashboardPage() {
               {[1, 2, 3].map((i) => (
                 <div key={i} className="p-4 rounded-lg bg-gradient-to-br from-blue-50 to-purple-50 hover:from-blue-100 hover:to-purple-100 transition-colors">
                   <div className="flex items-center space-x-3 mb-3">
-                    <Avatar>
-                      <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white">
-                        RM
-                      </AvatarFallback>
-                    </Avatar>
+                    <div className="h-10 w-10 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white font-semibold">
+                      RM
+                    </div>
                     <div>
                       <p className="font-medium">Robert Martinez</p>
                       <p className="text-xs text-gray-600">Senior Engineer at Tech Co</p>

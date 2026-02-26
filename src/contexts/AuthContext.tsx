@@ -17,9 +17,10 @@ interface Profile {
   id: string
   full_name: string
   role: UserRole
-  avatar_url: string | null
   company_name: string | null
   university_id: string | null
+  bio: string | null
+  skills: string[] | null
 }
 
 // --------------------------------------------------------------------------
@@ -72,7 +73,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, role, avatar_url, company_name, university_id')
+        .select('id, full_name, role, company_name, university_id, bio, skills')
         .eq('id', userId)
         .single()
 
@@ -85,9 +86,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
             id: userId,
             full_name: user?.user_metadata?.full_name || 'User',
             role: user?.user_metadata?.role || 'student',
-            avatar_url: null,
             company_name: null,
             university_id: null,
+            bio: null,
+            skills: null,
           })
           return
         }

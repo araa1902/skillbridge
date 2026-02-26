@@ -20,6 +20,8 @@ import {
   TrendingUp,
   Users,
 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useMyProjects, useEmployerStats, ProjectRow } from "@/hooks/useProjects";
 
 type Project = {
   id: string;
@@ -79,100 +81,35 @@ const formatRelativeTime = (dateString: string) => {
 };
 
 export default function ManageProjects() {
-  const [projects, setProjects] = useState<Project[]>([]);
+  const { user } = useAuth();
+  const { projects: dbProjects, loading: projectsLoading } = useMyProjects(user?.id ?? null);
+  const stats = useEmployerStats(user?.id ?? null);
+
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
 
-  useEffect(() => {
-    setProjects([
-      {
-        id: "1",
-        title: "Website Redesign Project",
-        description: "Looking for a multidisciplinary team to refresh our commerce site, improve conversions, and create a design system.",
-        postedDate: "2 days ago",
-        category: "Web Development",
-        status: "Active",
-        applications: 18,
-        budget: "£8,500",
-        hours: "20 hrs/week",
-        deadline: "2024-11-05",
-        talentsNeeded: 2,
-        priority: "High",
-        progress: 65,
-        deliverables: 5,
-        updatedAt: "2024-10-18T09:00:00Z",
-      },
-      {
-        id: "2",
-        title: "Product Launch Collateral",
-        description: "Need a marketing specialist and designer to craft messaging, assets, and launch materials for a new B2B feature.",
-        postedDate: "5 days ago",
-        category: "Marketing",
-        status: "Draft",
-        applications: 4,
-        budget: "£3,200",
-        hours: "15 hrs/week",
-        deadline: "2024-10-30",
-        talentsNeeded: 1,
-        priority: "Medium",
-        progress: 40,
-        deliverables: 8,
-        updatedAt: "2024-10-17T15:30:00Z",
-      },
-      {
-        id: "3",
-        title: "Mobile App Accessibility Audit",
-        description: "Audit our iOS and Android apps for WCAG compliance, deliver fixes, and train our internal team on best practices.",
-        postedDate: "1 week ago",
-        category: "Product",
-        status: "Active",
-        applications: 11,
-        budget: "£6,100",
-        hours: "10 hrs/week",
-        deadline: "2024-11-12",
-        talentsNeeded: 1,
-        priority: "High",
-        progress: 48,
-        deliverables: 6,
-        updatedAt: "2024-10-16T11:20:00Z",
-      },
-      {
-        id: "4",
-        title: "Customer Insights Dashboard",
-        description: "Looking for a data viz specialist to build dashboards that sales can self-serve for churn and upsell signals.",
-        postedDate: "2 weeks ago",
-        category: "Data",
-        status: "Completed",
-        applications: 26,
-        budget: "£12,400",
-        hours: "Full-time contract",
-        deadline: "2024-09-10",
-        talentsNeeded: 3,
-        priority: "Low",
-        progress: 100,
-        deliverables: 10,
-        updatedAt: "2024-09-12T10:00:00Z",
-      },
-      {
-        id: "5",
-        title: "Internal Knowledge Base Setup",
-        description: "Set up Notion with templates, governance, and onboarding flow for the entire go-to-market team.",
-        postedDate: "3 weeks ago",
-        category: "Operations",
-        status: "Closed",
-        applications: 9,
-        budget: "£4,300",
-        hours: "Ad-hoc",
-        deadline: "2024-09-28",
-        talentsNeeded: 1,
-        priority: "Medium",
-        progress: 100,
-        deliverables: 4,
-        updatedAt: "2024-09-30T14:40:00Z",
-      },
-    ]);
-  }, []);
+  const projects: Project[] = useMemo(() => {
+    return dbProjects.map(p => ({
+      id: p.id,
+      title: p.title,
+      description: p.description,
+      postedDate: new Date(p.created_at).toLocaleDateString(),
+      category: "General", // To store category in db later
+      status: p.status === 'open' ? 'Active' :
+        p.status === 'draft' ? 'Draft' :
+          p.status === 'completed' ? 'Completed' : 'Closed',
+      applications: 0, // Should be fetched from another join or stats
+      budget: `£${p.budget}`,
+      hours: `${p.duration_hours} hrs`,
+      deadline: p.created_at, // Add actual deadline later if needed
+      talentsNeeded: 1,
+      priority: "Medium",
+      progress: p.status === 'completed' ? 100 : (p.status === 'in_progress' ? 50 : 0),
+      deliverables: 1, // Fallback
+      updatedAt: p.created_at,
+    }));
+  }, [dbProjects]);
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = { all: projects.length };
@@ -293,14 +230,14 @@ export default function ManageProjects() {
             {[
               {
                 label: "Active projects",
-                value: `${statusCounts.active ?? 0}`,
-                subtext: "2 briefs due this week",
+                value: `${stats.activeProjects}`,
+                subtext: "Current briefs open",
                 icon: Briefcase,
               },
               {
                 label: "Applications",
-                value: `${totalApplications}`,
-                subtext: "5 need a response",
+                value: `${stats.totalApplicants}`,
+                subtext: "Total received",
                 icon: Users,
               },
               {
@@ -443,7 +380,7 @@ export default function ManageProjects() {
                             <p className="text-xs text-slate-500">Updated {formatRelativeTime(project.updatedAt)}</p>
                           </div>
                         </div>
-                        <p className="text-slate-600">{project.description}</p>
+                        <p className="text-slate-600">{project.description.trim().slice(0, 100) + "..."}</p>
                       </CardHeader>
                       <CardContent className="space-y-5">
                         <div className="grid gap-4 sm:grid-cols-3">

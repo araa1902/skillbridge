@@ -1,276 +1,590 @@
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Bell, Briefcase, Award, TrendingUp, Clock, Star, MessageSquare, ArrowUpRight, CheckCircle2 } from "lucide-react";
-import { Link } from "react-router-dom";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { ProjectCard } from "@/components/ProjectCard";
-import { projects } from "@/lib/data";
-import { studentReferences } from "@/lib/references-data";
-import { ReferenceCard } from "@/components/ReferenceCard";
-import { PageHeader } from "@/components/PageHeader";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState } from "react"
+import { Link } from "react-router-dom"
+import { motion } from "framer-motion"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Progress } from "@/components/ui/progress"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { ProjectCard } from "@/components/ProjectCard"
+import { useAuth } from "@/contexts/AuthContext"
+import { useFetchMyApplications } from "@/hooks/useApplications"
+import { supabase } from "@/lib/supabase"
+import { useToast } from "@/hooks/use-toast"
+import {
+  Briefcase,
+  Award,
+  TrendingUp,
+  Star,
+  ArrowUpRight,
+  CheckCircle2,
+  MessageSquare,
+  Upload,
+  ChevronRight,
+  Sparkles,
+  CircleDot,
+} from "lucide-react"
+import { cn } from "@/lib/utils"
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+interface ProfileItem {
+  label: string
+  done: boolean
+}
+
+// ─── Constants ────────────────────────────────────────────────────────────────
+
+const PROFILE_ITEMS: ProfileItem[] = [
+  { label: "University verified", done: true },
+  { label: "Skills added", done: true },
+  { label: "Bio written", done: true },
+  { label: "Portfolio projects", done: false },
+  { label: "Profile photo", done: false },
+]
+
+const MOCK_CREDENTIALS = [
+  { label: "Web Design", level: "EQF 5", color: "text-blue-600", bg: "bg-blue-50" },
+  { label: "Data Analysis", level: "EQF 5", color: "text-violet-600", bg: "bg-violet-50" },
+  { label: "Marketing", level: "EQF 4", color: "text-emerald-600", bg: "bg-emerald-50" },
+  { label: "Research", level: "EQF 5", color: "text-orange-600", bg: "bg-orange-50" },
+]
+
+const fadeUp = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0 },
+}
+
+// ─── Sub-components ───────────────────────────────────────────────────────────
+
+const StatCard = ({
+  label,
+  value,
+  sub,
+  icon: Icon,
+  iconClass,
+  trend,
+  href,
+  delay = 0,
+}: {
+  label: string
+  value: React.ReactNode
+  sub?: string
+  icon: React.ElementType
+  iconClass: string
+  trend?: string
+  href?: string
+  delay?: number
+}) => {
+  const inner = (
+    <motion.div
+      variants={fadeUp}
+      initial="initial"
+      animate="animate"
+      transition={{ duration: 0.3, delay }}
+    >
+      <Card className="relative overflow-hidden hover:shadow-sm transition-shadow duration-200 h-full">
+        <CardContent className="pt-5 pb-4 px-5">
+          <div className="flex items-start justify-between mb-3">
+            <p className="text-xs font-medium text-muted-foreground">{label}</p>
+            <div className={cn("p-1.5 rounded-lg", iconClass.replace("text-", "bg-").replace("-600", "-50").replace("-500", "-50"))}>
+              <Icon className={cn("h-3.5 w-3.5", iconClass)} />
+            </div>
+          </div>
+          <p className="text-2xl font-bold tracking-tight text-foreground">{value}</p>
+          {(sub || trend) && (
+            <div className="flex items-center justify-between mt-1.5">
+              {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
+              {trend && (
+                <span className="inline-flex items-center text-xs font-medium text-emerald-600">
+                  <ArrowUpRight className="h-3 w-3" />
+                  {trend}
+                </span>
+              )}
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </motion.div>
+  )
+
+  return href ? <Link to={href} className="block h-full">{inner}</Link> : inner
+}
+
+const ActiveProjectRow = ({
+  app,
+  onSubmit,
+}: {
+  app: any
+  onSubmit: (id: string) => void
+}) => (
+  <div className="flex items-start gap-4 p-4 rounded-xl border bg-card hover:bg-muted/30 transition-colors">
+    {/* Status indicator */}
+    <div className="mt-0.5 shrink-0">
+      {app.deliverable_link ? (
+        <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+      ) : (
+        <CircleDot className="h-4 w-4 text-blue-500" />
+      )}
+    </div>
+
+    {/* Content */}
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center justify-between gap-2 mb-0.5">
+        <p className="text-sm font-semibold truncate">{app.project_title}</p>
+        <Badge
+          variant="secondary"
+          className={cn(
+            "text-[10px] shrink-0",
+            app.deliverable_link
+              ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+              : "bg-blue-50 text-blue-700 border-blue-200"
+          )}
+        >
+          {app.deliverable_link ? "Submitted" : "In Progress"}
+        </Badge>
+      </div>
+      <p className="text-xs text-muted-foreground mb-3">
+        {app.company_name ?? app.business_name ?? "Company"}
+      </p>
+
+      <div className="flex items-center gap-2">
+        {!app.deliverable_link && (
+          <Button
+            size="sm"
+            className="h-7 text-xs gap-1.5"
+            onClick={() => onSubmit(app.id)}
+          >
+            <Upload className="h-3 w-3" />
+            Submit Work
+          </Button>
+        )}
+        <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" asChild>
+          <Link to={`/project/${app.project_id}/messages?to=${app.business_id}`}>
+            <MessageSquare className="h-3 w-3" />
+            Message
+          </Link>
+        </Button>
+        <Button size="sm" variant="ghost" className="h-7 text-xs ml-auto gap-1" asChild>
+          <Link to={`/project/${app.project_id}`}>
+            View
+            <ChevronRight className="h-3 w-3" />
+          </Link>
+        </Button>
+      </div>
+    </div>
+  </div>
+)
+
+const EmptyState = ({
+  icon: Icon,
+  title,
+  description,
+  action,
+}: {
+  icon: React.ElementType
+  title: string
+  description: string
+  action?: React.ReactNode
+}) => (
+  <div className="flex flex-col items-center justify-center py-10 text-center">
+    <div className="h-10 w-10 rounded-xl bg-muted flex items-center justify-center mb-3">
+      <Icon className="h-5 w-5 text-muted-foreground" />
+    </div>
+    <p className="text-sm font-medium mb-1">{title}</p>
+    <p className="text-xs text-muted-foreground max-w-xs mb-4">{description}</p>
+    {action}
+  </div>
+)
+
+// ─── Main component ───────────────────────────────────────────────────────────
 
 const StudentDashboard = () => {
-  const { profile } = useAuth();
-  const recommendedProjects = projects.slice(0, 3);
-  const recentReferences = studentReferences.slice(0, 2);
-  const averageRating = (
-    studentReferences.reduce((sum, ref) => sum + ref.rating, 0) /
-    studentReferences.length
-  ).toFixed(1);
+  const { profile, user } = useAuth()
+  const { toast } = useToast()
+  const { applications, refetch } = useFetchMyApplications(user?.id ?? null)
 
-  const displayName = profile?.full_name ?? "Student";
-  const firstName = profile?.full_name?.split(' ')[0] ?? "Student";
+  const activeProjects = applications.filter((a) => a.status === "accepted")
+
+  const [deliverableDialog, setDeliverableDialog] = useState<string | null>(null)
+  const [deliverableLink, setDeliverableLink] = useState("")
+  const [submitting, setSubmitting] = useState(false)
+
+  const recommendedProjects: any[] = []
+  const averageRating = 0
+  const firstName = profile?.full_name?.split(" ")[0] ?? "there"
+
+  const profileComplete = Math.round(
+    (PROFILE_ITEMS.filter((i) => i.done).length / PROFILE_ITEMS.length) * 100
+  )
+
+  const handleSubmitDeliverable = async () => {
+    if (!deliverableDialog || !deliverableLink.trim()) return
+    setSubmitting(true)
+    const { error } = await supabase
+      .from("applications")
+      .update({ deliverable_link: deliverableLink.trim() })
+      .eq("id", deliverableDialog)
+
+    setSubmitting(false)
+    if (error) {
+      toast({ title: "Failed to submit", description: error.message, variant: "destructive" })
+    } else {
+      toast({ title: "Work submitted!" })
+      setDeliverableDialog(null)
+      setDeliverableLink("")
+      refetch()
+    }
+  }
 
   return (
-    <div className="min-h-screen bg-gray-50/50">
-      <PageHeader
-        title="Dashboard"
-        subtitle="University of Oxford · Computer Science · 2nd Year"
-        description={`Welcome back, ${firstName}! Here's your project progress.`}
-        userName={displayName}
-        userRole="Student"
-      />
+    <div className="min-h-screen bg-background">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* ── Greeting ── */}
+        <motion.div
+          variants={fadeUp}
+          initial="initial"
+          animate="animate"
+          transition={{ duration: 0.3 }}
+        >
+          <h1 className="text-2xl font-bold tracking-tight">
+            Good to see you, {firstName}
+          </h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            Here's what's happening with your projects today.
+          </p>
+        </motion.div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          {/* Active Projects Card */}
-          <Card className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-sm font-medium text-gray-700">Active Projects</CardTitle>
-              <Briefcase className="h-5 w-5 text-blue-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">3</div>
-                  <p className="text-xs text-gray-600 mt-1">2 in progress</p>
-                </div>
-                <div className="flex items-center text-green-600 text-xs font-medium">
-                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
-                  +1 new
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Earned Credits Card */}
-          <Card className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-sm font-medium text-gray-700">Earned Credits</CardTitle>
-              <Award className="h-5 w-5 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div>
-                <div className="text-3xl font-bold text-gray-900">12</div>
-                <p className="text-xs text-gray-600 mt-1">4 badges earned</p>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Total Earnings Card */}
-          <Card className="hover:shadow-md transition-shadow duration-200">
-            <CardHeader className="flex flex-row items-center justify-between pb-3">
-              <CardTitle className="text-sm font-medium text-gray-700">Total Earnings</CardTitle>
-              <TrendingUp className="h-5 w-5 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="flex items-end justify-between">
-                <div>
-                  <div className="text-3xl font-bold text-gray-900">£1,240</div>
-                  <p className="text-xs text-gray-600 mt-1">+£400 this month</p>
-                </div>
-                <div className="flex items-center text-green-600 text-xs font-medium">
-                  <ArrowUpRight className="h-3 w-3 mr-0.5" />
-                  32%
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* References Card */}
-          <Link to="/student/references">
-            <Card className="hover:shadow-md transition-shadow duration-200 h-full">
-              <CardHeader className="flex flex-row items-center justify-between pb-3">
-                <CardTitle className="text-sm font-medium text-gray-700">References</CardTitle>
-                <Star className="h-5 w-5 text-yellow-500" />
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1">
-                    <div className="text-3xl font-bold text-gray-900">{studentReferences.length}</div>
-                    <div className="flex items-center gap-0.5">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-3.5 w-3.5 ${i < Math.round(Number(averageRating))
-                              ? "fill-yellow-400 text-yellow-400"
-                              : "text-gray-300"
-                            }`}
-                        />
-                      ))}
-                    </div>
-                  </div>
-                </div>
-                <p className="text-xs text-gray-600 mt-1">{averageRating} avg rating</p>
-              </CardContent>
-            </Card>
-          </Link>
+        {/* ── Stat row ── */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <StatCard
+            label="Active Projects"
+            value={activeProjects.length}
+            sub={activeProjects.length === 1 ? "project ongoing" : "projects ongoing"}
+            icon={Briefcase}
+            iconClass="text-blue-600"
+            delay={0.05}
+          />
+          <StatCard
+            label="Credits Earned"
+            value="12"
+            sub="4 badges"
+            icon={Award}
+            iconClass="text-violet-600"
+            delay={0.1}
+          />
+          <StatCard
+            label="Total Earnings"
+            value="£1,240"
+            sub="+£400 this month"
+            icon={TrendingUp}
+            iconClass="text-emerald-600"
+            trend="32%"
+            delay={0.15}
+          />
+          <StatCard
+            label="References"
+            value={
+              <span className="flex items-center gap-2">
+                0
+                <span className="flex items-center gap-0.5">
+                  {[...Array(5)].map((_, i) => (
+                    <Star
+                      key={i}
+                      className={cn(
+                        "h-3 w-3",
+                        i < Math.round(averageRating)
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-muted-foreground/30"
+                      )}
+                    />
+                  ))}
+                </span>
+              </span>
+            }
+            sub={`${averageRating.toFixed(1)} avg rating`}
+            icon={Star}
+            iconClass="text-yellow-500"
+            href="/student/references"
+            delay={0.2}
+          />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Active Projects</CardTitle>
-                <CardDescription>Your ongoing work and deliverables</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                {[
-                  {
-                    title: "Website Redesign - TechStart",
-                    meta: "UI/UX Design · 20 hours",
-                    progress: 65,
-                    status: "In Progress",
-                    detail: "Due in 5 days"
-                  },
-                  {
-                    title: "Data Analysis Project - FinCorp",
-                    meta: "Python · 10 hours",
-                    progress: 100,
-                    status: "Review",
-                    detail: "Submitted 2 days ago"
-                  }
-                ].map((project, idx) => (
-                  <div key={idx} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                    <div className="flex justify-between items-start mb-3">
-                      <div className="flex-1">
-                        <h4 className="font-semibold text-sm">{project.title}</h4>
-                        <p className="text-xs text-gray-500 mt-0.5">{project.meta}</p>
-                      </div>
-                      <Badge variant={project.status === "In Progress" ? "default" : "outline"} className="ml-2">
-                        {project.status}
-                      </Badge>
-                    </div>
-                    <Progress value={project.progress} className="mb-2 h-2" />
-                    <div className="flex justify-between text-xs text-gray-600 mb-3">
-                      <span>{project.progress}% Complete</span>
-                      <span>{project.detail}</span>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button size="sm" className="text-xs h-8">Upload</Button>
-                      <Button size="sm" variant="ghost" className="text-xs h-8">Message</Button>
-                    </div>
-                  </div>
-                ))}
-              </CardContent>
-            </Card>
+        {/* ── Body ── */}
+        <div className="grid lg:grid-cols-3 gap-6">
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Recommended for You</CardTitle>
-                <CardDescription>AI-matched projects based on your skills</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-3">
-                <div className="grid gap-4">
-                  {recommendedProjects.map((project) => (
-                    <ProjectCard key={project.id} {...project} />
-                  ))}
-                </div>
-                <Link to="/browse-projects">
-                  <Button variant="outline" className="w-full">View All Projects</Button>
-                </Link>
-              </CardContent>
-            </Card>
+          {/* ── Left: main content ── */}
+          <div className="lg:col-span-2 space-y-6">
+
+            {/* Active Projects */}
+            <motion.div
+              variants={fadeUp}
+              initial="initial"
+              animate="animate"
+              transition={{ duration: 0.3, delay: 0.2 }}
+            >
+              <Card className="shadow-none border-border/60">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base">Active Projects</CardTitle>
+                      <CardDescription className="text-xs mt-0.5">
+                        Your ongoing work and deliverables
+                      </CardDescription>
+                    </div>
+                    {activeProjects.length > 0 && (
+                      <Badge variant="secondary" className="text-xs">
+                        {activeProjects.length} active
+                      </Badge>
+                    )}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  {activeProjects.length === 0 ? (
+                    <EmptyState
+                      icon={Briefcase}
+                      title="No active projects yet"
+                      description="Apply to open projects to start working and building your portfolio."
+                      action={
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to="/browse-projects">Browse Projects</Link>
+                        </Button>
+                      }
+                    />
+                  ) : (
+                    activeProjects.map((app) => (
+                      <ActiveProjectRow
+                        key={app.id}
+                        app={app}
+                        onSubmit={setDeliverableDialog}
+                      />
+                    ))
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Recommended Projects */}
+            <motion.div
+              variants={fadeUp}
+              initial="initial"
+              animate="animate"
+              transition={{ duration: 0.3, delay: 0.25 }}
+            >
+              <Card className="shadow-none border-border/60">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-base flex items-center gap-2">
+                        <Sparkles className="h-4 w-4 text-violet-500" />
+                        Recommended for You
+                      </CardTitle>
+                      <CardDescription className="text-xs mt-0.5">
+                        Matched to your skills and profile
+                      </CardDescription>
+                    </div>
+                    <Button variant="ghost" size="sm" className="text-xs h-7" asChild>
+                      <Link to="/browse-projects">
+                        View all
+                        <ChevronRight className="h-3 w-3 ml-1" />
+                      </Link>
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {recommendedProjects.length === 0 ? (
+                    <EmptyState
+                      icon={Sparkles}
+                      title="No recommendations yet"
+                      description="Complete your profile so we can surface the best-matched projects for you."
+                      action={
+                        <Button size="sm" variant="outline" asChild>
+                          <Link to="/browse-projects">Browse All Projects</Link>
+                        </Button>
+                      }
+                    />
+                  ) : (
+                    <div className="grid gap-3">
+                      {recommendedProjects.map((p) => (
+                        <ProjectCard key={p.id} {...p} />
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
 
-          <div className="space-y-6">
-            <Card>
-              <CardHeader>
-                <CardTitle>Profile Strength</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Progress value={85} className="mb-2" />
-                <p className="text-sm text-gray-600 mb-4">85% Complete</p>
-                <ul className="space-y-2 text-sm">
-                  <li className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                    <span>University verified</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-green-500 rounded-full"></div>
-                    <span>Skills added</span>
-                  </li>
-                  <li className="flex items-center gap-2">
-                    <div className="h-2 w-2 bg-yellow-500 rounded-full"></div>
-                    <span>Add portfolio projects</span>
-                  </li>
-                </ul>
-                <Link to="/student/settings">
-                  <Button variant="outline" className="w-full mt-4">Complete Profile</Button>
-                </Link>
-              </CardContent>
-            </Card>
+          {/* ── Right: sidebar ── */}
+          <div className="space-y-4">
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Credentials</CardTitle>
-                <CardDescription>Verifiable micro-credentials</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="text-center p-3 border rounded-lg">
-                    <Award className="h-8 w-8 text-blue-600 mx-auto mb-2" />
-                    <p className="text-xs font-medium">Web Design</p>
-                    <p className="text-xs text-gray-500">EQF Level 5</p>
+            {/* Profile Strength */}
+            <motion.div
+              variants={fadeUp}
+              initial="initial"
+              animate="animate"
+              transition={{ duration: 0.3, delay: 0.3 }}
+            >
+              <Card className="shadow-none border-border/60">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-semibold">Profile Strength</CardTitle>
+                    <span className="text-xs font-semibold text-foreground">{profileComplete}%</span>
                   </div>
-                  <div className="text-center p-3 border rounded-lg">
-                    <Award className="h-8 w-8 text-purple-600 mx-auto mb-2" />
-                    <p className="text-xs font-medium">Data Analysis</p>
-                    <p className="text-xs text-gray-500">EQF Level 5</p>
-                  </div>
-                  <div className="text-center p-3 border rounded-lg">
-                    <Award className="h-8 w-8 text-green-600 mx-auto mb-2" />
-                    <p className="text-xs font-medium">Marketing</p>
-                    <p className="text-xs text-gray-500">EQF Level 4</p>
-                  </div>
-                  <div className="text-center p-3 border rounded-lg">
-                    <Award className="h-8 w-8 text-orange-600 mx-auto mb-2" />
-                    <p className="text-xs font-medium">Research</p>
-                    <p className="text-xs text-gray-500">EQF Level 5</p>
-                  </div>
-                </div>
-                <Link to="/student/credentials">
-                  <Button variant="outline" className="w-full mt-4">View All Badges</Button>
-                </Link>
-              </CardContent>
-            </Card>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <Progress value={profileComplete} className="h-1.5" />
+                  <ul className="space-y-2">
+                    {PROFILE_ITEMS.map((item) => (
+                      <li key={item.label} className="flex items-center gap-2.5 text-xs">
+                        <div
+                          className={cn(
+                            "h-1.5 w-1.5 rounded-full shrink-0",
+                            item.done ? "bg-emerald-500" : "bg-muted-foreground/30"
+                          )}
+                        />
+                        <span className={item.done ? "text-foreground" : "text-muted-foreground"}>
+                          {item.label}
+                        </span>
+                        {item.done && (
+                          <CheckCircle2 className="h-3 w-3 text-emerald-500 ml-auto" />
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                  <Button variant="outline" size="sm" className="w-full text-xs" asChild>
+                    <Link to="/student/settings">Complete Profile</Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </motion.div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Mentor</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar>
-                    <AvatarFallback>SM</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">Dr. Sarah Mitchell</p>
-                    <p className="text-sm text-gray-600">Senior UX Designer</p>
+            {/* Credentials */}
+            <motion.div
+              variants={fadeUp}
+              initial="initial"
+              animate="animate"
+              transition={{ duration: 0.3, delay: 0.35 }}
+            >
+              <Card className="shadow-none border-border/60">
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-sm font-semibold">Credentials</CardTitle>
+                    <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
+                      <Link to="/student/credentials">
+                        View all
+                        <ChevronRight className="h-3 w-3 ml-1" />
+                      </Link>
+                    </Button>
                   </div>
-                </div>
-                <Button variant="outline" className="w-full">Schedule Meeting</Button>
-              </CardContent>
-            </Card>
+                  <CardDescription className="text-xs">Verifiable micro-credentials</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-2">
+                    {MOCK_CREDENTIALS.map((cred) => (
+                      <div
+                        key={cred.label}
+                        className={cn(
+                          "flex flex-col items-center justify-center gap-1.5 rounded-xl p-3 text-center",
+                          cred.bg
+                        )}
+                      >
+                        <Award className={cn("h-5 w-5", cred.color)} />
+                        <p className="text-xs font-semibold leading-tight">{cred.label}</p>
+                        <span className="text-[10px] text-muted-foreground font-medium">{cred.level}</span>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+
+            {/* Quick links */}
+            <motion.div
+              variants={fadeUp}
+              initial="initial"
+              animate="animate"
+              transition={{ duration: 0.3, delay: 0.4 }}
+            >
+              <Card className="shadow-none border-border/60">
+                <CardContent className="pt-4 pb-3 space-y-1">
+                  {[
+                    { label: "My Applications", href: "/student/applications", icon: Briefcase },
+                    { label: "My Portfolio", href: "/student/credentials", icon: Award },
+                    { label: "References", href: "/student/references", icon: Star },
+                  ].map(({ label, href, icon: Icon }) => (
+                    <Link
+                      key={href}
+                      to={href}
+                      className="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors group"
+                    >
+                      <span className="flex items-center gap-2.5 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
+                        <Icon className="h-3.5 w-3.5" />
+                        {label}
+                      </span>
+                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
+                    </Link>
+                  ))}
+                </CardContent>
+              </Card>
+            </motion.div>
           </div>
         </div>
       </div>
-    </div>
-  );
-};
 
-export default StudentDashboard;
+      {/* ── Submit Deliverable Dialog ── */}
+      <Dialog
+        open={!!deliverableDialog}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeliverableDialog(null)
+            setDeliverableLink("")
+          }
+        }}
+      >
+        <DialogContent className="max-w-sm">
+          <DialogHeader>
+            <DialogTitle>Submit Your Work</DialogTitle>
+            <DialogDescription className="text-sm">
+              Paste a link to your completed deliverable — GitHub, Figma, Google Drive, or any public URL.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-2">
+            <Input
+              placeholder="https://github.com/you/project"
+              value={deliverableLink}
+              onChange={(e) => setDeliverableLink(e.target.value)}
+              className="h-10 text-sm"
+              onKeyDown={(e) => e.key === "Enter" && handleSubmitDeliverable()}
+            />
+          </div>
+          <DialogFooter className="gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setDeliverableDialog(null)
+                setDeliverableLink("")
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              size="sm"
+              onClick={handleSubmitDeliverable}
+              disabled={!deliverableLink.trim() || submitting}
+              className="gap-1.5"
+            >
+              <Upload className="h-3.5 w-3.5" />
+              {submitting ? "Submitting…" : "Submit Work"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  )
+}
+
+export default StudentDashboard

@@ -3,12 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Sparkles, 
-  TrendingUp, 
-  Target, 
-  Compass, 
+import {
+  Sparkles,
+  TrendingUp,
+  Target,
+  Compass,
   Award,
   Briefcase,
   Clock,
@@ -133,10 +132,9 @@ export default function StudentDashboard() {
                 We've found {recommendedProjects.length} personalized opportunities for you
               </p>
             </div>
-            <Avatar className="h-16 w-16">
-              <AvatarImage src="/placeholder-avatar.jpg" />
-              <AvatarFallback>AJ</AvatarFallback>
-            </Avatar>
+            <div className="h-16 w-16 flex items-center justify-center rounded-full bg-muted text-xl font-bold">
+              AJ
+            </div>
           </div>
         </div>
 
@@ -152,7 +150,7 @@ export default function StudentDashboard() {
                   AI-Powered Career Matching
                 </h3>
                 <p className="text-gray-700 mb-4">
-                  Our intelligent matching engine has analyzed your skills, interests, and career aspirations 
+                  Our intelligent matching engine has analyzed your skills, interests, and career aspirations
                   to find the perfect projects for your journey. Explore different fields risk-free!
                 </p>
                 <div className="flex gap-2">
@@ -285,7 +283,7 @@ export default function StudentDashboard() {
               <Card key={project.id} className="hover:shadow-lg transition-shadow">
                 <CardHeader>
                   <div className="flex items-start justify-between mb-2">
-                    <Badge 
+                    <Badge
                       className={`${getMatchScoreColor(project.matchScore)} border`}
                     >
                       <Star className="h-3 w-3 mr-1 fill-current" />
@@ -367,7 +365,7 @@ export default function StudentDashboard() {
                   Not Sure About Your Career Path?
                 </h3>
                 <p className="text-gray-700 mb-4">
-                  Use our Career Explorer tool to test different fields through short projects. 
+                  Use our Career Explorer tool to test different fields through short projects.
                   Discover what you love before committing to a formal career pathway.
                 </p>
                 <Button className="bg-orange-600 hover:bg-orange-700">

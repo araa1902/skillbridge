@@ -2,26 +2,25 @@ import { Session } from "@/types/session";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Clock, Users, Star, Calendar, DollarSign } from "lucide-react";
 import { Link } from "react-router-dom";
 
-interface SessionCardProps extends Session {}
+interface SessionCardProps extends Session { }
 
 export function SessionCard(session: SessionCardProps) {
-  const { 
-    id, 
-    title, 
-    description, 
-    mentor, 
-    duration, 
-    price, 
-    category, 
-    level, 
-    enrolled, 
-    maxCapacity, 
+  const {
+    id,
+    title,
+    description,
+    mentor,
+    duration,
+    price,
+    category,
+    level,
+    enrolled,
+    maxCapacity,
     sessionType,
-    availableSlots 
+    availableSlots
   } = session;
 
   return (
@@ -39,26 +38,24 @@ export function SessionCard(session: SessionCardProps) {
             {level}
           </Badge>
         </div>
-        
+
         <CardTitle className="text-xl leading-tight hover:text-slate-700 transition-colors">
           <Link to={`/sessions/${id}`}>
             {title}
           </Link>
         </CardTitle>
-        
+
         <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
           {description}
         </p>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {/* Mentor Info */}
         <div className="flex items-center gap-3">
-          <Avatar className="w-10 h-10">
-            <AvatarFallback className="bg-gradient-to-br from-slate-400 to-gray-500 text-white text-sm">
-              {mentor.avatar}
-            </AvatarFallback>
-          </Avatar>
+          <div className="w-10 h-10 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-400 to-gray-500 text-white text-sm font-semibold">
+            {mentor.avatar}
+          </div>
           <div>
             <p className="font-semibold text-sm">{mentor.name}</p>
             <p className="text-xs text-gray-600">{mentor.title} at {mentor.company}</p>

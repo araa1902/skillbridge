@@ -26,7 +26,7 @@ interface ProtectedRouteProps {
 // Component
 // --------------------------------------------------------------------------
 export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) {
-  const { session, role, loading } = useAuth()
+  const { session, profile, role, loading } = useAuth()
   const location = useLocation()
 
   // 1. Still resolving the session / profile – show a full-page skeleton
@@ -56,6 +56,16 @@ export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) 
   // 4. Wrong role → redirect to the user's own dashboard
   if (!allowedRoles.includes(role)) {
     return <Navigate to={ROLE_HOME[role]} replace />
+  }
+
+  // 4.5 Interception logic for Onboarding
+  if (location.pathname !== '/onboarding') {
+    if (role === 'student' && (!profile?.bio || !profile?.skills || profile.skills.length === 0)) {
+      return <Navigate to="/onboarding" replace />
+    }
+    if (role === 'business' && !profile?.company_name) {
+      return <Navigate to="/onboarding" replace />
+    }
   }
 
   // 5. All checks pass – render the protected content

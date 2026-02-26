@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -27,6 +26,7 @@ interface ProjectData {
   title: string;
   description?: string;
   company_name?: string;
+  company_bio?: string;
   duration_hours?: number;
   required_skills?: string[];
   deliverables?: string;
@@ -139,7 +139,7 @@ const ProjectDetails = () => {
         const { data, error: fetchError } = await supabase
           .from("projects")
           .select(
-            `*, profiles!projects_business_id_fkey (full_name, company_name)`
+            `*, profiles:projects_business_id_fkey (full_name, company_name, bio)`
           )
           .eq("id", id)
           .single();
@@ -153,6 +153,7 @@ const ProjectDetails = () => {
             ...raw,
             company_name:
               profile?.company_name ?? profile?.full_name ?? null,
+            company_bio: profile?.bio ?? null,
             profiles: undefined,
           });
         }
@@ -278,11 +279,11 @@ const ProjectDetails = () => {
           <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-6">
             {/* Left: identity */}
             <div className="flex items-start gap-4 flex-1 min-w-0">
-              <Avatar className="h-14 w-14 shrink-0 rounded-xl border">
-                <AvatarFallback className="rounded-xl text-base font-semibold bg-muted">
+              <div className="h-14 w-14 flex items-center justify-center shrink-0 rounded-xl border bg-muted">
+                <span className="text-base font-semibold">
                   {project.company_name?.substring(0, 2).toUpperCase() ?? "NA"}
-                </AvatarFallback>
-              </Avatar>
+                </span>
+              </div>
 
               <div className="min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1">
@@ -366,6 +367,7 @@ const ProjectDetails = () => {
                     Deliverables
                   </TabsTrigger>
                 )}
+                <TabsTrigger value="about-us" className="text-sm">About Us</TabsTrigger>
               </TabsList>
 
               {/* Overview */}
@@ -411,8 +413,31 @@ const ProjectDetails = () => {
                   </motion.div>
                 </TabsContent>
               )}
+
+              <TabsContent value="about-us">
+                <motion.div
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <Card className="border-border/60 shadow-none">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-base font-semibold">
+                        About Us
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <p className="text-sm text-muted-foreground leading-7 whitespace-pre-line">
+                        {project.company_bio || "No description provided."}
+                      </p>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              </TabsContent>
             </Tabs>
           </div>
+
+
 
           {/* ── Sidebar ── */}
           <div className="space-y-4">
@@ -421,11 +446,11 @@ const ProjectDetails = () => {
             <Card className="border-border/60 shadow-none">
               <CardContent className="pt-5">
                 <div className="flex items-center gap-3 mb-4">
-                  <Avatar className="h-10 w-10 rounded-lg border">
-                    <AvatarFallback className="rounded-lg text-sm font-semibold bg-muted">
+                  <div className="h-10 w-10 flex items-center justify-center rounded-lg border bg-muted">
+                    <span className="text-sm font-semibold">
                       {project.company_name?.substring(0, 2).toUpperCase() ?? "NA"}
-                    </AvatarFallback>
-                  </Avatar>
+                    </span>
+                  </div>
                   <div>
                     <p className="text-sm font-semibold leading-tight">
                       {project.company_name ?? "Company"}
@@ -433,9 +458,6 @@ const ProjectDetails = () => {
                     <p className="text-xs text-muted-foreground">Business</p>
                   </div>
                 </div>
-                <Button variant="outline" size="sm" className="w-full text-xs">
-                  View Profile
-                </Button>
               </CardContent>
             </Card>
 

@@ -170,8 +170,8 @@ export function useEmployerStats(businessId: string | null): EmployerStats {
 export async function insertProject(
   payload: ProjectInsert
 ): Promise<{ data: ProjectRow | null; error: string | null }> {
-  const { data, error } = await (supabase
-    .from('projects') as any)
+  const { data, error } = await supabase
+    .from('projects')
     .insert(payload)
     .select()
     .single()

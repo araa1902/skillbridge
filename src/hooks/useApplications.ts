@@ -25,8 +25,8 @@ export async function insertApplication(payload: {
   student_id: string
   cover_letter: string
 }): Promise<{ data: ApplicationRow | null; error: string | null }> {
-  const { data, error } = await (supabase
-    .from('applications') as any)
+  const { data, error } = await supabase
+    .from('applications')
     .insert(payload)
     .select()
     .single()
@@ -39,14 +39,73 @@ export async function insertApplication(payload: {
 
 export async function updateApplicationStatus(
   applicationId: string,
-  status: ApplicationStatus
+  status: ApplicationStatus,
+  projectId?: string
 ): Promise<{ error: string | null }> {
-  const { error } = await (supabase
-    .from('applications') as any)
+  const { error } = await supabase
+    .from('applications')
     .update({ status })
     .eq('id', applicationId)
 
   if (error) return { error: (error as any).message ?? String(error) }
+
+  if (status === 'accepted' && projectId) {
+    // 1. Mark project as in_progress
+    await supabase
+      .from('projects')
+      .update({ status: 'in_progress' })
+      .eq('id', projectId)
+
+    // 2. Reject all other pending applications for this project
+    await supabase
+      .from('applications')
+      .update({ status: 'rejected' })
+      .eq('project_id', projectId)
+      .neq('id', applicationId)
+      .eq('status', 'pending')
+  }
+
+  return { error: null }
+}
+
+// ─── Employer: Approve deliverable & issue credential ──────────────────────
+
+export async function approveApplicationAndIssueCredential(payload: {
+  application_id: string
+  project_id: string
+  student_id: string
+  business_id: string
+  rating: number
+  feedback: string
+  skills_verified: string[]
+}): Promise<{ error: string | null }> {
+  // 1. Mark application as completed
+  const { error: appErr } = await supabase
+    .from('applications')
+    .update({ status: 'completed' })
+    .eq('id', payload.application_id)
+  if (appErr) return { error: appErr.message }
+
+  // 2. Mark project as completed + payment released
+  const { error: projErr } = await supabase
+    .from('projects')
+    .update({ status: 'completed', payment_status: 'released' })
+    .eq('id', payload.project_id)
+  if (projErr) return { error: projErr.message }
+
+  // 3. Issue credential
+  const { error: credErr } = await supabase
+    .from('credentials')
+    .insert({
+      student_id: payload.student_id,
+      business_id: payload.business_id,
+      project_id: payload.project_id,
+      rating: payload.rating,
+      feedback: payload.feedback,
+      skills_verified: payload.skills_verified,
+    })
+  if (credErr) return { error: credErr.message }
+
   return { error: null }
 }
 
@@ -123,13 +182,10 @@ export function useFetchProjectApplications(businessId: string | null) {
     setError(null)
 
     // First, get all project IDs owned by this employer
-    const { data: projData, error: projError } = await (supabase
-      .from('projects') as any)
+    const { data: projData, error: projError } = await supabase
+      .from('projects')
       .select('id')
-      .eq('business_id', businessId) as unknown as {
-        data: { id: string }[] | null
-        error: { message: string } | null
-      }
+      .eq('business_id', businessId)
 
     if (projError || !projData || projData.length === 0) {
       if (projError) setError(projError.message)
@@ -147,8 +203,7 @@ export function useFetchProjectApplications(businessId: string | null) {
         *,
         projects!applications_project_id_fkey ( title ),
         profiles!applications_student_id_fkey (
-          full_name,
-          avatar_url
+          full_name
         )
       `)
       .in('project_id', projectIds)
@@ -162,7 +217,7 @@ export function useFetchProjectApplications(businessId: string | null) {
         ...row,
         project_title: row.projects?.title ?? null,
         student_name: row.profiles?.full_name ?? null,
-        student_avatar: row.profiles?.avatar_url ?? null,
+        business_id: businessId, // Add business_id here since the employer is viewing it
         company_name: null,
         business_name: null,
         projects: undefined,

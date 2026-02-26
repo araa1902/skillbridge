@@ -2,7 +2,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ArrowLeft, Clock, CheckCircle, XCircle, Building2, Calendar, MessageCircle, FileText, Trash2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -24,6 +23,7 @@ import {
   type ApplicationWithDetails,
   type ApplicationStatus,
 } from "@/hooks/useApplications";
+import { createReferenceRequest } from "@/hooks/useReferences";
 
 // ─── Status badge helper ──────────────────────────────────────────────────────
 
@@ -57,6 +57,12 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
       return (
         <Badge variant="outline" className="bg-gray-100 text-gray-500 border-gray-200">
           Withdrawn
+        </Badge>
+      );
+    case "completed":
+      return (
+        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">
+          <CheckCircle className="h-3 w-3 mr-1" />Completed
         </Badge>
       );
     default:
@@ -144,6 +150,7 @@ export default function StudentApplications() {
     reviewing: applications.filter((a) => a.status === "reviewing").length,
     accepted: applications.filter((a) => a.status === "accepted").length,
     rejected: applications.filter((a) => a.status === "rejected").length,
+    completed: applications.filter((a) => a.status === "completed").length,
   };
 
   const displayName = (app: ApplicationWithDetails) =>
@@ -170,7 +177,7 @@ export default function StudentApplications() {
 
         {/* Filter tabs */}
         <div className="flex flex-wrap gap-2 mb-6">
-          {(["all", "pending", "reviewing", "accepted", "rejected"] as const).map((f) => (
+          {(["all", "pending", "reviewing", "accepted", "completed", "rejected"] as const).map((f) => (
             <Button
               key={f}
               variant={selectedFilter === f ? "default" : "outline"}
@@ -203,11 +210,11 @@ export default function StudentApplications() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 flex-1">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback>
+                      <div className="h-12 w-12 flex items-center justify-center rounded-full bg-muted">
+                        <span className="text-sm font-semibold">
                           {displayName(app).slice(0, 2).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                        </span>
+                      </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <CardTitle className="text-lg">{app.project_title ?? "Project"}</CardTitle>
@@ -257,6 +264,33 @@ export default function StudentApplications() {
                         <Button size="sm" onClick={() => navigate(`/project/${app.project_id}/messages?to=${app.business_id || ''}`)}>
                           <MessageCircle className="h-4 w-4 mr-1" />
                           Message Employer
+                        </Button>
+                      )}
+                      {app.status === "completed" && (
+                        <Button
+                          size="sm"
+                          className="bg-purple-600 hover:bg-purple-700"
+                          onClick={async () => {
+                            if (!user || (!app.business_id)) return;
+                            setActionLoading(true);
+                            const { error: reqErr } = await createReferenceRequest({
+                              student_id: user.id,
+                              employer_id: app.business_id,
+                              project_id: app.project_id,
+                              student_name: user?.user_metadata?.full_name || "Student",
+                              project_title: app.project_title || "Project"
+                            });
+                            setActionLoading(false);
+                            if (reqErr) {
+                              toast({ title: "Failed to request", description: reqErr, variant: "destructive" });
+                            } else {
+                              toast({ title: "Reference Requested", description: "The employer has been notified." });
+                            }
+                          }}
+                          disabled={actionLoading}
+                        >
+                          <FileText className="h-4 w-4 mr-1" />
+                          Request Reference
                         </Button>
                       )}
                       {(app.status === "pending" || app.status === "reviewing") && (

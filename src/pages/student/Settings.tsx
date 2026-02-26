@@ -4,10 +4,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { Camera, X } from "lucide-react";
+import { X } from "lucide-react";
 import { useState } from "react";
 
 const Settings = () => {
@@ -52,18 +51,13 @@ const Settings = () => {
                   </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
-                  <div className="flex items-center gap-6">
-                    <Avatar className="h-24 w-24">
-                      <AvatarFallback className="text-2xl">ST</AvatarFallback>
-                    </Avatar>
+                  <div className="flex items-center gap-6 pb-6 border-b border-border/50">
+                    <div className="h-16 w-16 flex items-center justify-center rounded-full bg-muted text-xl font-semibold">
+                      ST
+                    </div>
                     <div>
-                      <Button variant="outline" size="sm">
-                        <Camera className="mr-2 h-4 w-4" />
-                        Change Photo
-                      </Button>
-                      <p className="text-xs text-muted-foreground mt-2">
-                        JPG, PNG or GIF. Max 2MB
-                      </p>
+                      <p className="font-semibold text-lg">Profile Display Name</p>
+                      <p className="text-sm text-muted-foreground">This is how you appear to others on the platform.</p>
                     </div>
                   </div>
 

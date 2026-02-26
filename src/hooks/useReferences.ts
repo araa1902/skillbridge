@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Reference } from '@/types/reference'
+import { Reference } from '../types/index'
+import type { Database } from '@/types'
 
 export interface ReferenceFromDB {
   id: string
@@ -133,6 +134,7 @@ export async function writeReference(payload: {
   technical_skills: number
   would_work_again: boolean
   is_public: boolean
+  request_id?: string
 }): Promise<{ data: ReferenceFromDB | null; error: string | null }> {
   try {
     const { data, error } = await supabase
@@ -167,6 +169,20 @@ export async function writeReference(payload: {
 
     if (error) {
       return { data: null, error: error.message }
+    }
+
+    if (payload.request_id) {
+      const { error: reqError } = await supabase
+        .from('reference_requests')
+        .update({
+          status: 'completed',
+          completed_at: new Date().toISOString()
+        })
+        .eq('id', payload.request_id)
+
+      if (reqError) {
+        console.error('Failed to update reference request status:', reqError)
+      }
     }
 
     return { data: data as ReferenceFromDB, error: null }
@@ -256,35 +272,19 @@ export function useFetchPendingRequests(employerId: string | null) {
     setLoading(true)
     setError(null)
 
-    // Fetch applications where employer wrote the offer and no reference exists yet
+    // Fetch pending reference requests for the employer
     const { data, error: dbError } = await supabase
-      .from('applications')
-      .select(`
-        id,
-        project:projects (id, title),
-        student:profiles!student_id (id, full_name)
-      `)
-      .eq('projects.business_id', employerId)
-      .eq('status', 'completed')
-      .order('created_at', { ascending: false })
+      .from('reference_requests')
+      .select('*')
+      .eq('employer_id', employerId)
+      .eq('status', 'pending')
+      .order('requested_at', { ascending: false })
 
     if (dbError) {
       setError(dbError.message)
       setRequests([])
     } else {
-      // Filter out applications that already have references
-      const applicationsData = (data ?? []) as any[]
-
-      // Transform the data to a flatter structure for the UI
-      const formattedRequests = applicationsData.map(app => ({
-        id: app.id,
-        project_id: app.project?.id || null,
-        project_title: app.project?.title || "Unknown Project",
-        student_id: app.student?.id,
-        student_name: app.student?.full_name || "Unknown Student"
-      }))
-
-      setRequests(formattedRequests)
+      setRequests(data ?? [])
     }
 
     setLoading(false)
@@ -295,4 +295,42 @@ export function useFetchPendingRequests(employerId: string | null) {
   }, [load])
 
   return { requests, loading, error, refetch: load }
+}
+
+// ─── Create a reference request ────────────────────────────────────────────
+
+export async function createReferenceRequest(payload: {
+  student_id: string
+  employer_id: string
+  project_id: string
+  student_name: string
+  project_title: string
+}): Promise<{ data: any; error: string | null }> {
+  try {
+    const { data, error } = await supabase
+      .from('reference_requests')
+      .insert([
+        {
+          student_id: payload.student_id,
+          employer_id: payload.employer_id,
+          project_id: payload.project_id,
+          student_name: payload.student_name,
+          project_title: payload.project_title,
+          status: 'pending'
+        },
+      ])
+      .select()
+      .single()
+
+    if (error) {
+      return { data: null, error: error.message }
+    }
+
+    return { data, error: null }
+  } catch (err) {
+    return {
+      data: null,
+      error: err instanceof Error ? err.message : 'Unknown error',
+    }
+  }
 }

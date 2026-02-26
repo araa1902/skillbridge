@@ -3,54 +3,61 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Award, Download, Share2, Search, ExternalLink, CheckCircle, Calendar, Building } from "lucide-react";
+import { Award, Download, Share2, Search, ExternalLink, CheckCircle, Calendar, Building, Loader2 } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { credentials } from "@/lib/data";
+import { useAuth } from "@/contexts/AuthContext";
+import { useFetchStudentCredentials } from "@/hooks/useCredentials";
 
 const Credentials = () => {
+  const { user } = useAuth();
+  const { credentials, loading } = useFetchStudentCredentials(user?.id ?? null);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [sortBy, setSortBy] = useState("recent");
 
   const filteredCredentials = credentials.filter((credential) => {
-    const matchesSearch = credential.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         credential.issuer.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = categoryFilter === "all" || (credential as any).category === categoryFilter;
+    const titleMatch = credential.project_title?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
+    const issuerMatch = credential.business_name?.toLowerCase().includes(searchQuery.toLowerCase()) ?? false;
+    const matchesSearch = titleMatch || issuerMatch;
+    // Category mapping doesn't exist yet, we can filter by skills_verified later. 
+    // Using 'all' for now.
+    const matchesCategory = categoryFilter === "all";
     return matchesSearch && matchesCategory;
   });
 
   const sortedCredentials = filteredCredentials.sort((a, b) => {
-    if (sortBy === "recent") return new Date(b.date).getTime() - new Date(a.date).getTime();
-    if (sortBy === "oldest") return new Date(a.date).getTime() - new Date(b.date).getTime();
-    if (sortBy === "name") return a.title.localeCompare(b.title);
+    if (sortBy === "recent") return new Date(b.issued_at).getTime() - new Date(a.issued_at).getTime();
+    if (sortBy === "oldest") return new Date(a.issued_at).getTime() - new Date(b.issued_at).getTime();
+    if (sortBy === "name") return (a.project_title || "").localeCompare(b.project_title || "");
     return 0;
   });
 
   const stats = {
     total: credentials.length,
-    thisMonth: credentials.filter(c => new Date(c.date) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length,
-    verified: (credentials as any[]).filter((c) => (c as any).verified).length,
+    thisMonth: credentials.filter(c => new Date(c.issued_at) > new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)).length,
+    verified: credentials.length, // All platform credentials are verified
   };
 
   const handleDownloadCredential = async (credential: any) => {
     const { jsPDF } = await import("jspdf");
     const doc = new jsPDF();
-    
+
     // Set page dimensions and margins
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
     const contentWidth = pageWidth - 2 * margin;
-    
+
     // Add a subtle background
     doc.setFillColor(245, 245, 245);
     doc.rect(0, 0, pageWidth, pageHeight, 'F');
-    
+
     // Add a border
     doc.setDrawColor(100, 100, 100);
     doc.setLineWidth(2);
     doc.rect(margin, margin, contentWidth, pageHeight - 2 * margin);
-    
+
     // Header with title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(24);
@@ -58,43 +65,45 @@ const Credentials = () => {
     const title = "Certificate of Achievement";
     const titleWidth = doc.getTextWidth(title);
     doc.text(title, (pageWidth - titleWidth) / 2, margin + 30);
-    
+
     // Credential title
     doc.setFont("helvetica", "bold");
     doc.setFontSize(18);
     doc.setTextColor(0, 0, 0);
-    const credTitle = credential.title;
+    const credTitle = credential.project_title ?? "Project Credential";
     const credTitleWidth = doc.getTextWidth(credTitle);
     doc.text(credTitle, (pageWidth - credTitleWidth) / 2, margin + 60);
-    
+
     // Issuer and date
     doc.setFont("helvetica", "normal");
     doc.setFontSize(12);
     doc.setTextColor(100, 100, 100);
-    const issuerText = `Issued by: ${credential.issuer}`;
-    const dateText = `Date: ${credential.date}`;
+    const issuerText = `Issued by: ${credential.business_name ?? "SkillBridge Employer"}`;
+    const dateText = `Date: ${new Date(credential.issued_at).toLocaleDateString()}`;
     doc.text(issuerText, margin + 10, margin + 90);
     doc.text(dateText, pageWidth - margin - doc.getTextWidth(dateText) - 10, margin + 90);
-    
+
     // Category and status if available
     let yPos = margin + 110;
-    if (credential.category) {
-      doc.text(`Category: ${credential.category}`, margin + 10, yPos);
+    if (credential.skills_verified && credential.skills_verified.length > 0) {
+      doc.text(`Skills: ${(credential.skills_verified as string[]).join(", ")}`, margin + 10, yPos);
       yPos += 10;
     }
-    if (credential.verified) {
-      doc.setTextColor(34, 197, 94);
-      doc.text("Status: Verified", margin + 10, yPos);
-      doc.setTextColor(100, 100, 100);
-      yPos += 10;
-    }
-    
+
+    doc.setTextColor(34, 197, 94);
+    doc.text("Status: Verified", margin + 10, yPos);
+    doc.setTextColor(100, 100, 100);
+    yPos += 10;
+
     // Description
     doc.setFontSize(11);
     doc.setTextColor(0, 0, 0);
-    const wrappedDesc = doc.splitTextToSize(credential.description, contentWidth - 20);
+    const description = credential.feedback
+      ? `Feedback: ${credential.feedback}`
+      : "Successfully completed the project requirements.";
+    const wrappedDesc = doc.splitTextToSize(description, contentWidth - 20);
     doc.text(wrappedDesc, margin + 10, yPos + 10);
-    
+
     // Footer
     doc.setFont("helvetica", "italic");
     doc.setFontSize(9);
@@ -102,14 +111,14 @@ const Credentials = () => {
     const footerText = "Generated via SkillBridge";
     const footerWidth = doc.getTextWidth(footerText);
     doc.text(footerText, (pageWidth - footerWidth) / 2, pageHeight - margin - 10);
-    
+
     // Save the PDF
-    doc.save(`${credential.title.replace(/\s+/g, "_").toLowerCase()}_certificate.pdf`);
+    doc.save(`${(credential.project_title ?? "credential").replace(/\s+/g, "_").toLowerCase()}_certificate.pdf`);
   };
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50/30">
-      
+
       <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
           {/* Hero Section */}
@@ -139,7 +148,7 @@ const Credentials = () => {
                   </div>
                 </CardContent>
               </Card>
-              
+
               <Card className="bg-white/60 backdrop-blur-sm border-gray-200/60">
                 <CardContent className="p-4">
                   <div className="flex items-center justify-between">
@@ -219,63 +228,72 @@ const Credentials = () => {
           </div>
 
           {/* Credentials Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {sortedCredentials.map((credential) => (
-              <Card key={credential.id} className="group bg-white/80 backdrop-blur-sm border-gray-200/60 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1">
-                <CardHeader className="text-center pb-4">
-                  <div className="relative">
-                    <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center group-hover:from-gray-100 group-hover:to-gray-200 transition-all duration-300">
-                      <Award className="h-10 w-10 text-gray-600" />
+          {loading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {sortedCredentials.map((credential) => (
+                <Card key={credential.id} className="group bg-white/80 backdrop-blur-sm border-gray-200/60 hover:shadow-xl hover:shadow-gray-200/50 transition-all duration-300 hover:-translate-y-1">
+                  <CardHeader className="text-center pb-4">
+                    <div className="relative">
+                      <div className="w-20 h-20 mx-auto mb-4 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center group-hover:from-gray-100 group-hover:to-gray-200 transition-all duration-300">
+                        <Award className="h-10 w-10 text-gray-600" />
+                      </div>
                     </div>
-                  </div>
-                  <CardTitle className="text-lg text-gray-800 group-hover:text-gray-700 transition-colors">
-                    {credential.title}
-                  </CardTitle>
-                  <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
-                    <Building className="h-3 w-3" />
-                    <span>{credential.issuer}</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <p className="text-sm text-gray-600 text-center leading-relaxed">
-                    {credential.description}
-                  </p>
-                  <div className="flex items-center justify-center gap-2">
-                    <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
-                      <Calendar className="h-3 w-3 mr-1" />
-                      {credential.date}
-                    </Badge>
-                    {(credential as any).verified && (
+                    <CardTitle className="text-lg text-gray-800 group-hover:text-gray-700 transition-colors">
+                      {credential.project_title ?? "Project Completed"}
+                    </CardTitle>
+                    <div className="flex items-center justify-center gap-2 text-sm text-gray-600">
+                      <Building className="h-3 w-3" />
+                      <span>{credential.business_name ?? "SkillBridge Employer"}</span>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <p className="text-sm text-gray-600 text-center leading-relaxed line-clamp-3">
+                      {credential.feedback ?? "Successfully completed project deliverables."}
+                    </p>
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                        <Calendar className="h-3 w-3 mr-1" />
+                        {new Date(credential.issued_at).toLocaleDateString()}
+                      </Badge>
                       <Badge className="bg-emerald-100 text-emerald-700 border-emerald-200">
                         Verified
                       </Badge>
+                    </div>
+                    {(credential.skills_verified && credential.skills_verified.length > 0) && (
+                      <div className="flex flex-wrap gap-1 justify-center mt-2">
+                        {credential.skills_verified.map((skill, idx) => (
+                          <span key={idx} className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full border border-slate-200">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
                     )}
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="flex-1 bg-white/70 hover:bg-gray-50 border-gray-200 text-gray-700"
-                      onClick={() => handleDownloadCredential(credential)}
-                    >
-                      <Download className="mr-2 h-4 w-4" />
-                      Download
-                    </Button>
-                    <Button variant="outline" size="sm" className="flex-1 bg-white/70 hover:bg-gray-50 border-gray-200 text-gray-700">
-                      <Share2 className="mr-2 h-4 w-4" />
-                      Share
-                    </Button>
-                  </div>
-                  <Button variant="ghost" size="sm" className="w-full text-gray-600 hover:text-gray-700 hover:bg-gray-50">
-                    <ExternalLink className="mr-2 h-4 w-4" />
-                    View Certificate
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="flex-1 bg-white/70 hover:bg-gray-50 border-gray-200 text-gray-700"
+                        onClick={() => handleDownloadCredential(credential)}
+                      >
+                        <Download className="mr-2 h-4 w-4" />
+                        Download
+                      </Button>
+                      <Button variant="outline" size="sm" className="flex-1 bg-white/70 hover:bg-gray-50 border-gray-200 text-gray-700">
+                        <Share2 className="mr-2 h-4 w-4" />
+                        Share
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
 
-          {sortedCredentials.length === 0 && (
+          {!loading && sortedCredentials.length === 0 && (
             <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60">
               <CardContent className="text-center py-16">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
@@ -285,7 +303,7 @@ const Credentials = () => {
                   {searchQuery || categoryFilter !== "all" ? "No matching credentials" : "No credentials yet"}
                 </h3>
                 <p className="text-gray-600 mb-8 max-w-md mx-auto">
-                  {searchQuery || categoryFilter !== "all" 
+                  {searchQuery || categoryFilter !== "all"
                     ? "Try adjusting your search or filter criteria to find what you're looking for."
                     : "Complete projects to earn verified micro-credentials that showcase your skills to potential employers."
                   }

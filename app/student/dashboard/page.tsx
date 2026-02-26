@@ -251,25 +251,6 @@ export default function StudentDashboard() {
                 <Button variant="outline" className="w-full mt-4">View All Badges</Button>
               </CardContent>
             </Card>
-
-            {/* Mentor Connection */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Your Mentor</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="flex items-center gap-3 mb-4">
-                  <Avatar>
-                    <AvatarFallback>SM</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-medium">Dr. Sarah Mitchell</p>
-                    <p className="text-sm text-gray-600">Senior UX Designer</p>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full">Schedule Meeting</Button>
-              </CardContent>
-            </Card>
           </div>
         </div>
       </div>

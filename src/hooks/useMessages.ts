@@ -10,7 +10,7 @@ export interface Message {
   sender_avatar?: string
   content: string
   created_at: string
-  read_at?: string | null
+  read: boolean
 }
 
 export interface MessageThread {
@@ -46,7 +46,7 @@ export function useFetchProjectMessages(projectId: string | null) {
       .from('messages')
       .select(`
         *,
-        sender:profiles!messages_sender_id_fkey (full_name, avatar_url)
+        sender:profiles!messages_sender_id_fkey (full_name)
       `)
       .eq('project_id', projectId)
       .order('created_at', { ascending: true })
@@ -58,7 +58,6 @@ export function useFetchProjectMessages(projectId: string | null) {
       const rows = (data ?? []).map((row: any) => ({
         ...row,
         sender_name: row.sender?.full_name ?? 'Unknown',
-        sender_avatar: row.sender?.avatar_url ?? null,
       })) as Message[]
       setMessages(rows)
     }
@@ -164,7 +163,7 @@ export function useFetchMessageThreads(userId: string | null) {
         .from('messages')
         .select('*', { count: 'exact', head: true })
         .eq('project_id', projId)
-        .eq('read_at', null)
+        .eq('read', false)
         .neq('sender_id', userId)
 
       const projectData = userMessages.find((m: any) => m.project_id === projId) as any
@@ -230,7 +229,7 @@ export async function markMessageAsRead(messageId: string): Promise<{ error: str
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase
       .from('messages') as any)
-      .update({ read_at: new Date().toISOString() })
+      .update({ read: true })
       .eq('id', messageId)
 
     if (error) {
@@ -255,10 +254,10 @@ export async function markProjectMessagesAsRead(
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const { error } = await (supabase
       .from('messages') as any)
-      .update({ read_at: new Date().toISOString() })
+      .update({ read: true })
       .eq('project_id', projectId)
       .neq('sender_id', userId)
-      .is('read_at', null)
+      .eq('read', false)
 
     if (error) {
       return { error: error.message }

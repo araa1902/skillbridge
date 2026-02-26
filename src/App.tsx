@@ -8,6 +8,7 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Onboarding from "./pages/Onboarding";
 import BrowseProjects from "./pages/BrowseProjects";
 import ProjectDetails from "./pages/ProjectDetails";
 import ApplicationForm from "./pages/ApplicationForm";
@@ -25,6 +26,7 @@ import EmployerSettings from "./pages/employer/Settings";
 import NewProject from "./pages/employer/NewProject";
 import ManageProjects from "./pages/employer/ManageProjects";
 import EmployerApplications from "./pages/employer/Applications";
+import StudentProfileView from "./pages/StudentProfileView";
 import UniversityDashboard from "./pages/university/UniversityDashboard";
 import UniversitySettings from "./pages/university/Settings";
 import UniversityStudents from "./pages/university/Students";
@@ -41,7 +43,8 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const isAuthPage =
     location.pathname === "/" ||
     location.pathname === "/auth" ||
-    location.pathname === "/all-pages";
+    location.pathname === "/all-pages" ||
+    location.pathname === "/onboarding";
 
   if (isAuthPage) {
     return <>{children}</>;
@@ -70,6 +73,14 @@ const App = () => (
                 <Route path="/" element={<Index />} />
                 <Route path="/all-pages" element={<AllPages />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route
+                  path="/onboarding"
+                  element={
+                    <ProtectedRoute allowedRoles={["student", "business"]}>
+                      <Onboarding />
+                    </ProtectedRoute>
+                  }
+                />
 
                 {/* ---------- Shared (any authenticated user) ---------- */}
                 <Route
@@ -151,6 +162,14 @@ const App = () => (
                   element={
                     <ProtectedRoute allowedRoles={["student", "business", "university"]}>
                       <MessagesPage />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/student-profile/:id"
+                  element={
+                    <ProtectedRoute allowedRoles={["student", "business", "university"]}>
+                      <StudentProfileView />
                     </ProtectedRoute>
                   }
                 />

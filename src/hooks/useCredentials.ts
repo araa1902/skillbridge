@@ -85,7 +85,7 @@ export function useFetchIssuedCredentials(businessId: string | null) {
       .from('credentials')
       .select(`
         *,
-        student:profiles!credentials_student_id_fkey (full_name, avatar_url),
+        student:profiles!credentials_student_id_fkey (full_name),
         project:projects!credentials_project_id_fkey (title)
       `)
       .eq('business_id', businessId)
@@ -126,9 +126,8 @@ export async function issueCredential(payload: {
   rating?: number
 }): Promise<{ data: CredentialRow | null; error: string | null }> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase
-      .from('credentials') as any)
+    const { data, error } = await supabase
+      .from('credentials')
       .insert([
         {
           student_id: payload.student_id,
@@ -166,9 +165,8 @@ export async function updateCredential(
   }
 ): Promise<{ data: CredentialRow | null; error: string | null }> {
   try {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const { data, error } = await (supabase
-      .from('credentials') as any)
+    const { data, error } = await supabase
+      .from('credentials')
       .update(updates)
       .eq('id', credentialId)
       .select()

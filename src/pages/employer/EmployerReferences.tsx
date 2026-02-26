@@ -100,6 +100,7 @@ const EmployerReferences = () => {
         technical_skills: formData.technicalSkills,
         would_work_again: formData.wouldWorkAgain,
         is_public: true,
+        request_id: selectedRequestId,
       });
 
       if (error) {

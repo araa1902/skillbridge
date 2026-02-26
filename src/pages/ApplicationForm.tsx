@@ -161,7 +161,7 @@ const ApplicationForm = () => {
       return;
     }
     if (!statementValue.trim()) {
-      toast({ title: "Statement required", description: "Please write a statement of interest.", variant: "destructive" });
+      toast({ title: "Statement required", description: "Please write a cover letter.", variant: "destructive" });
       return;
     }
     if (!user?.id || !id) {
@@ -272,7 +272,7 @@ const ApplicationForm = () => {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* Statement of Interest */}
                 <div className="space-y-2">
-                  <Label htmlFor="statement">Statement of Interest *</Label>
+                  <Label htmlFor="statement">Cover Letter *</Label>
                   <Textarea
                     id="statement"
                     placeholder="Explain your motivation for this project and why you're a good fit..."

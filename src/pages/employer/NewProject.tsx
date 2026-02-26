@@ -318,19 +318,6 @@ export default function NewProject() {
                   />
                 </div>
 
-                <div className="flex items-center space-x-2 p-4 bg-blue-50 rounded-lg">
-                  <Checkbox
-                    id="mentor"
-                    checked={form.mentor}
-                    onCheckedChange={(checked) =>
-                      setForm(f => ({ ...f, mentor: Boolean(checked) }))
-                    }
-                  />
-                  <label htmlFor="mentor" className="text-sm cursor-pointer">
-                    <span className="font-medium">Include mentor matching</span> - Connect student with an industry mentor for guidance
-                  </label>
-                </div>
-
                 <div className="flex gap-4 pt-4">
                   <Button
                     size="lg"

@@ -3,14 +3,12 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { sessions } from "@/lib/sessions-data";
-import { 
-  Clock, 
-  Users, 
-  Star, 
-  Calendar, 
-  DollarSign, 
+import {
+  Clock,
+  Users,
+  Star,
+  Calendar,
+  DollarSign,
   ArrowLeft,
   CheckCircle2,
   MapPin,
@@ -20,8 +18,9 @@ import {
 const SessionDetails = () => {
   const { id } = useParams();
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
-  
-  const session = sessions.find(s => s.id === id);
+
+  // TODO: Load session from Supabase (Phase 2)
+  const session: any = null;
 
   if (!session) {
     return (
@@ -73,11 +72,11 @@ const SessionDetails = () => {
                   {session.sessionType}
                 </Badge>
               </div>
-              
+
               <h1 className="text-3xl md:text-4xl font-bold text-gray-900">
                 {session.title}
               </h1>
-              
+
               <p className="text-lg text-gray-600 leading-relaxed">
                 {session.description}
               </p>
@@ -97,7 +96,7 @@ const SessionDetails = () => {
                       <p className="text-gray-600">{session.duration} minutes</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <Users className="w-5 h-5 text-gray-500" />
                     <div>
@@ -106,7 +105,7 @@ const SessionDetails = () => {
                     </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
                     <DollarSign className="w-5 h-5 text-gray-500" />
@@ -115,7 +114,7 @@ const SessionDetails = () => {
                       <p className="text-gray-600 text-xl font-bold">${session.price}</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-center gap-3">
                     <MapPin className="w-5 h-5 text-gray-500" />
                     <div>
@@ -175,11 +174,9 @@ const SessionDetails = () => {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex items-start gap-4">
-                  <Avatar className="w-16 h-16">
-                    <AvatarFallback className="bg-gradient-to-br from-slate-400 to-gray-500 text-white text-lg">
-                      {session.mentor.avatar}
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="w-16 h-16 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-400 to-gray-500 text-white text-lg font-bold">
+                    {session.mentor.avatar}
+                  </div>
                   <div>
                     <h3 className="font-bold text-lg">{session.mentor.name}</h3>
                     <p className="text-gray-600">{session.mentor.title}</p>
@@ -238,8 +235,8 @@ const SessionDetails = () => {
                   </div>
                 </div>
 
-                <Button 
-                  className="w-full" 
+                <Button
+                  className="w-full"
                   size="lg"
                   disabled={!selectedSlot}
                   onClick={handleBookSession}

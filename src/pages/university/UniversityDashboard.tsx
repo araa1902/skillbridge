@@ -48,58 +48,73 @@ const UniversityDashboard = () => {
         setLoading(true)
         setError(null)
 
-        // Get total students
-        const { count: studentCount, error: studentError } = await supabase
+        // 1. Fetch all student IDs for this university
+        const { data: allUnivStudents, error: univStudentsError } = await supabase
           .from('profiles')
-          .select('*', { count: 'exact', head: true })
+          .select('id')
           .eq('role', 'student')
+          .eq('university_id', user!.id)
 
-        if (studentError) throw studentError
+        if (univStudentsError) throw univStudentsError
 
-        // Get total projects (from all businesses)
-        const { count: projectCount, error: projectError } = await supabase
-          .from('projects')
-          .select('*', { count: 'exact', head: true })
+        const studentIds = allUnivStudents?.map(s => s.id) || []
+        const studentCount = studentIds.length
 
-        if (projectError) throw projectError
+        let projectCount = 0
+        let credentialCount = 0
+        let activeConnections = 0
 
-        // Get total credentials issued
-        const { count: credentialCount, error: credentialError } = await supabase
-          .from('credentials')
-          .select('*', { count: 'exact', head: true })
+        if (studentIds.length > 0) {
+          // Get total credentials issued to these students
+          const { count: cCount, error: credentialError } = await supabase
+            .from('credentials')
+            .select('*', { count: 'exact', head: true })
+            .in('student_id', studentIds)
 
-        if (credentialError) throw credentialError
+          if (credentialError) throw credentialError
+          credentialCount = cCount ?? 0
 
-        // Get active connections (unique project-based conversations)
-        const { data: messageData, error: messageError } = await supabase
-          .from('messages')
-          .select('project_id')
-          .order('created_at', { ascending: false })
-          .limit(1000)
+          // Get projects students have applied to
+          const { data: appsData, error: appError } = await supabase
+            .from('applications')
+            .select('project_id, status')
+            .in('student_id', studentIds)
 
-        if (messageError) throw messageError
+          if (appError) throw appError
 
-        const uniqueProjects = new Set((messageData ?? []).map((m: any) => m.project_id)).size
+          projectCount = new Set((appsData ?? []).map(a => a.project_id)).size
+
+          // Get active connections (unique project-based conversations involving these students)
+          const { data: messageData, error: messageError } = await supabase
+            .from('messages')
+            .select('project_id, sender_id, receiver_id')
+
+          if (messageError) throw messageError
+
+          const relevantMessages = (messageData ?? []).filter((m: any) =>
+            studentIds.includes(m.sender_id) || studentIds.includes(m.receiver_id)
+          )
+          activeConnections = new Set(relevantMessages.map(m => m.project_id)).size
+        }
 
         setStats({
-          totalStudents: studentCount ?? 0,
-          totalProjects: projectCount ?? 0,
-          totalCredentialsIssued: credentialCount ?? 0,
-          activeConnections: uniqueProjects,
+          totalStudents: studentCount,
+          totalProjects: projectCount,
+          totalCredentialsIssued: credentialCount,
+          activeConnections: activeConnections,
         })
 
         // Get student list with stats
         const { data: studentList, error: studentListError } = await supabase
           .from('profiles')
-          .select(
-            `
+          .select(`
             id,
             full_name,
             email,
             created_at
-          `
-          )
+          `)
           .eq('role', 'student')
+          .eq('university_id', user!.id)
           .order('created_at', { ascending: false })
           .limit(20)
 

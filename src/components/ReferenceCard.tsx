@@ -2,7 +2,6 @@ import { Reference } from "@/types/reference";
 import { ReferenceFromDB } from "@/hooks/useReferences";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Star, CheckCircle2, Building2, Calendar } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 
@@ -79,11 +78,9 @@ export function ReferenceCard({ reference, compact = false }: ReferenceCardProps
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-start gap-3">
-              <Avatar className="w-10 h-10 ring-2 ring-blue-200">
-                <AvatarFallback className="bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm">
-                  {normalized.employerName.split(' ').map(n => n[0]).join('')}
-                </AvatarFallback>
-              </Avatar>
+              <div className="w-10 h-10 ring-2 ring-blue-200 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm font-semibold">
+                {normalized.employerName.split(' ').map(n => n[0]).join('')}
+              </div>
               <div>
                 <div className="flex items-center gap-1">
                   <p className="font-semibold text-sm">{normalized.employerName}</p>
@@ -117,11 +114,9 @@ export function ReferenceCard({ reference, compact = false }: ReferenceCardProps
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between mb-4">
           <div className="flex items-start gap-4">
-            <Avatar className="w-14 h-14">
-              <AvatarFallback className="bg-gradient-to-br from-blue-400 to-blue-600 text-white">
-                {normalized.employerName.split(' ').map(n => n[0]).join('')}
-              </AvatarFallback>
-            </Avatar>
+            <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white text-lg font-bold">
+              {normalized.employerName.split(' ').map(n => n[0]).join('')}
+            </div>
             <div>
               <div className="flex items-center gap-2 mb-1">
                 <h3 className="font-bold text-lg">{normalized.employerName}</h3>

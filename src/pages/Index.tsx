@@ -4,8 +4,6 @@ import { ProjectCard } from "@/components/ProjectCard";
 import { Link } from "react-router-dom";
 import { Award, Briefcase, Users, ArrowRight, CheckCircle2, Sparkles, TrendingUp, Building2, GraduationCap, Zap, Menu, X } from "lucide-react";
 import heroIllustration from "@/assets/hero-illustration.png";
-import { projects, testimonials } from "@/lib/data";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";
 
@@ -21,7 +19,9 @@ const Index = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const featuredProjects = projects.slice(0, 3);
+  // Mock projects & testimonials removed. Update with Supabase queries later if desired.
+  const featuredProjects: any[] = [];
+  const testimonials: any[] = [];
 
 
   const features = [
@@ -88,11 +88,10 @@ const Index = () => {
   return (
     <div className="flex flex-col min-h-screen overflow-hidden">
       {/* Floating Navigation */}
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200' 
-          : 'bg-transparent'
-      }`}>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled
+        ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200'
+        : 'bg-transparent'
+        }`}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
@@ -146,29 +145,29 @@ const Index = () => {
           {isMobileMenuOpen && (
             <div className="md:hidden bg-white border-t border-gray-200 py-4 animate-fade-in">
               <div className="flex flex-col space-y-4">
-                <Link 
-                  to="/browse-projects" 
+                <Link
+                  to="/browse-projects"
                   className="text-gray-600 hover:text-slate-700 font-medium px-4 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   Projects
                 </Link>
-                <Link 
-                  to="/about" 
+                <Link
+                  to="/about"
                   className="text-gray-600 hover:text-slate-700 font-medium px-4 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   About
                 </Link>
-                <Link 
-                  to="/for-employers" 
+                <Link
+                  to="/for-employers"
                   className="text-gray-600 hover:text-slate-700 font-medium px-4 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
                   For Employers
                 </Link>
-                <Link 
-                  to="/for-universities" 
+                <Link
+                  to="/for-universities"
                   className="text-gray-600 hover:text-slate-700 font-medium px-4 py-2"
                   onClick={() => setIsMobileMenuOpen(false)}
                 >
@@ -235,11 +234,9 @@ const Index = () => {
                 <div className="flex items-center gap-8 pt-4">
                   <div className="flex -space-x-2">
                     {[...Array(4)].map((_, i) => (
-                      <Avatar key={i} className="border-2 border-white w-10 h-10">
-                        <AvatarFallback className="bg-gradient-to-br from-slate-400 to-gray-500 text-white">
-                          {String.fromCharCode(65 + i)}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div key={i} className="border-2 border-white w-10 h-10 rounded-full bg-gradient-to-br from-slate-400 to-gray-500 text-white flex items-center justify-center text-xs font-semibold">
+                        {String.fromCharCode(65 + i)}
+                      </div>
                     ))}
                   </div>
                   <div>
@@ -252,9 +249,9 @@ const Index = () => {
               {/* Hero Image */}
               <div className="relative animate-fade-in-up">
                 <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-                  <img 
-                    src={heroIllustration} 
-                    alt="Students connecting with industry" 
+                  <img
+                    src={heroIllustration}
+                    alt="Students connecting with industry"
                     className="w-full h-auto"
                   />
                   {/* Floating Stats Card */}
@@ -296,8 +293,8 @@ const Index = () => {
 
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
               {features.map((feature, index) => (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className="border-none shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 group overflow-hidden"
                 >
                   <CardHeader>
@@ -335,8 +332,8 @@ const Index = () => {
 
               <div className="space-y-4">
                 {benefits.map((benefit, index) => (
-                  <div 
-                    key={index} 
+                  <div
+                    key={index}
                     className="flex items-start gap-3 bg-white/10 backdrop-blur-sm p-4 rounded-xl hover:bg-white/20 transition-all"
                   >
                     <CheckCircle2 className="w-6 h-6 text-slate-200 flex-shrink-0 mt-0.5" />
@@ -373,7 +370,7 @@ const Index = () => {
             <div className="text-center">
               <Button size="lg" variant="outline" className="border-2" asChild>
                 <Link to="/browse-projects">
-                  View All {projects.length} Projects
+                  View All Projects
                   <ArrowRight className="ml-2 h-5 w-5" />
                 </Link>
               </Button>
@@ -395,17 +392,15 @@ const Index = () => {
 
             <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
               {testimonials.map((testimonial, index) => (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className="border-none shadow-lg hover:shadow-xl transition-all"
                 >
                   <CardContent className="pt-8">
                     <div className="flex items-start gap-4 mb-6">
-                      <Avatar className="w-14 h-14">
-                        <AvatarFallback className="bg-gradient-to-br from-slate-400 to-gray-500 text-white text-lg">
-                          {testimonial.avatar}
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-slate-400 to-gray-500 text-white flex items-center justify-center text-lg font-bold">
+                        {testimonial.avatar}
+                      </div>
                       <div>
                         <p className="font-bold text-lg">{testimonial.name}</p>
                         <p className="text-sm text-gray-600 font-medium">

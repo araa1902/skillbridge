@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { SessionCard } from "@/components/SessionCard";
-import { sessions } from "@/lib/sessions-data";
 import { Search, Filter, BookOpen, Users, Clock } from "lucide-react";
 
 const BrowseSessions = () => {
@@ -14,15 +13,9 @@ const BrowseSessions = () => {
   const categories = ["All", "Web Development", "Data Science", "Design", "Mobile Development", "DevOps"];
   const levels = ["All", "Beginner", "Intermediate", "Advanced"];
 
-  const filteredSessions = sessions.filter(session => {
-    const matchesSearch = session.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         session.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         session.mentor.name.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesCategory = selectedCategory === "All" || session.category === selectedCategory;
-    const matchesLevel = selectedLevel === "All" || session.level === selectedLevel;
-    
-    return matchesSearch && matchesCategory && matchesLevel;
-  });
+  // To be connected to Supabase in Phase 2
+  const sessions: any[] = [];
+  const filteredSessions: any[] = [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pt-20">
@@ -91,9 +84,8 @@ const BrowseSessions = () => {
                 <Badge
                   key={level}
                   variant={selectedLevel === level ? "default" : "outline"}
-                  className={`cursor-pointer ${
-                    selectedLevel === level ? 'bg-slate-700 hover:bg-slate-800' : 'hover:bg-gray-100'
-                  }`}
+                  className={`cursor-pointer ${selectedLevel === level ? 'bg-slate-700 hover:bg-slate-800' : 'hover:bg-gray-100'
+                    }`}
                   onClick={() => setSelectedLevel(level)}
                 >
                   {level}

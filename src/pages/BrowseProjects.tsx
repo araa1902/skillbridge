@@ -85,7 +85,7 @@ const BrowseProjects = () => {
         return matchesSearch && matchesSkill && matchesDuration && matchesBudget;
       })
       .sort((a, b) => b.matchScore - a.matchScore);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projects, searchQuery, skillFilter, durationFilter, budgetFilter, showMatchingScores]);
 
   const clearFilters = () => {
@@ -104,9 +104,6 @@ const BrowseProjects = () => {
       <div className="sticky top-0 z-30 bg-white border-b border-gray-200/50 backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-              <Briefcase className="h-5 w-5 text-white" />
-            </div>
             <div>
               <h1 className="text-2xl font-bold text-gray-900">Browse Projects</h1>
               <p className="text-sm text-gray-600">Discover opportunities matched to your skills and career goals</p>
@@ -117,30 +114,6 @@ const BrowseProjects = () => {
 
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-6 py-8">
-
-          {/* AI Matching Toggle */}
-          <Card className="bg-gradient-to-r from-purple-50 to-blue-50 border-purple-200 mb-6">
-            <CardContent className="p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <Sparkles className="h-5 w-5 text-purple-600" />
-                  <div>
-                    <p className="font-medium text-gray-900">AI Career Matching Active</p>
-                    <p className="text-sm text-gray-600">Projects sorted by your profile match score</p>
-                  </div>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowMatchingScores(!showMatchingScores)}
-                  className="bg-white"
-                >
-                  {showMatchingScores ? "Hide" : "Show"} Match Scores
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-
           {/* Search + Filters */}
           <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60 mb-8">
             <CardContent className="p-6">
@@ -255,9 +228,6 @@ const BrowseProjects = () => {
               <p className="text-sm text-gray-600">
                 Showing <span className="font-medium">{filtered.length}</span> of{" "}
                 <span className="font-medium">{projects.length}</span> open projects
-                {showMatchingScores && (
-                  <span className="text-purple-600 ml-2">• Sorted by match score</span>
-                )}
               </p>
             </div>
           )}
@@ -291,13 +261,12 @@ const BrowseProjects = () => {
                     {showMatchingScores && project.matchScore > 0 && (
                       <div className="absolute -top-2 -right-2 z-10">
                         <Badge
-                          className={`${
-                            project.matchScore >= 80
-                              ? "bg-green-500"
-                              : project.matchScore >= 60
+                          className={`${project.matchScore >= 80
+                            ? "bg-green-500"
+                            : project.matchScore >= 60
                               ? "bg-blue-500"
                               : "bg-orange-500"
-                          } text-white border-0 shadow-lg`}
+                            } text-white border-0 shadow-lg`}
                         >
                           <Star className="h-3 w-3 mr-1 fill-current" />
                           {project.matchScore}% Match

@@ -2,7 +2,6 @@ import { AppLayout } from "@/components/layout/app-layout"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Calendar, Clock, Video, CheckCircle, XCircle } from "lucide-react"
 
@@ -35,11 +34,9 @@ export default function SessionsPage() {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-purple-400 text-white">
-                          SJ
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-purple-400 text-white text-sm font-semibold">
+                        SJ
+                      </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">React Advanced Patterns</h3>
                         <p className="text-sm text-gray-600">with Sarah Johnson</p>
@@ -78,11 +75,9 @@ export default function SessionsPage() {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start space-x-4 flex-1">
-                      <Avatar className="h-12 w-12">
-                        <AvatarFallback className="bg-gradient-to-br from-green-400 to-blue-400 text-white">
-                          JD
-                        </AvatarFallback>
-                      </Avatar>
+                      <div className="h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-blue-400 text-white text-sm font-semibold">
+                        JD
+                      </div>
                       <div className="flex-1">
                         <h3 className="font-semibold text-lg">TypeScript Fundamentals</h3>
                         <p className="text-sm text-gray-600">with John Doe</p>
@@ -114,11 +109,9 @@ export default function SessionsPage() {
             <Card className="bg-white shadow-sm">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
-                  <Avatar className="h-12 w-12">
-                    <AvatarFallback className="bg-gradient-to-br from-red-400 to-pink-400 text-white">
-                      MW
-                    </AvatarFallback>
-                  </Avatar>
+                  <div className="h-12 w-12 flex items-center justify-center rounded-full bg-gradient-to-br from-red-400 to-pink-400 text-white text-sm font-semibold">
+                    MW
+                  </div>
                   <div className="flex-1">
                     <h3 className="font-semibold text-lg">System Design Basics</h3>
                     <p className="text-sm text-gray-600">with Mike Wilson</p>

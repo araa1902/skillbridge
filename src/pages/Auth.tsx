@@ -270,18 +270,6 @@ const Auth = () => {
                       required
                     />
                   </div>
-                  {userType === "employer" && (
-                    <div className="space-y-2">
-                      <Label htmlFor="company-name" className="font-medium">Company Name</Label>
-                      <Input
-                        id="company-name"
-                        name="company-name"
-                        placeholder="Acme Corp"
-                        className="bg-white border-gray-300 placeholder:text-gray-400"
-                        required
-                      />
-                    </div>
-                  )}
                 </>
               )}
 

@@ -1,5 +1,4 @@
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Bell, Settings, LogOut } from "lucide-react";
 import {
   DropdownMenu,
@@ -13,20 +12,12 @@ interface PageHeaderProps {
   title?: string;
   description?: string;
   subtitle?: string;
-  showUserMenu?: boolean;
-  userName?: string;
-  userRole?: string;
-  userAvatar?: string;
 }
 
 export function PageHeader({
   title,
   description,
   subtitle,
-  showUserMenu = true,
-  userName = "User",
-  userRole = "Student",
-  userAvatar,
 }: PageHeaderProps) {
   return (
     <div className="w-full border-b border-gray-200/50 bg-white/80 backdrop-blur-sm sticky top-0 z-40">

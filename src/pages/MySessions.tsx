@@ -2,15 +2,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { myBookedSessions } from "@/lib/sessions-data";
-import { 
-  Calendar, 
-  Clock, 
-  Video, 
-  Download, 
-  Star, 
+import {
+  Calendar,
+  Clock,
+  Video,
+  Download,
+  Star,
   MessageCircle,
   CheckCircle2,
   AlertCircle,
@@ -21,9 +19,10 @@ import { Link } from "react-router-dom";
 const MySessions = () => {
   const [activeTab, setActiveTab] = useState("upcoming");
 
-  const upcomingSessions = myBookedSessions.filter(s => s.status === 'upcoming');
-  const completedSessions = myBookedSessions.filter(s => s.status === 'completed');
-  const liveSessions = myBookedSessions.filter(s => s.status === 'live');
+  // To be wired to Supabase in Phase 2
+  const upcomingSessions: any[] = [];
+  const completedSessions: any[] = [];
+  const liveSessions: any[] = [];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-white pt-20">
@@ -76,11 +75,9 @@ const MySessions = () => {
                     <div className="grid lg:grid-cols-4 gap-6 items-center">
                       <div className="lg:col-span-2">
                         <div className="flex items-start gap-4">
-                          <Avatar className="w-12 h-12">
-                            <AvatarFallback className="bg-gradient-to-br from-slate-400 to-gray-500 text-white">
-                              {session.mentor.avatar}
-                            </AvatarFallback>
-                          </Avatar>
+                          <div className="w-12 h-12 flex items-center justify-center rounded-full bg-gradient-to-br from-slate-400 to-gray-500 text-white text-sm font-semibold">
+                            {session.mentor.avatar}
+                          </div>
                           <div>
                             <h3 className="font-bold text-lg mb-1">{session.title}</h3>
                             <p className="text-gray-600 mb-2">with {session.mentor.name}</p>
