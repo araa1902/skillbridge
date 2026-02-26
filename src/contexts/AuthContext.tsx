@@ -27,6 +27,8 @@ interface Profile {
 // Context value
 // --------------------------------------------------------------------------
 interface AuthContextValue {
+  usermetadata: User['user_metadata'] | null
+  id: string | null
   /** Raw Supabase session – null when logged-out */
   session: Session | null
   /** Shortcut to session.user */
@@ -207,6 +209,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     signOut,
     refreshProfile,
+    usermetadata: session?.user?.user_metadata ?? null,
+    id: session?.user?.id ?? null,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

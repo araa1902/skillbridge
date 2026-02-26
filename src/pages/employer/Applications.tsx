@@ -194,17 +194,6 @@ export default function Applications() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link to="/employer/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">Applications Received</h1>
@@ -321,12 +310,12 @@ export default function Applications() {
                           <MessageCircle className="h-4 w-4 mr-1" />
                           Message
                         </Button>
+                        <Button size="sm" variant="outline" onClick={() => navigate(`/student-profile/${app.student_id}`)}>
+                          <Eye className="h-4 w-4 mr-1" />
+                          View Profile
+                        </Button>
                       </div>
                     )}
-                    <Button size="sm" variant="outline" onClick={() => navigate(`/student-profile/${app.student_id}`)}>
-                      <Eye className="h-4 w-4 mr-1" />
-                      View Profile
-                    </Button>
 
                     {(app.status === "pending" || app.status === "reviewing") && (
                       <>

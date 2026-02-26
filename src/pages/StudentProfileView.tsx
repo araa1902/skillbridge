@@ -124,7 +124,7 @@ export default function StudentProfileView() {
                         </div>
                         <div className="flex-1 text-center md:text-left space-y-4">
                             <div>
-                                <h1 className="text-4xl sm:text-5xl font-extrabold mb-2 tracking-tight drop-shadow-sm">{profile.full_name}</h1>
+                                <h1 className="text-4xl sm:text-5xl font-extrabold mb-2 tracking-tight drop-shadow-sm text-white">{profile.full_name}</h1>
                                 <p className="text-blue-100 font-medium text-lg flex items-center justify-center md:justify-start gap-2">
                                     <Briefcase className="h-5 w-5" /> Student
                                 </p>

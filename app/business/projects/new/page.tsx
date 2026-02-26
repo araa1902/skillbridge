@@ -88,16 +88,6 @@ export default function NewProjectPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link href="/business/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
 
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -254,8 +244,8 @@ export default function NewProjectPage() {
 
                 {/* Mentor Option */}
                 <div className="flex items-center space-x-2 p-4 bg-blue-50 rounded-lg">
-                  <Checkbox 
-                    id="mentor" 
+                  <Checkbox
+                    id="mentor"
                     checked={formData.includeMentor}
                     onCheckedChange={(checked) => setFormData({ ...formData, includeMentor: checked as boolean })}
                   />
@@ -286,36 +276,36 @@ export default function NewProjectPage() {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-2">
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full justify-start"
                   type="button"
                   onClick={() => applyTemplate('website')}
                 >
                   Website Development
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full justify-start"
                   type="button"
                   onClick={() => applyTemplate('marketing')}
                 >
                   Marketing Campaign
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full justify-start"
                   type="button"
                   onClick={() => applyTemplate('research')}
                 >
                   User Research
                 </Button>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
+                <Button
+                  variant="outline"
+                  size="sm"
                   className="w-full justify-start"
                   type="button"
                   onClick={() => applyTemplate('data')}

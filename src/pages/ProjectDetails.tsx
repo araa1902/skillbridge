@@ -142,10 +142,12 @@ const ProjectDetails = () => {
             `*, profiles:projects_business_id_fkey (full_name, company_name, bio)`
           )
           .eq("id", id)
-          .single();
+          .maybeSingle();
 
         if (fetchError) {
           setError(fetchError.message);
+        } else if (!data) {
+          setError("Project not found");
         } else {
           const raw = data as any;
           const profile = raw.profiles;

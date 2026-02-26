@@ -1,19 +1,91 @@
 import { useAuth } from '@/contexts/AuthContext'
 import { useFetchStudentReferences } from '@/hooks/useReferences'
-import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
+import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { MessageSquare, Star } from 'lucide-react'
+import { Star, Download, TrendingUp, Award, MessageSquare } from 'lucide-react'
+import { ReferenceCard } from '@/components/ReferenceCard'
+import { useState, useEffect } from 'react'
 
 export default function ReferencesPage() {
   const { user } = useAuth()
   const { references, loading, error } = useFetchStudentReferences(user?.id || null)
 
+  const [stats, setStats] = useState({
+    avgRating: 0,
+    total: 0,
+    topSkill: '',
+    recommendationRate: 0
+  })
+
+  useEffect(() => {
+    if (references.length > 0) {
+      const avg = references.reduce((acc, ref) => acc + ref.rating, 0) / references.length
+      const rate = (references.filter(ref => ref.would_work_again).length / references.length) * 100
+
+      const skillCounts: Record<string, number> = {}
+      references.forEach(ref => {
+        ref.skills.forEach(skill => {
+          skillCounts[skill] = (skillCounts[skill] || 0) + 1
+        })
+      })
+      const topSkill = Object.entries(skillCounts).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A'
+
+      setStats({
+        avgRating: Number(avg.toFixed(1)),
+        total: references.length,
+        topSkill,
+        recommendationRate: Math.round(rate)
+      })
+    }
+  }, [references])
+
+  const handleExportPdf = async () => {
+    const { jsPDF } = await import('jspdf')
+    const doc = new jsPDF()
+
+    doc.setFontSize(22)
+    doc.text('Professional Reference Portfolio', 20, 20)
+
+    doc.setFontSize(12)
+    doc.setTextColor(100, 100, 100)
+    doc.text(`Generated for ${user?.email || 'Student'} on ${new Date().toLocaleDateString()}`, 20, 30)
+
+    let y = 50
+    references.forEach((ref, i) => {
+      if (y > 250) {
+        doc.addPage()
+        y = 20
+      }
+
+      doc.setFont(undefined, 'bold')
+      doc.setFontSize(14)
+      doc.setTextColor(0, 0, 0)
+      doc.text(`${i + 1}. ${ref.project_title}`, 20, y)
+
+      y += 7
+      doc.setFont(undefined, 'normal')
+      doc.setFontSize(11)
+      doc.setTextColor(100, 100, 100)
+      doc.text(`${ref.employer_name} @ ${ref.company_name} | Rating: ${ref.rating}/5`, 20, y)
+
+      y += 10
+      doc.setFontSize(10)
+      doc.setTextColor(50, 50, 50)
+      const splitText = doc.splitTextToSize(`"${ref.overall_feedback}"`, 170)
+      doc.text(splitText, 20, y)
+
+      y += (splitText.length * 5) + 15
+    })
+
+    doc.save('References_Portfolio.pdf')
+  }
+
   if (error) {
     return (
-      <div className="p-6">
-        <div className="rounded-lg bg-red-50 p-4 text-red-700">
-          <h3 className="font-semibold">Failed to load references</h3>
+      <div className="p-6 max-w-5xl mx-auto">
+        <div className="p-6 border border-red-200 bg-red-50 rounded-lg text-red-700">
+          <h3 className="font-bold">Error</h3>
           <p>{error}</p>
         </div>
       </div>
@@ -21,117 +93,92 @@ export default function ReferencesPage() {
   }
 
   return (
-    <div className="space-y-6 p-6">
-      <div>
-        <h1 className="text-3xl font-bold">Professional References</h1>
-        <p className="text-gray-600">Recommendations from employers and project partners</p>
+    <div className="max-w-5xl mx-auto p-6 space-y-12">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
+        <div className="space-y-1">
+          <h1 className="text-3xl font-bold tracking-tight">Professional References</h1>
+          <p className="text-muted-foreground">Authenticated feedback from industry partners.</p>
+        </div>
+
+        {references.length > 0 && (
+          <Button
+            onClick={handleExportPdf}
+            variant="outline"
+            className="rounded-full border font-bold"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            Export Portfolio
+          </Button>
+        )}
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-48 w-full" />
-          ))}
-        </div>
-      ) : references.length === 0 ? (
-        <Card className="p-12 text-center">
-          <MessageSquare className="mx-auto h-12 w-12 text-gray-300" />
-          <h3 className="mt-4 text-lg font-semibold">No references yet</h3>
-          <p className="mt-2 text-gray-600">
-            Complete projects and get references from your collaborators
-          </p>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {references.map((reference) => (
-            <Card key={reference.id} className="p-6">
-              <div className="space-y-4">
-                {/* Header with rating and date */}
-                <div className="flex items-start justify-between">
-                  <div>
-                    <h3 className="text-lg font-semibold">{reference.employer_name}</h3>
-                    {reference.employer_title && (
-                      <p className="text-sm text-gray-600">{reference.employer_title}</p>
-                    )}
-                    {reference.company_name && (
-                      <p className="text-sm text-gray-500">{reference.company_name}</p>
-                    )}
-                  </div>
-                  <div className="flex flex-col items-end gap-2">
-                    <div className="flex items-center gap-1">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`h-4 w-4 ${
-                            i < reference.rating
-                              ? 'fill-yellow-400 text-yellow-400'
-                              : 'text-gray-300'
-                          }`}
-                        />
-                      ))}
-                    </div>
-                    <p className="text-xs text-gray-500">
-                      {new Date(reference.created_at).toLocaleDateString()}
-                    </p>
-                  </div>
-                </div>
+      {/* Stats */}
+      {references.length > 0 && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8 p-8 border border-border rounded-2xl bg-muted/30">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Avg Rating</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl font-bold">{stats.avgRating}</span>
+              <Star className="w-3.5 h-3.5 fill-accent-amber text-accent-amber" />
+            </div>
+          </div>
 
-                {/* Project */}
-                {reference.project_title && (
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-1">Project</p>
-                    <Badge variant="outline">{reference.project_title}</Badge>
-                  </div>
-                )}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Referral Rate</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl font-bold">{stats.recommendationRate}%</span>
+              <TrendingUp className="w-3.5 h-3.5 text-primary" />
+            </div>
+          </div>
 
-                {/* Skills */}
-                {reference.skills.length > 0 && (
-                  <div>
-                    <p className="text-sm font-semibold text-gray-700 mb-2">Skills Recognized</p>
-                    <div className="flex flex-wrap gap-2">
-                      {reference.skills.map((skill, i) => (
-                        <Badge key={i} variant="secondary">{skill}</Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Reviews</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl font-bold">{stats.total}</span>
+              <Award className="w-3.5 h-3.5 text-blue-500" />
+            </div>
+          </div>
 
-                {/* Reference content */}
-                <div className="pt-4 border-t">
-                  <p className="text-gray-700 leading-relaxed">{reference.overall_feedback}</p>
-                </div>
-
-                {/* Performance ratings */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 border-t">
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600">Work Quality</p>
-                    <p className="font-bold text-lg">{reference.work_quality}/5</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600">Communication</p>
-                    <p className="font-bold text-lg">{reference.communication}/5</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600">Professionalism</p>
-                    <p className="font-bold text-lg">{reference.professionalism}/5</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600">Technical Skills</p>
-                    <p className="font-bold text-lg">{reference.technical_skills}/5</p>
-                  </div>
-                </div>
-
-                {/* Would work again badge */}
-                {reference.would_work_again && (
-                  <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded">
-                    <p className="text-sm text-green-800">✓ Employer would work with you again</p>
-                  </div>
-                )}
-              </div>
-            </Card>
-          ))}
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Top Skill</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-2xl font-bold truncate">{stats.topSkill}</span>
+            </div>
+          </div>
         </div>
       )}
+
+      {/* References List */}
+      <div className="space-y-8">
+        <div className="flex items-center gap-2">
+          <h2 className="text-xl font-bold">Verified Feedback</h2>
+          <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
+            {references.length}
+          </span>
+        </div>
+
+        {loading ? (
+          <div className="space-y-6">
+            {[...Array(2)].map((_, i) => (
+              <Skeleton key={i} className="h-48 w-full rounded-lg" />
+            ))}
+          </div>
+        ) : references.length === 0 ? (
+          <div className="py-20 text-center border border-dashed border-border rounded-lg bg-muted/20">
+            <MessageSquare className="w-8 h-8 text-muted-foreground/30 mx-auto mb-4" />
+            <h3 className="font-bold text-foreground mb-1">No references yet</h3>
+            <p className="text-sm text-muted-foreground mb-6">Complete projects to build your portfolio.</p>
+            <Button variant="outline" className="font-bold">Browse Projects</Button>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 gap-10">
+            {references.map((reference) => (
+              <ReferenceCard key={reference.id} reference={reference} />
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

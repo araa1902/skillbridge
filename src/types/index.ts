@@ -25,6 +25,7 @@ export type Database = {
                     bio: string | null
                     skills: string[] | null
                     created_at: string // timestamptz
+                    updated_at: string // timestamptz
                 }
                 Insert: {
                     id: string
@@ -35,6 +36,7 @@ export type Database = {
                     bio?: string | null
                     skills?: string[] | null
                     created_at?: string
+                    updated_at?: string
                 }
                 Update: {
                     id?: string
@@ -45,6 +47,7 @@ export type Database = {
                     bio?: string | null
                     skills?: string[] | null
                     created_at?: string
+                    updated_at?: string
                 }
                 Relationships: [
                     {
@@ -120,6 +123,7 @@ export type Database = {
                     cover_letter: string
                     status: ApplicationStatus
                     created_at: string // timestamptz
+                    updated_at: string // timestamptz
                     deliverable_link: string | null
                 }
                 Insert: {
@@ -129,6 +133,7 @@ export type Database = {
                     cover_letter: string
                     status?: ApplicationStatus
                     created_at?: string
+                    updated_at?: string
                     deliverable_link?: string | null
                 }
                 Update: {
@@ -138,6 +143,7 @@ export type Database = {
                     cover_letter?: string
                     status?: ApplicationStatus
                     created_at?: string
+                    updated_at?: string
                     deliverable_link?: string | null
                 }
                 Relationships: [
@@ -166,6 +172,7 @@ export type Database = {
                     content: string
                     read: boolean
                     created_at: string // timestamptz
+                    updated_at: string // timestamptz
                 }
                 Insert: {
                     id?: string
@@ -175,6 +182,7 @@ export type Database = {
                     content: string
                     read?: boolean
                     created_at?: string
+                    updated_at?: string
                 }
                 Update: {
                     id?: string
@@ -184,6 +192,7 @@ export type Database = {
                     content?: string
                     read?: boolean
                     created_at?: string
+                    updated_at?: string
                 }
                 Relationships: [
                     {
@@ -219,6 +228,7 @@ export type Database = {
                     feedback: string | null
                     rating: number | null // 1-5
                     issued_at: string // timestamptz
+                    updated_at: string // timestamptz
                 }
                 Insert: {
                     id?: string
@@ -229,6 +239,7 @@ export type Database = {
                     feedback?: string | null
                     rating?: number | null
                     issued_at?: string
+                    updated_at?: string
                 }
                 Update: {
                     id?: string
@@ -239,6 +250,7 @@ export type Database = {
                     feedback?: string | null
                     rating?: number | null
                     issued_at?: string
+                    updated_at?: string
                 }
                 Relationships: [
                     {
@@ -289,6 +301,7 @@ export type Database = {
                     is_public: boolean
                     verified_by_platform: boolean
                     created_at: string // timestamptz
+                    updated_at: string // timestamptz
                 }
                 Insert: {
                     id?: string
@@ -314,6 +327,7 @@ export type Database = {
                     is_public?: boolean
                     verified_by_platform?: boolean
                     created_at?: string
+                    updated_at?: string
                 }
                 Update: {
                     id?: string
@@ -339,6 +353,7 @@ export type Database = {
                     is_public?: boolean
                     verified_by_platform?: boolean
                     created_at?: string
+                    updated_at?: string
                 }
                 Relationships: [
                     {
@@ -375,6 +390,7 @@ export type Database = {
                     status: ReferenceRequestStatus
                     requested_at: string // timestamptz
                     completed_at: string | null // timestamptz
+                    updated_at: string // timestamptz
                 }
                 Insert: {
                     id?: string
@@ -386,6 +402,7 @@ export type Database = {
                     status?: ReferenceRequestStatus
                     requested_at?: string
                     completed_at?: string | null
+                    updated_at?: string
                 }
                 Update: {
                     id?: string
@@ -397,6 +414,7 @@ export type Database = {
                     status?: ReferenceRequestStatus
                     requested_at?: string
                     completed_at?: string | null
+                    updated_at?: string
                 }
                 Relationships: [
                     {

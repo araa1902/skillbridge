@@ -171,11 +171,20 @@ const EmployerDashboard = () => {
           className="flex items-start justify-between gap-4"
         >
           <div>
-            <h1 className="text-2xl font-bold tracking-tight">
-              Good to see you, {firstName}
+            <h1
+              className="text-display"
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 800,
+                fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                letterSpacing: "-0.04em",
+                lineHeight: 1.1,
+              }}
+            >
+              Welcome Back, {firstName}
             </h1>
             <p className="text-sm text-muted-foreground mt-1">
-              {companyName} · Manage your projects and student connections
+              Here's what's happening with your projects today.
             </p>
           </div>
           <Button size="sm" className="shrink-0 gap-1.5" asChild>

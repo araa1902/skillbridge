@@ -42,7 +42,7 @@ export const ProjectCard = ({
     <Card className="group hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-gray-200/50 hover:border-gray-300">
       <CardHeader className="space-y-3 pb-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-lg leading-tight text-gray-900 group-hover:text-blue-600 transition-colors">
+          <h3 className="font-semibold text-lg leading-tight text-gray-900 transition-colors">
             {title}
           </h3>
           {matchScore !== undefined && matchScore > 0 && (
@@ -102,7 +102,7 @@ export const ProjectCard = ({
       </CardContent>
 
       <CardFooter className="pt-3">
-        <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-white transition-colors">
+        <Button asChild className="w-full hover:text-white text-white transition-colors">
           <Link to={`/project/${id}`}>View Details</Link>
         </Button>
       </CardFooter>

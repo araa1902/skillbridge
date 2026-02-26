@@ -131,7 +131,7 @@ const BrowseProjects = () => {
                   <Button
                     variant="outline"
                     onClick={() => setShowFilters(!showFilters)}
-                    className="bg-white/70 border-gray-200 text-gray-700 hover:bg-gray-100"
+                    className="bg-white/70 border-gray-200 text-gray-700"
                   >
                     <SlidersHorizontal className="mr-2 h-4 w-4" />
                     Filters

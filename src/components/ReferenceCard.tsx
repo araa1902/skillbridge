@@ -74,79 +74,79 @@ export function ReferenceCard({ reference, compact = false }: ReferenceCardProps
 
   if (compact) {
     return (
-      <Card className="border-l-4 border-l-blue-500 hover:shadow-lg transition-all duration-200 bg-white/80">
+      <Card className="border border-border hover:bg-muted/30 transition-colors shadow-none">
         <CardContent className="p-4">
           <div className="flex items-start justify-between mb-3">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 ring-2 ring-blue-200 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white text-sm font-semibold">
+              <div className="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white text-sm font-bold">
                 {normalized.employerName.split(' ').map(n => n[0]).join('')}
               </div>
               <div>
                 <div className="flex items-center gap-1">
-                  <p className="font-semibold text-sm">{normalized.employerName}</p>
+                  <p className="font-bold text-sm text-foreground">{normalized.employerName}</p>
                   {normalized.verifiedByPlatform && (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-blue-600" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-primary" />
                   )}
                 </div>
-                <p className="text-xs text-gray-600">{normalized.employerTitle}</p>
-                <p className="text-xs text-gray-500">{normalized.companyName}</p>
+                <p className="text-xs text-muted-foreground">{normalized.employerTitle}</p>
+                <p className="text-xs text-muted-foreground/80">{normalized.companyName}</p>
               </div>
             </div>
             <div className="flex flex-col items-end">
               <div className="flex items-center gap-1">
-                <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                <span className="font-bold text-sm text-gray-900">{normalized.rating}.0</span>
+                <Star className="w-3.5 h-3.5 fill-accent-amber text-accent-amber" />
+                <span className="font-bold text-sm text-foreground">{normalized.rating}.0</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-2 text-xs text-gray-600 mb-2">
+          <div className="flex items-center gap-2 text-xs text-muted-foreground mb-2">
             <Building2 className="w-3.5 h-3.5" />
-            <span className="truncate">{normalized.projectTitle}</span>
+            <span className="truncate font-medium">{normalized.projectTitle}</span>
           </div>
-          <p className="text-sm text-gray-700 line-clamp-2 leading-relaxed">{normalized.overallFeedback}</p>
+          <p className="text-sm text-foreground/80 line-clamp-2 leading-relaxed">{normalized.overallFeedback}</p>
         </CardContent>
       </Card>
     );
   }
 
   return (
-    <Card className="hover:shadow-lg transition-all">
+    <Card className="shadow-none border border-border overflow-hidden">
       <CardHeader className="pb-4">
-        <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start justify-between mb-6">
           <div className="flex items-start gap-4">
-            <div className="w-14 h-14 flex items-center justify-center rounded-full bg-gradient-to-br from-blue-400 to-blue-600 text-white text-lg font-bold">
+            <div className="w-14 h-14 flex items-center justify-center rounded-full bg-primary text-white text-xl font-bold">
               {normalized.employerName.split(' ').map(n => n[0]).join('')}
             </div>
             <div>
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-bold text-lg">{normalized.employerName}</h3>
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-xl text-foreground">{normalized.employerName}</h3>
                 {normalized.verifiedByPlatform && (
-                  <CheckCircle2 className="w-4 h-4 text-blue-600" />
+                  <CheckCircle2 className="w-4 h-4 text-primary" />
                 )}
               </div>
-              <p className="text-sm text-gray-600 font-medium">{normalized.employerTitle}</p>
-              <p className="text-sm text-gray-500">{normalized.companyName}</p>
-              <div className="flex items-center gap-1 text-xs text-gray-500 mt-1">
+              <p className="text-xs text-muted-foreground font-bold uppercase tracking-wider">{normalized.employerTitle}</p>
+              <p className="text-sm text-foreground/70">{normalized.companyName}</p>
+              <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-2">
                 <Calendar className="w-3 h-3" />
                 <span>{formatDate(normalized.createdAt)}</span>
               </div>
             </div>
           </div>
-          <div className="flex items-center gap-1 bg-yellow-50 px-3 py-2 rounded-lg">
-            <Star className="w-5 h-5 fill-yellow-400 text-yellow-400" />
-            <span className="font-bold text-lg">{normalized.rating}.0</span>
+          <div className="flex items-center gap-1">
+            <Star className="w-5 h-5 fill-accent-amber text-accent-amber" />
+            <span className="font-extrabold text-xl text-foreground">{normalized.rating}.0</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-2 text-sm text-gray-600 mb-3">
+        <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 font-bold border-b border-border pb-4">
           <Building2 className="w-4 h-4" />
-          <span className="font-medium">Project: {normalized.projectTitle}</span>
+          <span>Project: <span className="text-foreground">{normalized.projectTitle}</span></span>
         </div>
 
         {normalized.skills.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {normalized.skills.map((skill, index) => (
-              <Badge key={index} variant="secondary" className="bg-blue-50 text-blue-700">
+              <Badge key={index} variant="outline" className="border-border text-foreground font-semibold">
                 {skill}
               </Badge>
             ))}
@@ -154,66 +154,66 @@ export function ReferenceCard({ reference, compact = false }: ReferenceCardProps
         )}
       </CardHeader>
 
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-8 pt-0">
         {/* Overall Feedback */}
-        <div>
-          <h4 className="font-semibold mb-2">Overall Feedback</h4>
-          <p className="text-gray-700 leading-relaxed">{normalized.overallFeedback}</p>
+        <div className="py-4">
+          <h4 className="font-bold text-xs mb-2 uppercase tracking-widest text-muted-foreground">Overall Feedback</h4>
+          <p className="text-foreground/90 leading-relaxed font-medium italic">"{normalized.overallFeedback}"</p>
         </div>
 
         {/* Performance Ratings */}
-        <div>
-          <h4 className="font-semibold mb-3">Performance Ratings</h4>
-          <div className="space-y-3">
-            {ratings.map((rating, index) => (
-              <div key={index}>
-                <div className="flex justify-between text-sm mb-1">
-                  <span className="text-gray-600">{rating.label}</span>
-                  <span className="font-medium">{rating.value}/5</span>
-                </div>
-                <Progress value={rating.value * 20} className="h-2" />
-              </div>
-            ))}
+        <div className="grid sm:grid-cols-2 gap-x-12 gap-y-6 pt-6 border-t border-border">
+          <div className="sm:col-span-2">
+            <h4 className="font-bold text-xs uppercase tracking-widest text-muted-foreground">Performance Metrics</h4>
           </div>
+          {ratings.map((rating, index) => (
+            <div key={index} className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-foreground font-semibold">{rating.label}</span>
+                <span className="font-bold text-primary">{rating.value}/5</span>
+              </div>
+              <Progress value={rating.value * 20} className="h-1.5 bg-muted" />
+            </div>
+          ))}
         </div>
 
-        {/* Strengths */}
-        {normalized.strengths.length > 0 && (
-          <div>
-            <h4 className="font-semibold mb-2">Key Strengths</h4>
-            <ul className="space-y-2">
-              {normalized.strengths.map((strength, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                  <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                  <span>{strength}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+        <div className="grid sm:grid-cols-2 gap-12 pt-6 border-t border-border">
+          {/* Strengths */}
+          {normalized.strengths.length > 0 && (
+            <div>
+              <h4 className="font-bold text-xs mb-4 uppercase tracking-widest text-muted-foreground">Key Strengths</h4>
+              <ul className="space-y-2">
+                {normalized.strengths.map((strength, index) => (
+                  <li key={index} className="flex items-start gap-2 text-sm text-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
+                    <span>{strength}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
-        {/* Areas for Growth */}
-        {normalized.areasForImprovement.length > 0 && (
-          <div>
-            <h4 className="font-semibold mb-2">Areas for Growth</h4>
-            <ul className="space-y-2">
-              {normalized.areasForImprovement.map((area, index) => (
-                <li key={index} className="flex items-start gap-2 text-sm text-gray-700">
-                  <div className="w-4 h-4 rounded-full bg-yellow-100 flex-shrink-0 mt-0.5" />
-                  <span>{area}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
+          {/* Areas for Growth */}
+          {normalized.areasForImprovement.length > 0 && (
+            <div>
+              <h4 className="font-bold text-xs mb-4 uppercase tracking-widest text-muted-foreground">Areas for Growth</h4>
+              <ul className="space-y-2">
+                {normalized.areasForImprovement.map((area, index) => (
+                  <li key={index} className="flex items-start gap-2 text-sm text-foreground">
+                    <span className="w-1.5 h-1.5 rounded-full bg-border mt-1.5" />
+                    <span>{area}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
 
         {/* Would Work Again */}
         {normalized.wouldWorkAgain && (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            <span className="text-sm font-medium text-green-800">
-              Would work with this student again
-            </span>
+          <div className="pt-6 border-t border-border flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 text-primary" />
+            <span className="text-xs font-bold text-primary uppercase tracking-widest">Recommended by Employer</span>
           </div>
         )}
       </CardContent>

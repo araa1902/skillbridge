@@ -3,22 +3,61 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { Settings as SettingsIcon } from 'lucide-react'
+import { Settings as SettingsIcon, Loader2 } from 'lucide-react'
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export default function EmployerSettings() {
-  const { profile, user } = useAuth()
+  const { profile, user, refreshProfile } = useAuth()
   const { toast } = useToast()
+  const [loading, setLoading] = useState(false)
 
-  const handleSave = () => {
-    toast({
-      title: 'Settings saved',
-      description: 'Your employer settings have been updated.',
-    })
+  const [companyName, setCompanyName] = useState('')
+  const [fullName, setFullName] = useState('')
+  const [bio, setBio] = useState('')
+
+  useEffect(() => {
+    if (profile) {
+      setCompanyName(profile.company_name || '')
+      setFullName(profile.full_name || '')
+      setBio(profile.bio || '')
+    }
+  }, [profile])
+
+  const handleSave = async () => {
+    if (!user) return
+    setLoading(true)
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          company_name: companyName,
+          full_name: fullName,
+          bio: bio
+        })
+        .eq('id', user.id)
+
+      if (error) throw error
+      await refreshProfile()
+      toast({
+        title: 'Settings saved',
+        description: 'Your employer settings have been updated.',
+      })
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to update settings',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="space-y-6 p-6 max-w-4xl mx-auto">
       <div>
         <h1 className="text-3xl font-bold">Settings</h1>
         <p className="text-gray-600">Manage your employer account and preferences</p>
@@ -31,34 +70,49 @@ export default function EmployerSettings() {
           <h2 className="text-xl font-semibold">Account Information</h2>
         </div>
 
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="name">Company Name</Label>
-            <Input
-              id="name"
-              value={profile?.company_name || ''}
-              readOnly
-              className="mt-1"
-            />
+        <div className="grid gap-6">
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Company Name</Label>
+              <Input
+                id="name"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                placeholder="Enter company name"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="fullname">Full Name</Label>
+              <Input
+                id="fullname"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Enter full name"
+              />
+            </div>
           </div>
 
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="email">Email</Label>
             <Input
               id="email"
               value={user?.email || ''}
               readOnly
-              className="mt-1"
+              disabled
+              className="bg-muted/50"
             />
+            <p className="text-[10px] text-muted-foreground">Email cannot be changed here.</p>
           </div>
 
-          <div>
-            <Label htmlFor="fullname">Contact Person</Label>
-            <Input
-              id="fullname"
-              value={profile?.full_name || ''}
-              readOnly
-              className="mt-1"
+          <div className="space-y-2">
+            <Label htmlFor="bio">Company Bio / Mission</Label>
+            <Textarea
+              id="bio"
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
+              placeholder="Tell students about your company..."
+              rows={4}
             />
           </div>
         </div>
@@ -89,8 +143,11 @@ export default function EmployerSettings() {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button onClick={handleSave}>Save Changes</Button>
-        <Button variant="outline">Cancel</Button>
+        <Button onClick={handleSave} disabled={loading}>
+          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Save Changes
+        </Button>
+        <Button variant="outline" onClick={() => refreshProfile()}>Cancel</Button>
       </div>
     </div>
   )

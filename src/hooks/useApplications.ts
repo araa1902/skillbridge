@@ -145,16 +145,18 @@ export function useFetchMyApplications(studentId: string | null) {
       setError(dbError.message)
       setApplications([])
     } else {
-      const rows = (data ?? []).map((row: any) => ({
-        ...row,
-        project_title: row.projects?.title ?? null,
-        company_name: row.projects?.profiles?.company_name ?? null,
-        business_name: row.projects?.profiles?.full_name ?? null,
-        business_id: row.projects?.business_id ?? null,
-        student_name: null,
-        student_avatar: null,
-        projects: undefined,
-      })) as ApplicationWithDetails[]
+      const rows = (data ?? [])
+        .filter((row: any) => row.projects !== null)
+        .map((row: any) => ({
+          ...row,
+          project_title: row.projects?.title ?? null,
+          company_name: row.projects?.profiles?.company_name ?? null,
+          business_name: row.projects?.profiles?.full_name ?? null,
+          business_id: row.projects?.business_id ?? null,
+          student_name: null,
+          student_avatar: null,
+          projects: undefined,
+        })) as ApplicationWithDetails[]
       setApplications(rows)
     }
     setLoading(false)

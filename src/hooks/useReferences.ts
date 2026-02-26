@@ -297,6 +297,46 @@ export function useFetchPendingRequests(employerId: string | null) {
   return { requests, loading, error, refetch: load }
 }
 
+// ─── Fetch reference requests for a student ──────────────────────────────
+
+export function useFetchMyReferenceRequests(studentId: string | null) {
+  const [requests, setRequests] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    if (!studentId) {
+      setRequests([])
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    const { data, error: dbError } = await supabase
+      .from('reference_requests')
+      .select('*')
+      .eq('student_id', studentId)
+      .order('requested_at', { ascending: false })
+
+    if (dbError) {
+      setError(dbError.message)
+      setRequests([])
+    } else {
+      setRequests(data ?? [])
+    }
+
+    setLoading(false)
+  }, [studentId])
+
+  useEffect(() => {
+    load()
+  }, [load])
+
+  return { requests, loading, error, refetch: load }
+}
+
 // ─── Create a reference request ────────────────────────────────────────────
 
 export async function createReferenceRequest(payload: {

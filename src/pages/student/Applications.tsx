@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Clock, CheckCircle, XCircle, Building2, Calendar, MessageCircle, FileText, Trash2 } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, XCircle, Building2, Calendar, MessageCircle, FileText, Trash2, Undo2, Eye } from "lucide-react";
 import { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -15,6 +15,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import {
@@ -23,7 +29,13 @@ import {
   type ApplicationWithDetails,
   type ApplicationStatus,
 } from "@/hooks/useApplications";
-import { createReferenceRequest } from "@/hooks/useReferences";
+import {
+  createReferenceRequest,
+  useFetchStudentReferences,
+  useFetchMyReferenceRequests,
+  type ReferenceFromDB
+} from "@/hooks/useReferences";
+import { ReferenceCard } from "@/components/ReferenceCard";
 
 // ─── Status badge helper ──────────────────────────────────────────────────────
 
@@ -104,13 +116,24 @@ export default function StudentApplications() {
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const { applications, loading, error, refetch } = useFetchMyApplications(user?.id ?? null);
+  const { applications, loading: appsLoading, error, refetch: refetchApps } = useFetchMyApplications(user?.id ?? null);
+  const { references, loading: refsLoading, refetch: refetchRefs } = useFetchStudentReferences(user?.id ?? null);
+  const { requests, loading: reqsLoading, refetch: refetchReqs } = useFetchMyReferenceRequests(user?.id ?? null);
+
+  const refetchAll = () => {
+    refetchApps();
+    refetchRefs();
+    refetchReqs();
+  };
+
+  const loading = appsLoading || refsLoading || reqsLoading;
 
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationWithDetails | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [coverLetterApp, setCoverLetterApp] = useState<ApplicationWithDetails | null>(null);
+  const [viewReference, setViewReference] = useState<ReferenceFromDB | null>(null);
 
   // Show error toast if data fetch fails
   useEffect(() => {
@@ -131,7 +154,7 @@ export default function StudentApplications() {
       toast({ title: "Withdraw failed", description: updateError, variant: "destructive" });
     } else {
       toast({ title: "Application Withdrawn", description: "Your application has been withdrawn." });
-      refetch();
+      refetchAll();
     }
     setWithdrawDialogOpen(false);
     setSelectedApp(null);
@@ -158,17 +181,6 @@ export default function StudentApplications() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <Link to="/student/dashboard">
-            <Button variant="ghost" size="sm">
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Dashboard
-            </Button>
-          </Link>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">My Applications</h1>
@@ -266,33 +278,66 @@ export default function StudentApplications() {
                           Message Employer
                         </Button>
                       )}
-                      {app.status === "completed" && (
-                        <Button
-                          size="sm"
-                          className="bg-purple-600 hover:bg-purple-700"
-                          onClick={async () => {
-                            if (!user || (!app.business_id)) return;
-                            setActionLoading(true);
-                            const { error: reqErr } = await createReferenceRequest({
-                              student_id: user.id,
-                              employer_id: app.business_id,
-                              project_id: app.project_id,
-                              student_name: user?.user_metadata?.full_name || "Student",
-                              project_title: app.project_title || "Project"
-                            });
-                            setActionLoading(false);
-                            if (reqErr) {
-                              toast({ title: "Failed to request", description: reqErr, variant: "destructive" });
-                            } else {
-                              toast({ title: "Reference Requested", description: "The employer has been notified." });
-                            }
-                          }}
-                          disabled={actionLoading}
-                        >
-                          <FileText className="h-4 w-4 mr-1" />
-                          Request Reference
-                        </Button>
-                      )}
+                      {app.status === "completed" && (() => {
+                        const reference = references.find(r => r.project_id === app.project_id);
+                        const request = requests.find(r => r.project_id === app.project_id);
+
+                        if (reference) {
+                          return (
+                            <Button
+                              size="sm"
+                              className="bg-blue-600 hover:bg-blue-700"
+                              onClick={() => setViewReference(reference)}
+                            >
+                              <Eye className="h-4 w-4 mr-1" />
+                              View Reference
+                            </Button>
+                          );
+                        }
+
+                        if (request) {
+                          return (
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              disabled
+                              className="bg-purple-100 text-purple-700 hover:bg-purple-100 opacity-100"
+                            >
+                              <Clock className="h-4 w-4 mr-1" />
+                              Reference Requested
+                            </Button>
+                          );
+                        }
+
+                        return (
+                          <Button
+                            size="sm"
+                            className="bg-purple-600 hover:bg-purple-700"
+                            onClick={async () => {
+                              if (!user || (!app.business_id)) return;
+                              setActionLoading(true);
+                              const { error: reqErr } = await createReferenceRequest({
+                                student_id: user.id,
+                                employer_id: app.business_id,
+                                project_id: app.project_id,
+                                student_name: user?.user_metadata?.full_name || "Student",
+                                project_title: app.project_title || "Project"
+                              });
+                              setActionLoading(false);
+                              if (reqErr) {
+                                toast({ title: "Failed to request", description: reqErr, variant: "destructive" });
+                              } else {
+                                toast({ title: "Reference Requested", description: "The employer has been notified." });
+                                refetchAll();
+                              }
+                            }}
+                            disabled={actionLoading}
+                          >
+                            <Undo2 className="h-4 w-4 mr-1" />
+                            Request Reference
+                          </Button>
+                        );
+                      })()}
                       {(app.status === "pending" || app.status === "reviewing") && (
                         <Button
                           size="sm"
@@ -353,21 +398,20 @@ export default function StudentApplications() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Reference Dialog */}
+      <Dialog open={!!viewReference} onOpenChange={(o) => { if (!o) setViewReference(null); }}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>View Reference</DialogTitle>
+          </DialogHeader>
+          {viewReference && (
+            <div className="mt-4">
+              <ReferenceCard reference={viewReference} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
-}
-
-
-interface Application {
-  id: number;
-  projectTitle: string;
-  companyName: string;
-  companyLogo: string;
-  status: "pending" | "accepted" | "rejected";
-  appliedDate: string;
-  respondedDate?: string;
-  budget: string;
-  description: string;
-  coverLetter: string;
-  projectId: number;
 }

@@ -6,22 +6,84 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { X } from "lucide-react";
-import { useState } from "react";
+import { X, Loader2 } from "lucide-react";
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/lib/supabase";
+import { toast } from "sonner";
 
 const Settings = () => {
-  const [skills, setSkills] = useState(["Marketing", "Data Analysis", "Communication"]);
+  const { profile, user, refreshProfile } = useAuth();
+  const [loading, setLoading] = useState(false);
+
+  const [fullName, setFullName] = useState("");
+  const [bio, setBio] = useState("");
+  const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
 
-  const handleAddSkill = () => {
-    if (newSkill.trim() && !skills.includes(newSkill.trim())) {
-      setSkills([...skills, newSkill.trim()]);
-      setNewSkill("");
+  useEffect(() => {
+    if (profile) {
+      setFullName(profile.full_name || "");
+      setBio(profile.bio || "");
+      setSkills(profile.skills || []);
+    }
+  }, [profile]);
+
+  const handleSaveProfile = async () => {
+    if (!user) return;
+    setLoading(true);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          full_name: fullName,
+          bio: bio
+        })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      await refreshProfile();
+      toast.success("Profile updated successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to update profile");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRemoveSkill = (skill: string) => {
-    setSkills(skills.filter((s) => s !== skill));
+  const handleAddSkill = async () => {
+    if (!user || !newSkill.trim() || skills.includes(newSkill.trim())) return;
+
+    const updatedSkills = [...skills, newSkill.trim()];
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ skills: updatedSkills })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      setSkills(updatedSkills);
+      setNewSkill("");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to add skill");
+    }
+  };
+
+  const handleRemoveSkill = async (skillToRemove: string) => {
+    if (!user) return;
+
+    const updatedSkills = skills.filter((s) => s !== skillToRemove);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ skills: updatedSkills })
+        .eq('id', user.id);
+
+      if (error) throw error;
+      setSkills(updatedSkills);
+    } catch (error: any) {
+      toast.error(error.message || "Failed to remove skill");
+    }
   };
 
   return (
@@ -52,40 +114,36 @@ const Settings = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">
                   <div className="flex items-center gap-6 pb-6 border-b border-border/50">
-                    <div className="h-16 w-16 flex items-center justify-center rounded-full bg-muted text-xl font-semibold">
-                      ST
+                    <div className="h-16 w-16 flex items-center justify-center rounded-full bg-muted text-xl font-semibold uppercase">
+                      {fullName.substring(0, 2) || "ST"}
                     </div>
                     <div>
-                      <p className="font-semibold text-lg">Profile Display Name</p>
+                      <p className="font-semibold text-lg">{fullName || "Profile Display Name"}</p>
                       <p className="text-sm text-muted-foreground">This is how you appear to others on the platform.</p>
                     </div>
                   </div>
 
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="firstName">First Name</Label>
-                      <Input id="firstName" defaultValue="Sarah" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="lastName">Last Name</Label>
-                      <Input id="lastName" defaultValue="Thompson" />
-                    </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="fullName">Full Name</Label>
+                    <Input
+                      id="fullName"
+                      value={fullName}
+                      onChange={(e) => setFullName(e.target.value)}
+                    />
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
-                    <Input id="email" type="email" defaultValue="sarah.thompson@university.ac.uk" />
+                    <Input id="email" type="email" value={user?.email || ""} readOnly disabled className="bg-muted/50" />
+                    <p className="text-[10px] text-muted-foreground">Email cannot be changed here.</p>
                   </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="university">University</Label>
-                    <Input id="university" defaultValue="University of Manchester" />
+                    <Input id="university" value="University of Manchester" readOnly disabled className="bg-muted/50" />
+                    <p className="text-[10px] text-muted-foreground">University is verified and cannot be changed.</p>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="course">Course</Label>
-                    <Input id="course" defaultValue="BSc Business Management" />
-                  </div>
 
                   <div className="space-y-2">
                     <Label htmlFor="bio">Bio</Label>
@@ -93,11 +151,15 @@ const Settings = () => {
                       id="bio"
                       placeholder="Tell employers about yourself..."
                       rows={4}
-                      defaultValue="Final year Business Management student with a passion for digital marketing and data analysis."
+                      value={bio}
+                      onChange={(e) => setBio(e.target.value)}
                     />
                   </div>
 
-                  <Button>Save Changes</Button>
+                  <Button onClick={handleSaveProfile} disabled={loading}>
+                    {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Save Changes
+                  </Button>
                 </CardContent>
               </Card>
             </TabsContent>
