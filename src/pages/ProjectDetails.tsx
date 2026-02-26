@@ -20,6 +20,7 @@ import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
+import { useAuth } from "@/contexts/AuthContext";
 
 interface ProjectData {
   id: string;
@@ -125,9 +126,12 @@ const StatusBadge = ({ status }: { status: string }) => (
 // ─── Main Component ───────────────────────────────────────────────────────────
 const ProjectDetails = () => {
   const { id } = useParams();
+  const { user, profile } = useAuth();
   const [project, setProject] = useState<ProjectData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasApplied, setHasApplied] = useState(false);
+  const [checkingApplication, setCheckingApplication] = useState(false);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -161,6 +165,34 @@ const ProjectDetails = () => {
 
     fetchProject();
   }, [id]);
+
+  useEffect(() => {
+    const checkExistingApplication = async () => {
+      if (!user?.id || !id) return;
+
+      setCheckingApplication(true);
+      try {
+        const { data, error: appError } = await supabase
+          .from('applications')
+          .select('id')
+          .eq('project_id', id)
+          .eq('student_id', user.id)
+          .maybeSingle();
+
+        if (data) {
+          setHasApplied(true);
+        }
+      } catch (err) {
+        console.error("Error checking application status:", err);
+      } finally {
+        setCheckingApplication(false);
+      }
+    };
+
+    if (profile?.role === 'student') {
+      checkExistingApplication();
+    }
+  }, [id, user?.id, profile?.role]);
 
   // ── Loading ──
   if (loading) {
@@ -301,9 +333,18 @@ const ProjectDetails = () => {
 
             {/* CTA */}
             <div className="flex gap-3 lg:shrink-0">
-              <Button size="lg" asChild>
-                <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
-              </Button>
+              {profile?.role !== 'business' && (
+                hasApplied ? (
+                  <Button size="lg" disabled className="bg-emerald-500 hover:bg-emerald-500 text-white opacity-100">
+                    <CheckCircle2 className="mr-2 h-5 w-5" />
+                    Applied
+                  </Button>
+                ) : (
+                  <Button size="lg" asChild>
+                    <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
+                  </Button>
+                )
+              )}
             </div>
           </div>
         </motion.div>
@@ -440,17 +481,27 @@ const ProjectDetails = () => {
             </Card>
 
             {/* Apply CTA (sticky nudge on mobile) */}
-            <Card className="border-primary/20 bg-primary/5 shadow-none">
-              <CardContent className="pt-5 space-y-3">
-                <p className="text-sm font-medium">Ready to apply?</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Submit your application and earn a verified micro-credential on completion.
-                </p>
-                <Button className="w-full" asChild>
-                  <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
-                </Button>
-              </CardContent>
-            </Card>
+            {profile?.role !== 'business' && (
+              <Card className={`shadow-none ${hasApplied ? "border-emerald-200 bg-emerald-50" : "border-primary/20 bg-primary/5"}`}>
+                <CardContent className="pt-5 space-y-3">
+                  <p className="text-sm font-medium">{hasApplied ? "Application Submitted" : "Ready to apply?"}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    {hasApplied
+                      ? "Your application has been received. You can track its status in your applications dashboard."
+                      : "Submit your application and earn a verified micro-credential on completion."}
+                  </p>
+                  {hasApplied ? (
+                    <Button variant="outline" className="w-full border-emerald-200 text-emerald-700 bg-white" asChild>
+                      <Link to="/student/applications">View Applications</Link>
+                    </Button>
+                  ) : (
+                    <Button className="w-full" asChild>
+                      <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
         </div>
       </div>

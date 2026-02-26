@@ -10,22 +10,27 @@ import { projects } from "@/lib/data";
 import { studentReferences } from "@/lib/references-data";
 import { ReferenceCard } from "@/components/ReferenceCard";
 import { PageHeader } from "@/components/PageHeader";
+import { useAuth } from "@/contexts/AuthContext";
 
 const StudentDashboard = () => {
+  const { profile } = useAuth();
   const recommendedProjects = projects.slice(0, 3);
   const recentReferences = studentReferences.slice(0, 2);
   const averageRating = (
-    studentReferences.reduce((sum, ref) => sum + ref.rating, 0) / 
+    studentReferences.reduce((sum, ref) => sum + ref.rating, 0) /
     studentReferences.length
   ).toFixed(1);
+
+  const displayName = profile?.full_name ?? "Student";
+  const firstName = profile?.full_name?.split(' ')[0] ?? "Student";
 
   return (
     <div className="min-h-screen bg-gray-50/50">
       <PageHeader
         title="Dashboard"
         subtitle="University of Oxford · Computer Science · 2nd Year"
-        description="Welcome back, Sarah! Here's your project progress."
-        userName="Sarah Johnson"
+        description={`Welcome back, ${firstName}! Here's your project progress.`}
+        userName={displayName}
         userRole="Student"
       />
 
@@ -101,11 +106,10 @@ const StudentDashboard = () => {
                       {[...Array(5)].map((_, i) => (
                         <Star
                           key={i}
-                          className={`h-3.5 w-3.5 ${
-                            i < Math.round(Number(averageRating))
+                          className={`h-3.5 w-3.5 ${i < Math.round(Number(averageRating))
                               ? "fill-yellow-400 text-yellow-400"
                               : "text-gray-300"
-                          }`}
+                            }`}
                         />
                       ))}
                     </div>
@@ -118,70 +122,70 @@ const StudentDashboard = () => {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6">
             <Card>
               <CardHeader>
-              <CardTitle>Active Projects</CardTitle>
-              <CardDescription>Your ongoing work and deliverables</CardDescription>
+                <CardTitle>Active Projects</CardTitle>
+                <CardDescription>Your ongoing work and deliverables</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-              {[
-                {
-                title: "Website Redesign - TechStart",
-                meta: "UI/UX Design · 20 hours",
-                progress: 65,
-                status: "In Progress",
-                detail: "Due in 5 days"
-                },
-                {
-                title: "Data Analysis Project - FinCorp",
-                meta: "Python · 10 hours",
-                progress: 100,
-                status: "Review",
-                detail: "Submitted 2 days ago"
-                }
-              ].map((project, idx) => (
-                <div key={idx} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
-                <div className="flex justify-between items-start mb-3">
-                  <div className="flex-1">
-                  <h4 className="font-semibold text-sm">{project.title}</h4>
-                  <p className="text-xs text-gray-500 mt-0.5">{project.meta}</p>
+                {[
+                  {
+                    title: "Website Redesign - TechStart",
+                    meta: "UI/UX Design · 20 hours",
+                    progress: 65,
+                    status: "In Progress",
+                    detail: "Due in 5 days"
+                  },
+                  {
+                    title: "Data Analysis Project - FinCorp",
+                    meta: "Python · 10 hours",
+                    progress: 100,
+                    status: "Review",
+                    detail: "Submitted 2 days ago"
+                  }
+                ].map((project, idx) => (
+                  <div key={idx} className="border rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                    <div className="flex justify-between items-start mb-3">
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-sm">{project.title}</h4>
+                        <p className="text-xs text-gray-500 mt-0.5">{project.meta}</p>
+                      </div>
+                      <Badge variant={project.status === "In Progress" ? "default" : "outline"} className="ml-2">
+                        {project.status}
+                      </Badge>
+                    </div>
+                    <Progress value={project.progress} className="mb-2 h-2" />
+                    <div className="flex justify-between text-xs text-gray-600 mb-3">
+                      <span>{project.progress}% Complete</span>
+                      <span>{project.detail}</span>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button size="sm" className="text-xs h-8">Upload</Button>
+                      <Button size="sm" variant="ghost" className="text-xs h-8">Message</Button>
+                    </div>
                   </div>
-                  <Badge variant={project.status === "In Progress" ? "default" : "outline"} className="ml-2">
-                  {project.status}
-                  </Badge>
-                </div>
-                <Progress value={project.progress} className="mb-2 h-2" />
-                <div className="flex justify-between text-xs text-gray-600 mb-3">
-                  <span>{project.progress}% Complete</span>
-                  <span>{project.detail}</span>
-                </div>
-                <div className="flex gap-2">
-                  <Button size="sm" className="text-xs h-8">Upload</Button>
-                  <Button size="sm" variant="ghost" className="text-xs h-8">Message</Button>
-                </div>
-                </div>
-              ))}
+                ))}
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-              <CardTitle>Recommended for You</CardTitle>
-              <CardDescription>AI-matched projects based on your skills</CardDescription>
+                <CardTitle>Recommended for You</CardTitle>
+                <CardDescription>AI-matched projects based on your skills</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-              <div className="grid gap-4">
-                {recommendedProjects.map((project) => (
-                <ProjectCard key={project.id} {...project} />
-                ))}
-              </div>
-              <Link to="/browse-projects">
-                <Button variant="outline" className="w-full">View All Projects</Button>
-              </Link>
+                <div className="grid gap-4">
+                  {recommendedProjects.map((project) => (
+                    <ProjectCard key={project.id} {...project} />
+                  ))}
+                </div>
+                <Link to="/browse-projects">
+                  <Button variant="outline" className="w-full">View All Projects</Button>
+                </Link>
               </CardContent>
             </Card>
-            </div>
+          </div>
 
           <div className="space-y-6">
             <Card>

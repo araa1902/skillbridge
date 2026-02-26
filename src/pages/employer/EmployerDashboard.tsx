@@ -19,12 +19,13 @@ const EmployerDashboard = () => {
   );
 
   const displayName = profile?.company_name ?? profile?.full_name ?? "Your Company";
+  const firstName = profile?.full_name?.split(" ")[0] ?? "Employer";
 
   return (
     <div className="min-h-screen bg-gray-50/50">
       <PageHeader
         title="Dashboard"
-        subtitle={`Welcome back, ${displayName}`}
+        subtitle={`Welcome back, ${firstName}!`}
         description="Manage your projects and connect with talented students"
         userName={displayName}
         userRole="Employer"
