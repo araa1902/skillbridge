@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { ProjectCard } from "@/components/ProjectCard";
 import { Link } from "react-router-dom";
-import { Award, Briefcase, Users, ArrowRight, CheckCircle2, Sparkles, TrendingUp, Building2, GraduationCap, Zap, Menu, X } from "lucide-react";
+import { Medal as Award, Briefcase, Users, ArrowRight, CheckCircle as CheckCircle2, Sparkle as Sparkles, TrendUp as TrendingUp, Buildings as Building2, GraduationCap, Lightning as Zap, List as Menu, X } from "@phosphor-icons/react";
 import heroIllustration from "@/assets/hero-illustration.png";
 import { Badge } from "@/components/ui/badge";
 import { useState, useEffect } from "react";

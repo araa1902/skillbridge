@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Calendar, Award, Sparkles, DollarSign } from "lucide-react";
+import { Buildings as Building2, Calendar, Medal as Award, Sparkle as Sparkles, CurrencyDollar as DollarSign } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 
 interface ProjectCardProps {
@@ -42,7 +42,7 @@ export const ProjectCard = ({
     <Card className="group hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-gray-200/50 hover:border-gray-300">
       <CardHeader className="space-y-3 pb-3">
         <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-lg leading-tight text-gray-900 transition-colors">
+          <h3 className="font-semibold text-lg leading-tight transition-colors">
             {title}
           </h3>
           {matchScore !== undefined && matchScore > 0 && (

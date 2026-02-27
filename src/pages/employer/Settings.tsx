@@ -5,7 +5,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
-import { Settings as SettingsIcon, Loader2 } from 'lucide-react'
+import { Gear as SettingsIcon, SpinnerGap as Loader2 } from "@phosphor-icons/react"
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
 

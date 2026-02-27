@@ -3,17 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Clock,
-  Users,
-  Star,
-  Calendar,
-  DollarSign,
-  ArrowLeft,
-  CheckCircle2,
-  MapPin,
-  Award
-} from "lucide-react";
+import { Clock, Users, Star, Calendar, CurrencyDollar as DollarSign, ArrowLeft, CheckCircle as CheckCircle2, MapPin, Medal as Award } from "@phosphor-icons/react";
 
 const SessionDetails = () => {
   const { id } = useParams();

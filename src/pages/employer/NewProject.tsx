@@ -1,5 +1,5 @@
-import { useState } from "react"
-import { Link, useNavigate } from "react-router-dom"
+import { useState, useEffect } from "react"
+import { Link, useNavigate, useParams } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -17,35 +17,13 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import {
-  ArrowLeft,
-  ArrowRight,
-  Loader2,
-  Plus,
-  X,
-  CheckCircle2,
-  ChevronRight,
-  Sparkles,
-  Lightbulb,
-  PoundSterling,
-  Clock,
-  CalendarDays,
-  ListChecks,
-  Briefcase,
-  Tag,
-  FileText,
-  Info,
-  Rocket,
-  BookMarked,
-  LayoutTemplate,
-  TrendingUp,
-  ShieldCheck,
-  Users,
-} from "lucide-react"
+import { ArrowLeft, ArrowRight, SpinnerGap as Loader2, Plus as Plus, X, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Sparkle as Sparkles, Lightbulb, CurrencyGbp as PoundSterling, Clock, CalendarBlank as CalendarDays, Checks as ListChecks, Briefcase, Tag as Tag, FileText, Info as Info, Rocket as Rocket, BookmarkSimple as BookMarked, Layout as LayoutTemplate, TrendUp as TrendingUp, ShieldCheck as ShieldCheck, Users } from "@phosphor-icons/react"
 import { useAuth } from "@/contexts/AuthContext"
-import { insertProject } from "@/hooks/useProjects"
+import { insertProject, updateProject } from "@/hooks/useProjects"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
+import { supabase } from "@/lib/supabase"
+import { ProjectStatus } from "@/types"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    CONSTANTS
@@ -403,11 +381,51 @@ export default function NewProject() {
   const navigate = useNavigate()
   const { toast } = useToast()
 
+  const { id } = useParams()
+  const isEditing = Boolean(id)
+
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(INIT_FORM)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [customSkill, setCustomSkill] = useState("")
   const [submitting, setSubmitting] = useState(false)
+  const [loadingProject, setLoadingProject] = useState(isEditing)
+
+  useEffect(() => {
+    if (!id) return
+
+    async function loadProject() {
+      setLoadingProject(true)
+      const { data, error } = await supabase
+        .from("projects")
+        .select("*")
+        .eq("id", id)
+        .single()
+
+      if (error) {
+        toast({ title: "Failed to load project", description: error.message, variant: "destructive" })
+        navigate("/employer/projects/manage")
+        return
+      }
+
+      if (data) {
+        setForm({
+          title: data.title ?? "",
+          category: "General", // Placeholder as it is not in db yet
+          description: data.description ?? "",
+          deliverables: data.deliverables ?? "",
+          budget: data.budget?.toString() ?? "",
+          duration: data.duration_hours === 0 ? "ongoing" : data.duration_hours?.toString() ?? "10",
+          deadline: data.created_at ? new Date(data.created_at).toISOString().split('T')[0] : "", // Placeholder
+          mentor: false,
+        })
+        setSelectedSkills(data.required_skills ?? [])
+      }
+      setLoadingProject(false)
+    }
+
+    loadProject()
+  }, [id, navigate, toast])
 
   const set = (field: keyof FormState, val: string | boolean) =>
     setForm((f) => ({ ...f, [field]: val }))
@@ -478,7 +496,7 @@ export default function NewProject() {
     }
 
     setSubmitting(true)
-    const { error } = await insertProject({
+    const payload = {
       business_id: user.id,
       title: form.title.trim(),
       description: form.description.trim(),
@@ -486,8 +504,13 @@ export default function NewProject() {
       required_skills: selectedSkills,
       budget: isNaN(budgetNum) ? 0 : budgetNum,
       duration_hours: form.duration === "ongoing" ? 0 : parseInt(form.duration, 10),
-      status: asDraft ? "draft" : "open",
-    })
+      status: (asDraft ? "draft" : "open") as ProjectStatus,
+    }
+
+    const { error } = isEditing
+      ? await updateProject(id!, payload)
+      : await insertProject(payload)
+
     setSubmitting(false)
 
     if (error) {
@@ -495,7 +518,7 @@ export default function NewProject() {
       return
     }
     toast({
-      title: asDraft ? "Draft saved" : "Project published! 🎉",
+      title: isEditing ? (asDraft ? "Draft updated" : "Project updated!") : (asDraft ? "Draft saved" : "Project published! 🎉"),
       description: asDraft
         ? "You can publish it any time from your project manager."
         : "Students can now discover and apply to your project.",
@@ -884,10 +907,10 @@ export default function NewProject() {
               lineHeight: 1.1,
             }}
           >
-            Post a New Project
+            {isEditing ? `Edit Project: ${form.title || "..."}` : "Post a New Project"}
           </h1>
           <p className="text-muted-foreground mt-2 text-[0.9375rem]">
-            Connect with talented university students ready to deliver real work
+            {isEditing ? "Update your project brief for applicants" : "Connect with talented university students ready to deliver real work"}
           </p>
         </div>
 
@@ -935,7 +958,7 @@ export default function NewProject() {
                     className="btn btn-secondary btn-lg disabled:opacity-40"
                   >
                     {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <BookMarked className="w-4 h-4" />}
-                    Save Draft
+                    {isEditing ? "Update Draft" : "Save Draft"}
                   </button>
                   <button
                     type="button"
@@ -944,8 +967,8 @@ export default function NewProject() {
                     className="btn btn-primary btn-lg disabled:opacity-50"
                   >
                     {submitting
-                      ? <><Loader2 className="w-4 h-4 animate-spin" /> Publishing…</>
-                      : <><Rocket className="w-4 h-4" /> Publish & Escrow</>
+                      ? <><Loader2 className="w-4 h-4 animate-spin" /> {isEditing ? "Updating..." : "Publishing…"}</>
+                      : <><Rocket className="w-4 h-4" /> {isEditing ? "Update Project" : "Publish & Escrow"}</>
                     }
                   </button>
                 </div>

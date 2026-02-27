@@ -7,15 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import {
-    ChevronRight,
-    ArrowLeft,
-    Check,
-    Search,
-    X,
-    Sparkles,
-    Building2,
-} from 'lucide-react'
+import { CaretRight as ChevronRight, ArrowLeft, Check, MagnifyingGlass as Search, X, Sparkle as Sparkles, Buildings as Building2 } from "@phosphor-icons/react"
 import { cn } from '@/lib/utils'
 
 // ─── Skills Master List ───────────────────────────────────────────────────────

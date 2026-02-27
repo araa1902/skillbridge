@@ -6,7 +6,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { ReferenceCard } from "@/components/ReferenceCard";
 import { useFetchStudentReferences } from "@/hooks/useReferences";
 import { useAuth } from "@/contexts/AuthContext";
-import { Star, Award, TrendingUp, Download, Share2 } from "lucide-react";
+import { Star, Medal as Award, TrendUp as TrendingUp, DownloadSimple as Download, ShareNetwork as Share2 } from "@phosphor-icons/react";
 
 const StudentReferences = () => {
   const { user, profile } = useAuth();

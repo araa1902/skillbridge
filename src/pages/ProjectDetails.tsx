@@ -4,17 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
-import {
-  Building2,
-  Calendar,
-  Award,
-  CheckCircle2,
-  Clock,
-  Banknote,
-  ArrowLeft,
-  Briefcase,
-  ChevronRight,
-} from "lucide-react";
+import { Buildings as Building2, Calendar, Medal as Award, CheckCircle as CheckCircle2, Clock, Money as Banknote, ArrowLeft, Briefcase, CaretRight as ChevronRight } from "@phosphor-icons/react";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";

@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { format, isToday, isYesterday } from 'date-fns'
-import { ArrowLeft, ArrowUp } from 'lucide-react'
+import { ArrowLeft, ArrowUp } from "@phosphor-icons/react"
 import { cn } from '@/lib/utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -48,7 +48,7 @@ function isSameDay(a: string, b: string): boolean {
 
 function MessageSkeleton() {
   return (
-    <div className="space-y-2 px-6 py-8">
+    <div className="space-y-6 px-6 py-8">
       {[
         { mine: false, w: 'w-[42%]' },
         { mine: false, w: 'w-[56%]' },
@@ -57,7 +57,7 @@ function MessageSkeleton() {
         { mine: false, w: 'w-[44%]' },
       ].map(({ mine, w }, i) => (
         <div key={i} className={cn('flex', mine ? 'justify-end' : 'justify-start')}>
-          <Skeleton className={cn('h-10 rounded-2xl', w, mine ? 'rounded-br-sm' : 'rounded-bl-sm')} />
+          <Skeleton className={cn('h-12 rounded-2xl', w, mine ? 'rounded-br-none bg-primary/10' : 'rounded-bl-none bg-muted')} />
         </div>
       ))}
     </div>
@@ -66,10 +66,12 @@ function MessageSkeleton() {
 
 function DateDivider({ label }: { label: string }) {
   return (
-    <div className="flex items-center justify-center my-6">
-      <span className="text-[11px] font-medium text-neutral-400 tracking-wide select-none">
+    <div className="flex items-center gap-4 my-8">
+      <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-border to-transparent op-40" />
+      <span className="text-[10px] font-bold text-muted-foreground uppercase tracking-[0.15em] select-none">
         {label}
       </span>
+      <div className="flex-1 h-[1px] bg-gradient-to-r from-transparent via-border to-transparent op-40" />
     </div>
   )
 }
@@ -77,14 +79,17 @@ function DateDivider({ label }: { label: string }) {
 function EmptyState() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: 'easeOut' }}
-      className="flex flex-col items-center justify-center h-full pt-24 pb-32 text-center select-none"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="flex flex-col items-center justify-center py-32 text-center select-none"
     >
-      <p className="text-base font-semibold text-neutral-800 mb-1">Start the conversation</p>
-      <p className="text-sm text-neutral-400 max-w-[240px] leading-relaxed">
-        Send your first message about this project.
+      <div className="w-16 h-16 bg-primary-subtle rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-primary/10">
+        <ArrowUp className="w-7 h-7 text-primary" strokeWidth={2.5} />
+      </div>
+      <h3 className="text-xl font-bold text-foreground mb-2">Connect & Collaborate</h3>
+      <p className="text-sm text-muted-foreground max-w-[280px] leading-relaxed">
+        Building trust starts with a chat. Send your first message to kick off the project.
       </p>
     </motion.div>
   )
@@ -145,7 +150,6 @@ export default function MessagesPage() {
 
   const otherMessage = messages.find((m) => m.sender_id !== user?.id)
   const recipientName = otherMessage?.sender_name ?? (project?.title ? `Re: ${project.title}` : '…')
-  const recipientAvatar = otherMessage?.sender_avatar ?? undefined
 
   // ── Send ───────────────────────────────────────────────────────────────────
 
@@ -207,19 +211,18 @@ export default function MessagesPage() {
       const isLastInGroup = !next || next.sender_id !== msg.sender_id
       const showDivider = !prev || !isSameDay(prev.created_at, msg.created_at)
 
-      // Bubble corner shaping: consecutive bubbles from same sender share edge, only first/last get the "tail"
       const bubbleShape = isMine
         ? cn(
-          'rounded-[20px]',
-          isFirstInGroup && !isLastInGroup && 'rounded-tr-[6px]',
-          !isFirstInGroup && isLastInGroup && 'rounded-br-[6px]',
-          !isFirstInGroup && !isLastInGroup && 'rounded-r-[6px]',
+          'rounded-[22px]',
+          isFirstInGroup && !isLastInGroup && 'rounded-tr-[4px]',
+          !isFirstInGroup && isLastInGroup && 'rounded-br-[4px]',
+          !isFirstInGroup && !isLastInGroup && 'rounded-r-[4px]',
         )
         : cn(
-          'rounded-[20px]',
-          isFirstInGroup && !isLastInGroup && 'rounded-tl-[6px]',
-          !isFirstInGroup && isLastInGroup && 'rounded-bl-[6px]',
-          !isFirstInGroup && !isLastInGroup && 'rounded-l-[6px]',
+          'rounded-[22px]',
+          isFirstInGroup && !isLastInGroup && 'rounded-tl-[4px]',
+          !isFirstInGroup && isLastInGroup && 'rounded-bl-[4px]',
+          !isFirstInGroup && !isLastInGroup && 'rounded-l-[4px]',
         )
 
       return (
@@ -227,53 +230,54 @@ export default function MessagesPage() {
           {showDivider && <DateDivider label={formatDateDivider(msg.created_at)} />}
 
           <motion.div
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.18, ease: 'easeOut' }}
+            initial={{ opacity: 0, x: isMine ? 10 : -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.25, ease: 'easeOut' }}
             className={cn(
-              'flex w-full items-end gap-2.5',
+              'flex w-full items-end gap-3',
               isMine ? 'justify-end' : 'justify-start',
-              isFirstInGroup ? 'mt-4' : 'mt-[3px]'
+              isFirstInGroup ? 'mt-6' : 'mt-1'
             )}
           >
             {/* Other-party avatar */}
             {!isMine && (
-              <div className="w-8 flex-shrink-0 self-end mb-0.5">
+              <div className="w-9 flex-shrink-0 self-end mb-1">
                 {isLastInGroup ? (
-                  <div className="h-8 w-8 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-600 text-[10px] font-semibold">
+                  <div className="h-9 w-9 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-[11px] font-bold shadow-sm border border-border">
                     {msg.sender_name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
                 ) : (
-                  <div className="h-8 w-8" />
+                  <div className="h-9 w-9" />
                 )}
               </div>
             )}
 
-            {/* Bubble */}
-            <div className={cn('flex flex-col max-w-[72%] md:max-w-[60%] lg:max-w-[52%]', isMine ? 'items-end' : 'items-start')}>
+            {/* Bubble Container */}
+            <div className={cn('flex flex-col max-w-[85%] sm:max-w-[75%] md:max-w-[65%]', isMine ? 'items-end' : 'items-start')}>
               {!isMine && isFirstInGroup && (
-                <p className="text-xs font-semibold text-neutral-500 mb-1 ml-0.5">
+                <p className="text-[11px] font-bold text-muted-foreground mb-1.5 ml-1 flex items-center gap-1.5">
+                  <span className="w-1 h-1 rounded-full bg-primary" />
                   {msg.sender_name}
                 </p>
               )}
 
               <div
                 className={cn(
-                  'px-4 py-2.5 text-sm leading-relaxed break-words whitespace-pre-wrap',
+                  'px-5 py-3 text-[0.9375rem] leading-relaxed break-words whitespace-pre-wrap shadow-sm transition-all duration-200',
                   bubbleShape,
                   isMine
-                    ? 'bg-neutral-900 text-white'
-                    : 'bg-neutral-100 text-neutral-900'
+                    ? 'bg-primary text-white font-medium hover:bg-primary-light'
+                    : 'bg-card text-foreground border border-border/60 hover:border-border'
                 )}
               >
                 {msg.content}
               </div>
 
-              {/* Timestamp — only on last in group */}
+              {/* Timestamp */}
               {isLastInGroup && (
                 <p className={cn(
-                  'text-[10px] mt-1.5 select-none font-medium',
-                  isMine ? 'text-neutral-400 pr-0.5' : 'text-neutral-400 pl-0.5'
+                  'text-[10px] mt-2 select-none font-semibold tracking-tight uppercase',
+                  isMine ? 'text-muted-foreground/70 pr-1' : 'text-muted-foreground/70 pl-1'
                 )}>
                   {formatMessageTime(msg.created_at)}
                 </p>
@@ -310,67 +314,75 @@ export default function MessagesPage() {
   // ── Main render ────────────────────────────────────────────────────────────
 
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] md:h-[calc(100vh-2rem)] w-full bg-white sm:rounded-2xl overflow-hidden sm:border border-neutral-200/80 sm:shadow-sm">
+    <div className="flex flex-col h-full w-full bg-background overflow-hidden relative">
 
       {/* ── Header ── */}
-      <div className="flex items-center gap-3 px-4 py-3.5 sm:px-6 border-b border-neutral-100 bg-white shrink-0 z-10">
+      <header className="glass flex items-center gap-4 px-6 py-4 sm:px-10 border-b border-border/40 shrink-0 z-20">
         <button
           onClick={() => navigate(-1)}
-          className="h-8 w-8 flex items-center justify-center rounded-full hover:bg-neutral-100 transition-colors text-neutral-500 hover:text-neutral-900 -ml-1"
+          className="icon-btn icon-btn--sm hover:bg-primary-subtle hover:text-primary transition-all duration-200"
           aria-label="Go back"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
 
-        <div className="h-9 w-9 flex items-center justify-center rounded-full bg-neutral-100 text-neutral-700 text-sm font-semibold">
-          {recipientName.charAt(0).toUpperCase()}
-        </div>
+        <div className="flex items-center gap-4 min-w-0">
+          <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary-subtle text-primary text-sm font-bold shadow-sm border border-primary/10">
+            {recipientName.charAt(0).toUpperCase()}
+          </div>
 
-        <div className="flex flex-col min-w-0">
-          <h2 className="text-sm font-semibold text-neutral-900 truncate leading-tight">{recipientName}</h2>
-          {project && (
-            <p className="text-xs text-neutral-400 truncate leading-tight mt-0.5">{project.title}</p>
-          )}
+          <div className="flex flex-col min-w-0">
+            <h2 className="text-[14px] font-bold text-foreground truncate leading-tight tracking-tight">
+              {recipientName}
+            </h2>
+            {project && (
+              <p className="text-[10px] font-semibold text-primary/70 truncate leading-tight mt-1 uppercase tracking-[0.1em]">
+                {project.title}
+              </p>
+            )}
+          </div>
         </div>
-      </div>
+      </header>
 
       {/* ── Messages scroll area ── */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 pt-4 pb-8">
-          <AnimatePresence mode="wait">
-            {loading ? (
-              <MessageSkeleton />
-            ) : messages.length === 0 ? (
-              <EmptyState />
-            ) : (
-              <div>
-                {renderMessages()}
-                <div ref={bottomRef} className="h-1" />
-              </div>
-            )}
-          </AnimatePresence>
+      <main className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth">
+        <div className="w-full h-full">
+          <div className="mx-auto w-full max-w-4xl px-6 sm:px-12 pt-8 pb-32">
+            <AnimatePresence mode="popLayout">
+              {loading ? (
+                <MessageSkeleton />
+              ) : messages.length === 0 ? (
+                <EmptyState />
+              ) : (
+                <div className="flex flex-col gap-1">
+                  {renderMessages()}
+                  <div ref={bottomRef} className="h-8" />
+                </div>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
-      </div>
+      </main>
 
       {/* ── Input section ── */}
-      <div className="bg-white px-4 pb-6 pt-2 sm:px-6 border-t border-neutral-100">
-        <div className="mx-auto max-w-7xl">
+      <footer className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl px-6 pb-8 pt-4 sm:px-12 border-t border-border/40 z-20">
+        <div className="mx-auto max-w-4xl">
           <div
             className={cn(
-              'flex items-end gap-3 rounded-[26px] border border-neutral-200 bg-white px-4 py-3',
-              'shadow-[0_2px_16px_rgba(0,0,0,0.06)] transition-shadow duration-200',
-              'focus-within:shadow-[0_4px_24px_rgba(0,0,0,0.10)] focus-within:border-neutral-300'
+              'flex items-end gap-3 rounded-[24px] border border-border bg-card px-5 py-3.5',
+              'shadow-xl transition-all duration-300 group ring-1 ring-border/5',
+              'focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5'
             )}
           >
             <Textarea
               ref={textareaRef}
-              placeholder="Message…"
+              placeholder={`Send a message to ${recipientName.split(' ')[0]}...`}
               rows={1}
               className={cn(
                 'flex-1 resize-none border-0 bg-transparent p-0 shadow-none',
-                'text-sm text-neutral-900 leading-relaxed',
-                'placeholder:text-neutral-400 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none',
-                'min-h-[24px] max-h-[148px]'
+                'text-[0.9375rem] text-foreground leading-relaxed',
+                'placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none',
+                'min-h-[26px] max-h-[200px] py-1.0'
               )}
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
@@ -379,26 +391,28 @@ export default function MessagesPage() {
               autoFocus
             />
 
-            <button
-              onClick={handleSendMessage}
-              disabled={sending || !messageContent.trim()}
-              aria-label="Send message"
-              className={cn(
-                'flex-shrink-0 h-8 w-8 rounded-full flex items-center justify-center transition-all duration-200',
-                messageContent.trim() && !sending
-                  ? 'bg-neutral-900 text-white hover:bg-neutral-700 scale-100'
-                  : 'bg-neutral-200 text-neutral-400 scale-95 cursor-not-allowed'
-              )}
-            >
-              {sending ? (
-                <div className="h-3.5 w-3.5 border-[1.5px] border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                <ArrowUp className="h-3.5 w-3.5" strokeWidth={2.5} />
-              )}
-            </button>
+            <div className="flex items-center gap-2 pr-1">
+              <button
+                onClick={handleSendMessage}
+                disabled={sending || !messageContent.trim()}
+                aria-label="Send message"
+                className={cn(
+                  'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm',
+                  messageContent.trim() && !sending
+                    ? 'bg-primary text-white hover:bg-primary-light scale-100 hover:shadow-teal hover:-translate-y-0.5'
+                    : 'bg-muted text-muted-foreground scale-95 cursor-not-allowed opacity-50'
+                )}
+              >
+                {sending ? (
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                ) : (
+                  <ArrowUp className="h-4 w-4" strokeWidth={3} />
+                )}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </footer>
     </div>
   )
 }

@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Briefcase } from 'lucide-react'
+import { Briefcase } from "@phosphor-icons/react"
 
 interface ProjectRecord {
   id: string

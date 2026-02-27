@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Users } from 'lucide-react'
+import { Users } from "@phosphor-icons/react"
 
 interface StudentRecord {
   id: string

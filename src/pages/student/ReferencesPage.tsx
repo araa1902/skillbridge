@@ -3,7 +3,7 @@ import { useFetchStudentReferences } from '@/hooks/useReferences'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Star, Download, TrendingUp, Award, MessageSquare } from 'lucide-react'
+import { Star, DownloadSimple as Download, TrendUp as TrendingUp, Medal as Award, ChatCircle as MessageSquare } from "@phosphor-icons/react"
 import { ReferenceCard } from '@/components/ReferenceCard'
 import { useState, useEffect } from 'react'
 
@@ -151,13 +151,6 @@ export default function ReferencesPage() {
 
       {/* References List */}
       <div className="space-y-8">
-        <div className="flex items-center gap-2">
-          <h2 className="text-xl font-bold">Verified Feedback</h2>
-          <span className="text-xs font-bold text-muted-foreground bg-muted px-2 py-0.5 rounded">
-            {references.length}
-          </span>
-        </div>
-
         {loading ? (
           <div className="space-y-6">
             {[...Array(2)].map((_, i) => (

@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowLeft, Home, AlertCircle } from "lucide-react";
+import { ArrowLeft, House as Home, WarningCircle as AlertCircle } from "@phosphor-icons/react";
 
 const NotFound = () => {
   const location = useLocation();

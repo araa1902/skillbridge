@@ -2,16 +2,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useFetchStudentCredentials } from "@/hooks/useCredentials"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import {
-  Award,
-  Star,
-  Building2,
-  CalendarDays,
-  BadgeCheck,
-  Sparkles,
-  MessageSquare,
-  ShieldCheck,
-} from "lucide-react"
+import { Medal as Award, Star, Buildings as Building2, CalendarBlank as CalendarDays, SealCheck as BadgeCheck, Sparkle as Sparkles, ChatCircle as MessageSquare, ShieldCheck as ShieldCheck } from "@phosphor-icons/react"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    HELPERS

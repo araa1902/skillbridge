@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle2, Clock, Send, AlertCircle, ChevronDown, ChevronUp, Loader2 } from "lucide-react";
+import { CheckCircle as CheckCircle2, Clock, PaperPlaneRight as Send, WarningCircle as AlertCircle, CaretDown as ChevronDown, CaretUp as ChevronUp, SpinnerGap as Loader2 } from "@phosphor-icons/react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import {
   AlertDialog,

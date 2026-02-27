@@ -1,10 +1,10 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, MessageCircle, CheckCircle, XCircle, Eye, User } from "lucide-react";
+import { ArrowLeft, ChatCircle as MessageCircle, CheckCircle, XCircle, Eye, User } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -32,7 +32,7 @@ import {
   type ApplicationWithDetails,
   type ApplicationStatus,
 } from "@/hooks/useApplications";
-import { Star, Link as LinkIcon } from "lucide-react";
+import { Star, Link as LinkIcon } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -50,7 +50,7 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
     case "rejected":
       return <Badge variant="outline" className="bg-red-50 text-red-700 border-red-200">Rejected</Badge>;
     case "withdrawn":
-      return <Badge variant="outline" className="bg-gray-100 text-gray-500 border-gray-200">Withdrawn</Badge>;
+      return <Badge variant="outline" className="bg-gray-100 text-muted-foreground border-border">Withdrawn</Badge>;
     case "completed":
       return <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-200">Completed</Badge>;
     default:
@@ -90,10 +90,11 @@ function AppSkeleton() {
 
 export default function Applications() {
   const navigate = useNavigate();
+  const { projectId } = useParams();
   const { toast } = useToast();
   const { user } = useAuth();
 
-  const { applications, loading, error, refetch } = useFetchProjectApplications(user?.id ?? null);
+  const { applications, loading, error, refetch } = useFetchProjectApplications(user?.id ?? null, projectId);
 
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"recent" | "status">("recent");
@@ -193,11 +194,19 @@ export default function Applications() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Applications Received</h1>
-          <p className="text-gray-600">Review and manage student applications for your projects</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            {projectId && applications.length > 0
+              ? `Applications for ${applications[0].project_title}`
+              : "Applications Received"}
+          </h1>
+          <p className="text-muted-foreground">
+            {projectId
+              ? "Review and manage applications for this specific project"
+              : "Review and manage student applications for your projects"}
+          </p>
         </div>
 
         {/* Filter and Sort Controls */}
@@ -216,7 +225,7 @@ export default function Applications() {
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="text-sm text-gray-600">Sort by:</span>
+            <span className="text-sm text-muted-foreground">Sort by:</span>
             <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
               <SelectTrigger className="w-36">
                 <SelectValue />
@@ -236,7 +245,7 @@ export default function Applications() {
           ) : filtered.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <p className="text-gray-500">
+                <p className="text-muted-foreground">
                   {selectedFilter === "all" ? "No applications received yet" : `No ${selectedFilter} applications`}
                 </p>
               </CardContent>
@@ -253,7 +262,7 @@ export default function Applications() {
                       <div>
                         <CardTitle className="text-lg">{app.student_name ?? "Student"}</CardTitle>
                         <CardDescription>Applied for: {app.project_title ?? "—"}</CardDescription>
-                        <p className="text-xs text-gray-400 mt-0.5">
+                        <p className="text-xs text-muted-foreground mt-0.5">
                           {new Date(app.created_at).toLocaleDateString()}
                         </p>
                       </div>
@@ -266,7 +275,7 @@ export default function Applications() {
                   <div className="mb-4 space-y-3">
                     {app.cover_letter && (
                       <div>
-                        <p className="text-gray-600 text-sm line-clamp-2">{app.cover_letter}</p>
+                        <p className="text-muted-foreground text-sm line-clamp-2">{app.cover_letter}</p>
                         <Button
                           variant="link"
                           size="sm"
@@ -287,7 +296,7 @@ export default function Applications() {
                           href={app.deliverable_link}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-sm text-blue-600 hover:text-blue-800 flex items-center bg-white border border-blue-200 py-1.5 px-3 rounded w-max transition-colors"
+                          className="text-sm text-blue-600 hover:text-blue-800 flex items-center bg-card border border-blue-200 py-1.5 px-3 rounded w-max transition-colors"
                         >
                           <LinkIcon className="h-3.5 w-3.5 mr-1.5" />
                           View Deliverable
@@ -410,44 +419,12 @@ export default function Applications() {
           <DialogHeader>
             <DialogTitle>Approve & Complete Project</DialogTitle>
             <DialogDescription>
-              Review the submitted deliverable and provide feedback to {selectedApp?.student_name}.
-              This will mark the project as completed and issue a credential.
+              Review the submitted deliverable and validate the project has been completed. Note: Completing this project will release payment to the student.
             </DialogDescription>
           </DialogHeader>
-          <div className="mt-4 space-y-4">
-            <div className="space-y-2">
-              <Label>Rating (out of 5)</Label>
-              <div className="flex items-center gap-1">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button
-                    key={star}
-                    type="button"
-                    onClick={() => setRating(star)}
-                    className={`focus:outline-none transition-colors ${rating >= star ? 'text-yellow-400' : 'text-gray-300 hover:text-yellow-200'}`}
-                  >
-                    <Star className={`h-6 w-6 ${rating >= star ? 'fill-current' : ''}`} />
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="feedback">Feedback for the student</Label>
-              <Textarea
-                id="feedback"
-                placeholder="Great work on this project! The final deliverables were exactly what we needed..."
-                className="resize-none"
-                rows={4}
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-              />
-            </div>
-            <div className="bg-yellow-50 text-yellow-800 p-3 rounded text-sm mb-2 border border-yellow-200">
-              <p><strong>Note:</strong> Completing this project will release payment to the student.</p>
-            </div>
-          </div>
           <div className="flex justify-end gap-2 mt-2">
             <Button variant="outline" onClick={() => setCompleteDialogOpen(false)} disabled={actionLoading}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleApproveAndComplete} disabled={actionLoading || !feedback.trim()}>
+            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleApproveAndComplete}>
               Complete Project
             </Button>
           </div>

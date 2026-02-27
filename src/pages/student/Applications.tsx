@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Clock, CheckCircle, XCircle, Building2, Calendar, MessageCircle, FileText, Trash2, Undo2, Eye } from "lucide-react";
+import { ArrowLeft, Clock, CheckCircle, XCircle, Buildings as Building2, Calendar, ChatCircle as MessageCircle, FileText, Trash as Trash2, ArrowUUpLeft as Undo2, Eye } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -26,6 +26,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import {
   useFetchMyApplications,
   updateApplicationStatus,
+  updateDeliverableLink,
   type ApplicationWithDetails,
   type ApplicationStatus,
 } from "@/hooks/useApplications";
@@ -36,6 +37,9 @@ import {
   type ReferenceFromDB
 } from "@/hooks/useReferences";
 import { ReferenceCard } from "@/components/ReferenceCard";
+import { Link as LinkIcon, UploadSimple as Upload } from "@phosphor-icons/react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 // ─── Status badge helper ──────────────────────────────────────────────────────
 
@@ -135,6 +139,9 @@ export default function StudentApplications() {
   const [coverLetterApp, setCoverLetterApp] = useState<ApplicationWithDetails | null>(null);
   const [viewReference, setViewReference] = useState<ReferenceFromDB | null>(null);
 
+  const [deliverableDialogOpen, setDeliverableDialogOpen] = useState(false);
+  const [deliverableLink, setDeliverableLink] = useState("");
+
   // Show error toast if data fetch fails
   useEffect(() => {
     if (error) {
@@ -160,6 +167,23 @@ export default function StudentApplications() {
     setSelectedApp(null);
   };
 
+  const handleSubmitDeliverable = async () => {
+    if (!selectedApp || !deliverableLink.trim()) return;
+    setActionLoading(true);
+    const { error: submitError } = await updateDeliverableLink(selectedApp.id, deliverableLink.trim());
+    setActionLoading(false);
+
+    if (submitError) {
+      toast({ title: "Failed to submit", description: submitError, variant: "destructive" });
+    } else {
+      toast({ title: "Deliverable Submitted", description: "The employer can now review your work." });
+      refetchAll();
+      setDeliverableDialogOpen(false);
+      setSelectedApp(null);
+      setDeliverableLink("");
+    }
+  };
+
   // ── Filter ────────────────────────────────────────────────────────────────
 
   const filtered = applications.filter((a) => {
@@ -180,11 +204,11 @@ export default function StudentApplications() {
     app.company_name ?? app.business_name ?? "Company";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">My Applications</h1>
-          <p className="text-gray-600">Track the status of your project applications</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">My Applications</h1>
+          <p className="text-muted-foreground">Track the status of your project applications</p>
         </div>
 
         {/* Filter tabs */}
@@ -208,7 +232,7 @@ export default function StudentApplications() {
           ) : filtered.length === 0 ? (
             <Card>
               <CardContent className="flex flex-col items-center justify-center py-12">
-                <p className="text-gray-500 mb-4">
+                <p className="text-muted-foreground mb-4">
                   {selectedFilter === "all" ? "You haven't applied to any projects yet" : `No ${selectedFilter} applications`}
                 </p>
                 <Link to="/browse-projects">
@@ -249,8 +273,8 @@ export default function StudentApplications() {
                 <CardContent>
                   {app.cover_letter && (
                     <div className="mb-4">
-                      <h4 className="font-medium text-sm mb-1 text-gray-700">Your Cover Letter</h4>
-                      <p className="text-gray-600 text-sm line-clamp-2">{app.cover_letter}</p>
+                      <h4 className="font-medium text-sm mb-1 text-foreground">Your Cover Letter</h4>
+                      <p className="text-muted-foreground text-sm line-clamp-2">{app.cover_letter}</p>
                       <Button
                         variant="link"
                         size="sm"
@@ -262,7 +286,7 @@ export default function StudentApplications() {
                     </div>
                   )}
 
-                  <div className="flex flex-wrap justify-between items-center gap-2 mt-2 pt-2 border-t">
+                  <div className="flex flex-wrap justify-between items-center gap-2 mt-2 pt-2 border-t border-border">
                     <div className="flex flex-wrap gap-2">
                       <Button size="sm" variant="outline" asChild>
                         <Link to={`/project/${app.project_id}`}>
@@ -273,10 +297,27 @@ export default function StudentApplications() {
                     </div>
                     <div className="flex flex-wrap gap-2">
                       {app.status === "accepted" && (
-                        <Button size="sm" onClick={() => navigate(`/project/${app.project_id}/messages?to=${app.business_id || ''}`)}>
-                          <MessageCircle className="h-4 w-4 mr-1" />
-                          Message Employer
-                        </Button>
+                        <>
+                          <Button
+                            size="sm"
+                            className={app.deliverable_link ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}
+                            onClick={() => {
+                              setSelectedApp(app);
+                              setDeliverableLink(app.deliverable_link || "");
+                              setDeliverableDialogOpen(true);
+                            }}
+                          >
+                            {app.deliverable_link ? (
+                              <><LinkIcon className="h-4 w-4 mr-1" /> Update Link</>
+                            ) : (
+                              <><Upload className="h-4 w-4 mr-1" /> Submit Deliverable</>
+                            )}
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => navigate(`/project/${app.project_id}/messages?to=${app.business_id || ''}`)}>
+                            <MessageCircle className="h-4 w-4 mr-1" />
+                            Message Employer
+                          </Button>
+                        </>
                       )}
                       {app.status === "completed" && (() => {
                         const reference = references.find(r => r.project_id === app.project_id);
@@ -391,7 +432,7 @@ export default function StudentApplications() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <div className="mt-2 mb-4">
-            <p className="text-sm text-gray-700 whitespace-pre-wrap">{coverLetterApp?.cover_letter}</p>
+            <p className="text-sm text-foreground whitespace-pre-wrap">{coverLetterApp?.cover_letter}</p>
           </div>
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setCoverLetterApp(null)}>Close</AlertDialogAction>
@@ -412,6 +453,33 @@ export default function StudentApplications() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Deliverable Dialog */}
+      <Dialog open={deliverableDialogOpen} onOpenChange={setDeliverableDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Submit Deliverable</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="link">Link to your work (Google Drive, GitHub, etc.)</Label>
+              <Input
+                id="link"
+                placeholder="https://..."
+                value={deliverableLink}
+                onChange={(e) => setDeliverableLink(e.target.value)}
+              />
+            </div>
+          </div>
+          <div className="flex justify-end gap-2">
+            <Button variant="outline" onClick={() => setDeliverableDialogOpen(false)} disabled={actionLoading}>Cancel</Button>
+            <Button onClick={handleSubmitDeliverable} disabled={actionLoading || !deliverableLink.trim()}>
+              {selectedApp?.deliverable_link ? "Update Link" : "Submit"}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }

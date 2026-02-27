@@ -60,8 +60,12 @@ export function useFetchOpenProjects() {
 
 // ─── Fetch projects owned by the logged-in business ─────────────────────────
 
+export interface ProjectWithStats extends ProjectRow {
+  application_count: number;
+}
+
 export function useMyProjects(businessId: string | null) {
-  const [projects, setProjects] = useState<ProjectRow[]>([])
+  const [projects, setProjects] = useState<ProjectWithStats[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -77,7 +81,7 @@ export function useMyProjects(businessId: string | null) {
 
     const { data, error: dbError } = await supabase
       .from('projects')
-      .select('*')
+      .select('*, applications(id)')
       .eq('business_id', businessId)
       .order('created_at', { ascending: false })
 
@@ -85,7 +89,12 @@ export function useMyProjects(businessId: string | null) {
       setError(dbError.message)
       setProjects([])
     } else {
-      setProjects(data ?? [])
+      const rows = (data ?? []).map((row: any) => ({
+        ...row,
+        application_count: row.applications?.length ?? 0,
+        applications: undefined,
+      })) as ProjectWithStats[]
+      setProjects(rows)
     }
 
     setLoading(false)
@@ -102,6 +111,7 @@ export interface EmployerStats {
   activeProjects: number
   completedProjects: number
   totalApplicants: number
+  averageTurnaroundHours: number | null
   loading: boolean
 }
 
@@ -110,6 +120,7 @@ export function useEmployerStats(businessId: string | null): EmployerStats {
     activeProjects: 0,
     completedProjects: 0,
     totalApplicants: 0,
+    averageTurnaroundHours: null,
     loading: true,
   })
 
@@ -140,21 +151,39 @@ export function useEmployerStats(businessId: string | null): EmployerStats {
       const completed = projData.filter(p => p.status === 'completed').length
       const projectIds = projData.map(p => p.id)
 
-      // 2. Count all applications for these projects
+      // 2. Count all applications for these projects & compute turnaround
       let totalApplicants = 0
+      let avgTurnaround: number | null = null
+
       if (projectIds.length > 0) {
-        const { count } = await supabase
+        const { data: apps, error: appErr } = await supabase
           .from('applications')
-          .select('id', { count: 'exact', head: true })
+          .select('status, created_at, updated_at')
           .in('project_id', projectIds)
 
-        totalApplicants = count ?? 0
+        if (!appErr && apps) {
+          totalApplicants = apps.length
+
+          const reviewedApps = apps.filter(a =>
+            a.status !== 'pending' && a.status !== 'withdrawn' &&
+            new Date(a.updated_at).getTime() > new Date(a.created_at).getTime()
+          )
+
+          if (reviewedApps.length > 0) {
+            const totalHours = reviewedApps.reduce((sum, a) => {
+              const diffMs = new Date(a.updated_at).getTime() - new Date(a.created_at).getTime()
+              return sum + (diffMs / (1000 * 60 * 60))
+            }, 0)
+            avgTurnaround = Math.round(totalHours / reviewedApps.length)
+          }
+        }
       }
 
       setStats({
         activeProjects: active,
         completedProjects: completed,
         totalApplicants,
+        averageTurnaroundHours: avgTurnaround,
         loading: false,
       })
     }
@@ -179,3 +208,77 @@ export async function insertProject(
   if (error) return { data: null, error: (error as any).message ?? String(error) }
   return { data: data as ProjectRow, error: null }
 }
+// ─── Update an existing project ────────────────────────────────────────────────
+export async function updateProject(
+  id: string,
+  payload: Partial<ProjectInsert>
+): Promise<{ data: ProjectRow | null; error: string | null }> {
+  const { data, error } = await supabase
+    .from('projects')
+    .update(payload)
+    .eq('id', id)
+    .select()
+    .single()
+
+  if (error) return { data: null, error: (error as any).message ?? String(error) }
+  return { data: data as ProjectRow, error: null }
+}
+
+// ─── Aggregate stats for a student dashboard ──────────────────────────────
+export interface StudentStats {
+  totalEarnings: number
+  thisMonthEarnings: number
+  loading: boolean
+}
+
+export function useStudentStats(studentId: string | null): StudentStats {
+  const [stats, setStats] = useState<StudentStats>({
+    totalEarnings: 0,
+    thisMonthEarnings: 0,
+    loading: true,
+  })
+
+  useEffect(() => {
+    if (!studentId) {
+      setStats(s => ({ ...s, loading: false }))
+      return
+    }
+
+    const run = async () => {
+      // Fetch all completed applications for this student with project budgets
+      const { data, error } = await supabase
+        .from('applications')
+        .select(`
+          status,
+          updated_at,
+          projects!applications_project_id_fkey ( budget )
+        `)
+        .eq('student_id', studentId)
+        .eq('status', 'completed')
+
+      if (error || !data) {
+        setStats(s => ({ ...s, loading: false }))
+        return
+      }
+
+      const total = data.reduce((sum, app: any) => sum + (Number(app.projects?.budget) || 0), 0)
+
+      const now = new Date()
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+      const thisMonth = data
+        .filter((app: any) => new Date(app.updated_at) >= startOfMonth)
+        .reduce((sum, app: any) => sum + (Number(app.projects?.budget) || 0), 0)
+
+      setStats({
+        totalEarnings: total,
+        thisMonthEarnings: thisMonth,
+        loading: false,
+      })
+    }
+
+    run()
+  }, [studentId])
+
+  return stats
+}
+

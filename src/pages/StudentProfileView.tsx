@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/lib/supabase";
 import { ReferenceCard } from "@/components/ReferenceCard";
-import { Star, Award, Building2, MapPin, ArrowLeft, Briefcase, Mail, User, Calendar } from "lucide-react";
+import { Star, Medal as Award, Buildings as Building2, MapPin, ArrowLeft, Briefcase, Envelope as Mail, User, Calendar } from "@phosphor-icons/react";
 
 export default function StudentProfileView() {
     const { id } = useParams<{ id: string }>();

@@ -12,7 +12,7 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table'
-import { Users, Briefcase, Award, MessageSquare } from 'lucide-react'
+import { Users, Briefcase, Medal as Award, ChatCircle as MessageSquare } from "@phosphor-icons/react"
 
 interface Stats {
   totalStudents: number

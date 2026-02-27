@@ -2,19 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Skeleton } from "@/components/ui/skeleton"
-import {
-  Plus,
-  Users,
-  Briefcase,
-  CheckCircle2,
-  TrendingUp,
-  ArrowUpRight,
-  Star,
-  ChevronRight,
-  Clock,
-  FileText,
-  CircleDot,
-} from "lucide-react"
+import { Plus as Plus, Users, Briefcase, CheckCircle as CheckCircle2, TrendUp as TrendingUp, ArrowUpRight as ArrowUpRight, Star, CaretRight as ChevronRight, Clock, FileText, Target as CircleDot, Eye } from "@phosphor-icons/react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { useAuth } from "@/contexts/AuthContext"
@@ -356,9 +344,9 @@ const EmployerDashboard = () => {
                             </div>
                             <div className="flex items-center gap-2">
                               <Button size="sm" variant="outline" className="h-7 text-xs gap-1.5" asChild>
-                                <Link to="/employer/applications">
-                                  <Users className="h-3 w-3" />
-                                  Applicants
+                                <Link to={`/employer/projects/${project.id}/applications`}>
+                                  <Eye className="h-3 w-3" />
+                                  Review Applicants
                                 </Link>
                               </Button>
                               <Button size="sm" variant="ghost" className="h-7 text-xs ml-auto gap-1" asChild>

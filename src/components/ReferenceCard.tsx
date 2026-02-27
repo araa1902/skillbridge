@@ -2,7 +2,7 @@ import { Reference } from "@/types/reference";
 import { ReferenceFromDB } from "@/hooks/useReferences";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, CheckCircle2, Building2, Calendar } from "lucide-react";
+import { Star, CheckCircle as CheckCircle2, Buildings as Building2, Calendar } from "@phosphor-icons/react";
 import { Progress } from "@/components/ui/progress";
 
 interface ReferenceCardProps {

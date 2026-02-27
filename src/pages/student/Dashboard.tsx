@@ -3,19 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import {
-  Sparkles,
-  TrendingUp,
-  Target,
-  Compass,
-  Award,
-  Briefcase,
-  Clock,
-  ArrowRight,
-  Star,
-  CheckCircle,
-  Brain
-} from "lucide-react";
+import { Sparkle as Sparkles, TrendUp as TrendingUp, Target, Compass as Compass, Medal as Award, Briefcase, Clock, ArrowRight, Star, CheckCircle, Brain as Brain } from "@phosphor-icons/react";
 import { useState } from "react";
 
 interface MatchedProject {

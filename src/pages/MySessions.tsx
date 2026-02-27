@@ -3,17 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Calendar,
-  Clock,
-  Video,
-  Download,
-  Star,
-  MessageCircle,
-  CheckCircle2,
-  AlertCircle,
-  ExternalLink
-} from "lucide-react";
+import { Calendar, Clock, VideoCamera as Video, DownloadSimple as Download, Star, ChatCircle as MessageCircle, CheckCircle as CheckCircle2, WarningCircle as AlertCircle, ArrowSquareOut as ExternalLink } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
 
 const MySessions = () => {

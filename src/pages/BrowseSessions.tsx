@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { SessionCard } from "@/components/SessionCard";
-import { Search, Filter, BookOpen, Users, Clock } from "lucide-react";
+import { MagnifyingGlass as Search, Faders as Filter, BookOpen, Users, Clock } from "@phosphor-icons/react";
 
 const BrowseSessions = () => {
   const [searchQuery, setSearchQuery] = useState("");

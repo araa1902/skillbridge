@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Building2, GraduationCap, Home, Play, Target, Lightbulb, ExternalLink } from "lucide-react";
+import { ArrowRight, Users, Buildings as Building2, GraduationCap, House as Home, Play, Target, Lightbulb, ArrowSquareOut as ExternalLink } from "@phosphor-icons/react";
 
 export default function AllPages() {
   const walkthroughPath = [

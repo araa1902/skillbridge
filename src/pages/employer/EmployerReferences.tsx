@@ -9,18 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { useFetchWrittenReferences, writeReference, useFetchPendingRequests } from "@/hooks/useReferences";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  CheckCircle2,
-  Clock,
-  Star,
-  Send,
-  AlertCircle,
-  FileText,
-  TrendingUp,
-  ChevronRight,
-  Sparkles,
-  UserCheck,
-} from "lucide-react";
+import { CheckCircle as CheckCircle2, Clock, Star, PaperPlaneRight as Send, WarningCircle as AlertCircle, FileText, TrendUp as TrendingUp, CaretRight as ChevronRight, Sparkle as Sparkles, UserCircleCheck as UserCheck } from "@phosphor-icons/react";
 import {
   Dialog,
   DialogContent,

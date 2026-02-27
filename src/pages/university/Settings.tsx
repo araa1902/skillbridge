@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useToast } from '@/hooks/use-toast'
-import { Settings as SettingsIcon } from 'lucide-react'
+import { Gear as SettingsIcon } from "@phosphor-icons/react"
 
 export default function UniversitySettings() {
   const { profile, user } = useAuth()

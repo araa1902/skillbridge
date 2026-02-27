@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Search, SlidersHorizontal, Briefcase, Sparkles, Star } from "lucide-react";
+import { MagnifyingGlass as Search, SlidersHorizontal, Briefcase, Sparkle as Sparkles, Star } from "@phosphor-icons/react";
 import { useFetchOpenProjects } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -99,44 +99,45 @@ const BrowseProjects = () => {
     searchQuery || skillFilter !== "all" || durationFilter !== "all" || budgetFilter !== "all";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       {/* Sticky header */}
-      <div className="sticky top-0 z-30 bg-white border-b border-gray-200/50 backdrop-blur-sm">
+      <div className="sticky top-0 z-30 bg-background/95 border-b border-border backdrop-blur-sm">
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Browse Projects</h1>
-              <p className="text-sm text-gray-600">Discover opportunities matched to your skills and career goals</p>
+              <h1 className="text-3xl font-bold text-foreground mb-2">Browse Projects</h1>
+              <p className="text-muted-foreground">Discover opportunities matched to your skills and career goals</p>
             </div>
           </div>
         </div>
       </div>
 
+
       <main className="flex-1">
         <div className="max-w-7xl mx-auto px-6 py-8">
           {/* Search + Filters */}
-          <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60 mb-8">
+          <Card className="bg-card/80 backdrop-blur-sm border-border mb-8">
             <CardContent className="p-6">
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search projects, companies, or skills..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-10 bg-white/70 border-gray-200 text-gray-800"
+                    className="pl-10 bg-background/50 border-input text-foreground"
                   />
                 </div>
                 <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     onClick={() => setShowFilters(!showFilters)}
-                    className="bg-white/70 border-gray-200 text-gray-700"
+                    className="bg-background/50 border-input text-foreground"
                   >
                     <SlidersHorizontal className="mr-2 h-4 w-4" />
                     Filters
                   </Button>
-                  <Button variant="ghost" onClick={clearFilters} className="text-gray-600 hover:text-gray-800">
+                  <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground hover:text-foreground">
                     Clear All
                   </Button>
                 </div>
@@ -198,24 +199,24 @@ const BrowseProjects = () => {
           {/* Active filter badges */}
           {hasActiveFilters && (
             <div className="mb-6 flex flex-wrap gap-2 items-center">
-              <span className="text-sm text-gray-600">Active filters:</span>
+              <span className="text-sm text-muted-foreground">Active filters:</span>
               {searchQuery && (
-                <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                <Badge variant="outline" className="bg-muted text-foreground border-border">
                   Search: {searchQuery}
                 </Badge>
               )}
               {skillFilter !== "all" && (
-                <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                <Badge variant="outline" className="bg-muted text-foreground border-border">
                   {skillFilter}
                 </Badge>
               )}
               {durationFilter !== "all" && (
-                <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                <Badge variant="outline" className="bg-muted text-foreground border-border">
                   {durationFilter}
                 </Badge>
               )}
               {budgetFilter !== "all" && (
-                <Badge variant="outline" className="bg-gray-50 text-gray-700 border-gray-200">
+                <Badge variant="outline" className="bg-muted text-foreground border-border">
                   £{budgetFilter}
                 </Badge>
               )}
@@ -225,9 +226,9 @@ const BrowseProjects = () => {
           {/* Results header */}
           {!loading && (
             <div className="mb-6 flex items-center justify-between">
-              <p className="text-sm text-gray-600">
-                Showing <span className="font-medium">{filtered.length}</span> of{" "}
-                <span className="font-medium">{projects.length}</span> open projects
+              <p className="text-sm text-muted-foreground">
+                Showing <span className="font-medium text-foreground">{filtered.length}</span> of{" "}
+                <span className="font-medium text-foreground">{projects.length}</span> open projects
               </p>
             </div>
           )}
@@ -292,21 +293,21 @@ const BrowseProjects = () => {
 
           {/* ── Empty state ───────────────────────────────────────────── */}
           {!loading && filtered.length === 0 && (
-            <Card className="bg-white/80 backdrop-blur-sm border-gray-200/60 mt-8">
+            <Card className="bg-card/80 backdrop-blur-sm border-border mt-8">
               <CardContent className="text-center py-16">
-                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center">
-                  <Search className="h-10 w-10 text-gray-400" />
+                <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-muted flex items-center justify-center">
+                  <Search className="h-10 w-10 text-muted-foreground" />
                 </div>
-                <h3 className="text-xl font-semibold text-gray-800 mb-2">
+                <h3 className="text-xl font-semibold text-foreground mb-2">
                   {error ? "Failed to load projects" : "No projects found"}
                 </h3>
-                <p className="text-gray-600 mb-8 max-w-md mx-auto">
+                <p className="text-muted-foreground mb-8 max-w-md mx-auto">
                   {error
                     ? "There was a problem fetching projects. Please try again."
                     : "We couldn't find any open projects matching your criteria."}
                 </p>
                 {!error && (
-                  <Button onClick={clearFilters} className="bg-gray-600 hover:bg-gray-700">
+                  <Button onClick={clearFilters} variant="secondary">
                     Clear All Filters
                   </Button>
                 )}

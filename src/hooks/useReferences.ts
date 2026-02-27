@@ -36,6 +36,7 @@ export function useFetchStudentReferences(studentId: string | null) {
   const [references, setReferences] = useState<ReferenceFromDB[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [averageRating, setAverageRating] = useState(0)
 
   const load = useCallback(async () => {
     if (!studentId) {
@@ -57,8 +58,16 @@ export function useFetchStudentReferences(studentId: string | null) {
     if (dbError) {
       setError(dbError.message)
       setReferences([])
+      setAverageRating(0)
     } else {
-      setReferences((data ?? []) as ReferenceFromDB[])
+      const refs = (data ?? []) as ReferenceFromDB[]
+      setReferences(refs)
+      if (refs.length > 0) {
+        const avg = refs.reduce((sum, r) => sum + r.rating, 0) / refs.length
+        setAverageRating(avg)
+      } else {
+        setAverageRating(0)
+      }
     }
 
     setLoading(false)
@@ -68,7 +77,7 @@ export function useFetchStudentReferences(studentId: string | null) {
     load()
   }, [load])
 
-  return { references, loading, error, refetch: load }
+  return { references, loading, error, averageRating, totalCount: references.length, refetch: load }
 }
 
 // ─── Fetch references written by a user ────────────────────────────────────

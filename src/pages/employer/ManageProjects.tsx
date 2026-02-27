@@ -7,19 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
-import {
-  ArrowLeft,
-  Briefcase,
-  CheckCircle2,
-  Clock,
-  Download,
-  Edit,
-  Eye,
-  Filter,
-  Search,
-  TrendingUp,
-  Users,
-} from "lucide-react";
+import { ArrowLeft, Briefcase, CheckCircle as CheckCircle2, Clock, DownloadSimple as Download, PencilSimple as Edit, Eye, Faders as Filter, MagnifyingGlass as Search, TrendUp as TrendingUp, Users } from "@phosphor-icons/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyProjects, useEmployerStats, ProjectRow } from "@/hooks/useProjects";
 
@@ -48,7 +36,7 @@ const statusBadgeClasses: Record<Project["status"], string> = {
   Active: "border-green-100 bg-green-50 text-green-700",
   Draft: "border-amber-100 bg-amber-50 text-amber-700",
   Completed: "border-blue-100 bg-blue-50 text-blue-700",
-  Closed: "border-slate-200 bg-slate-100 text-slate-700",
+  Closed: "border-border bg-muted text-slate-700",
 };
 
 const priorityBadgeClasses: Record<Project["priority"], string> = {
@@ -99,7 +87,7 @@ export default function ManageProjects() {
       status: p.status === 'open' ? 'Active' :
         p.status === 'draft' ? 'Draft' :
           p.status === 'completed' ? 'Completed' : 'Closed',
-      applications: 0, // Should be fetched from another join or stats
+      applications: p.application_count ?? 0,
       budget: `£${p.budget}`,
       hours: `${p.duration_hours} hrs`,
       deadline: p.created_at, // Add actual deadline later if needed
@@ -195,13 +183,12 @@ export default function ManageProjects() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-background">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
           <div className="space-y-2">
-            <p className="text-sm uppercase tracking-wide text-slate-500">Project pipeline</p>
-            <h1 className="text-3xl font-bold text-slate-900">Manage Projects</h1>
-            <p className="text-slate-600">Track live briefs, respond to candidates, and keep hiring momentum.</p>
+            <h1 className="text-3xl font-bold text-foreground">Manage Projects</h1>
+            <p className="text-muted-foreground">Track live briefs, respond to candidates, and keep hiring momentum.</p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Button variant="outline" size="sm">
@@ -231,7 +218,7 @@ export default function ManageProjects() {
               },
               {
                 label: "Avg turnaround",
-                value: "12 hrs",
+                value: stats.averageTurnaroundHours !== null ? `${stats.averageTurnaroundHours} hrs` : "N/A",
                 subtext: "Response time to applicants",
                 icon: Clock,
               },
@@ -242,22 +229,22 @@ export default function ManageProjects() {
                 icon: CheckCircle2,
               },
             ].map((stat) => (
-              <Card key={stat.label} className="border border-slate-200 shadow-sm">
+              <Card key={stat.label} className="border border-border shadow-sm">
                 <CardContent className="flex items-center gap-4 p-5">
-                  <div className="rounded-full bg-slate-100 p-2.5">
+                  <div className="rounded-full bg-muted p-2.5">
                     <stat.icon className="h-5 w-5 text-slate-700" />
                   </div>
                   <div>
-                    <p className="text-sm text-slate-500">{stat.label}</p>
-                    <p className="text-2xl font-semibold text-slate-900">{stat.value}</p>
-                    <p className="text-xs text-slate-500">{stat.subtext}</p>
+                    <p className="text-sm text-muted-foreground">{stat.label}</p>
+                    <p className="text-2xl font-semibold text-foreground">{stat.value}</p>
+                    <p className="text-xs text-muted-foreground">{stat.subtext}</p>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          <Card className="border-slate-200 shadow-sm">
+          <Card className="border-border shadow-sm">
             <CardHeader className="pb-4">
               <CardTitle className="text-lg">Filter pipeline</CardTitle>
               <CardDescription>Zero-in on the briefs that need your attention.</CardDescription>
@@ -269,11 +256,11 @@ export default function ManageProjects() {
                     <TabsTrigger
                       key={filter.value}
                       value={filter.value}
-                      className="rounded-full border border-slate-200 bg-white px-4 py-2 text-sm data-[state=active]:border-slate-900 data-[state=active]:bg-slate-900 data-[state=active]:text-white"
+                      className="rounded-full border border-border bg-card px-4 py-2 text-sm data-[state=active]:border-slate-900 data-[state=active]:bg-slate-900 data-[state=active]:text-white"
                     >
                       <div className="flex items-center gap-2">
                         <span>{filter.label}</span>
-                        <span className="text-xs font-medium text-slate-500 data-[state=active]:text-white">
+                        <span className="text-xs font-medium text-muted-foreground data-[state=active]:text-white">
                           {statusCounts[filter.value] ?? 0}
                         </span>
                       </div>
@@ -307,7 +294,7 @@ export default function ManageProjects() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="border-slate-200 text-slate-700">
+                  <Button variant="outline" size="sm" className="border-border text-slate-700">
                     <Filter className="mr-2 h-4 w-4" />
                     Advanced filters
                   </Button>
@@ -350,13 +337,13 @@ export default function ManageProjects() {
                     daysUntilDeadline >= 0 ? `${daysUntilDeadline} days left` : `${Math.abs(daysUntilDeadline)} days ago`;
 
                   return (
-                    <Card key={project.id} className="border border-slate-200 shadow-sm">
+                    <Card key={project.id} className="border border-border shadow-sm">
                       <CardHeader className="space-y-3 pb-4">
                         <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
                           <div className="space-y-2">
                             <div className="flex flex-wrap items-center gap-2">
                               <CardTitle className="text-xl">{project.title}</CardTitle>
-                              <Badge variant="outline" className="border-slate-200 text-slate-600">
+                              <Badge variant="outline" className="border-border text-muted-foreground">
                                 {project.category}
                               </Badge>
                             </div>
@@ -366,66 +353,67 @@ export default function ManageProjects() {
                             <Badge variant="outline" className={statusBadgeClasses[project.status]}>
                               {project.status}
                             </Badge>
-                            <p className="text-xs text-slate-500">Updated {formatRelativeTime(project.updatedAt)}</p>
+                            <p className="text-xs text-muted-foreground">Updated {formatRelativeTime(project.updatedAt)}</p>
                           </div>
                         </div>
-                        <p className="text-slate-600">{project.description.trim().slice(0, 100) + "..."}</p>
+                        <p className="text-muted-foreground">{project.description.trim().slice(0, 100) + "..."}</p>
                       </CardHeader>
                       <CardContent className="space-y-5">
                         <div className="grid gap-4 sm:grid-cols-3">
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-slate-500">Budget</p>
-                            <p className="text-lg font-semibold text-slate-900">{project.budget}</p>
-                            <p className="text-sm text-slate-500">{project.hours}</p>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Budget</p>
+                            <p className="text-lg font-semibold text-foreground">{project.budget}</p>
+                            <p className="text-sm text-muted-foreground">{project.hours}</p>
                           </div>
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-slate-500">Deadline</p>
-                            <p className="text-lg font-semibold text-slate-900">
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Deadline</p>
+                            <p className="text-lg font-semibold text-foreground">
                               {deadlineDate.toLocaleDateString("en-GB", {
                                 day: "numeric",
                                 month: "short",
                               })}
                             </p>
-                            <p className="text-sm text-slate-500">{deadlineLabel}</p>
+                            <p className="text-sm text-muted-foreground">{deadlineLabel}</p>
                           </div>
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-slate-500">Talent needs</p>
-                            <p className="text-lg font-semibold text-slate-900">{project.talentsNeeded} hires</p>
-                            <p className="text-sm text-slate-500">{project.deliverables} deliverables</p>
+                            <p className="text-xs uppercase tracking-wide text-muted-foreground">Talent needs</p>
+                            <p className="text-lg font-semibold text-foreground">{project.talentsNeeded} hires</p>
+                            <p className="text-sm text-muted-foreground">{project.deliverables} deliverables</p>
                           </div>
                         </div>
 
                         <div className="space-y-2">
-                          <div className="flex items-center justify-between text-sm text-slate-500">
+                          <div className="flex items-center justify-between text-sm text-muted-foreground">
                             <p>Delivery progress</p>
-                            <p className="font-medium text-slate-900">{project.progress}%</p>
+                            <p className="font-medium text-foreground">{project.progress}%</p>
                           </div>
                           <Progress value={project.progress} />
                         </div>
 
-                        <div className="flex flex-wrap items-center gap-3 text-sm text-slate-600">
+                        <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                           <Badge variant="outline" className={priorityBadgeClasses[project.priority]}>
                             {project.priority} priority
                           </Badge>
-                          <span className="flex items-center gap-1">
-                            <Users className="h-4 w-4 text-slate-400" />
-                            {project.applications} applications
-                          </span>
-                          <span>Need {project.talentsNeeded} hires</span>
+                          {project.applications > 0 && (
+                            <span className="flex items-center gap-1">
+                              <Users className="h-4 w-4" />
+                              {project.applications} {project.applications === 1 ? "application" : "applications"}
+                            </span>
+                          )}
                         </div>
 
-                        <div className="flex flex-col gap-3 border-t border-slate-100 pt-4 md:flex-row md:items-center md:justify-between">
-                          <div className="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                        <div className="flex flex-col gap-3 border-t border-border pt-4 md:flex-row md:items-center md:justify-between">
+                          <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
                             <span>Last touched {formatRelativeTime(project.updatedAt)}</span>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            <Link to={`/employer/applications`}>
+                            <Link to={`/employer/projects/${project.id}/applications`}>
                               <Button size="sm">
                                 <Users className="mr-1.5 h-4 w-4" />
                                 Review applicants
                               </Button>
                             </Link>
-                            <Link to={`/employer/projects/${project.id}`}>
+                            <Link to={`/project/${project.id}`}>
                               <Button size="sm" variant="outline">
                                 <Eye className="mr-1.5 h-4 w-4" />
                                 View brief
@@ -447,31 +435,28 @@ export default function ManageProjects() {
             </div>
 
             <div className="space-y-4">
-              <Card className="border-slate-200 shadow-sm">
+              <Card className="border-border shadow-sm">
                 <CardHeader className="pb-4">
                   <div className="flex items-center justify-between">
                     <div>
                       <CardTitle className="text-base">Upcoming deadlines</CardTitle>
                       <CardDescription>Review briefs going live soon.</CardDescription>
                     </div>
-                    <Button variant="ghost" size="sm">
-                      Calendar
-                    </Button>
                   </div>
                 </CardHeader>
                 <CardContent className="space-y-3">
                   {upcomingDeadlines.length === 0 ? (
-                    <p className="text-sm text-slate-500">No deadlines on the horizon.</p>
+                    <p className="text-sm text-muted-foreground">No deadlines on the horizon.</p>
                   ) : (
                     upcomingDeadlines.map((project) => (
-                      <div key={project.id} className="rounded-lg border border-slate-100 bg-slate-50/50 p-3">
-                        <div className="flex items-center justify-between text-sm font-medium text-slate-900">
+                      <div key={project.id} className="rounded-lg border border-border bg-background/50 p-3">
+                        <div className="flex items-center justify-between text-sm font-medium text-foreground">
                           <span className="line-clamp-1">{project.title}</span>
                           <Badge variant="outline" className={statusBadgeClasses[project.status]}>
                             {project.status}
                           </Badge>
                         </div>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                           Due{" "}
                           {new Date(project.deadline).toLocaleDateString("en-GB", {
                             month: "short",
@@ -486,39 +471,38 @@ export default function ManageProjects() {
                 </CardContent>
               </Card>
 
-              <Card className="border-slate-200 shadow-sm">
+              <Card className="border-border shadow-sm">
                 <CardHeader className="pb-3">
                   <div className="flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-slate-500" />
+                    <TrendingUp className="h-4 w-4 text-muted-foreground" />
                     <div>
                       <CardTitle className="text-base">Pipeline insights</CardTitle>
                       <CardDescription>Stay ahead of bottlenecks.</CardDescription>
                     </div>
                   </div>
                 </CardHeader>
-                <CardContent className="space-y-4 text-sm text-slate-600">
+                <CardContent className="space-y-4 text-sm text-muted-foreground">
                   <div>
-                    <p className="text-xs uppercase tracking-wide text-slate-500">Average progress</p>
+                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Average progress</p>
                     <div className="flex items-baseline gap-2">
-                      <p className="text-2xl font-semibold text-slate-900">{averageProgress}%</p>
-                      <span className="text-xs text-emerald-600">+4% vs last week</span>
+                      <p className="text-2xl font-semibold text-foreground">{averageProgress}%</p>
                     </div>
                     <Progress value={averageProgress} className="mt-2 h-2" />
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <span>High-priority briefs</span>
-                      <span className="font-medium text-slate-900">{highPriorityProjects}</span>
+                      <span className="font-medium text-foreground">{highPriorityProjects}</span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Open roles to fill</span>
-                      <span className="font-medium text-slate-900">
+                      <span className="font-medium text-foreground">
                         {projects.reduce((sum, project) => sum + project.talentsNeeded, 0)}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span>Drafts ready to launch</span>
-                      <span className="font-medium text-slate-900">
+                      <span className="font-medium text-foreground">
                         {statusCounts.draft ?? 0} brief{(statusCounts.draft ?? 0) === 1 ? "" : "s"}
                       </span>
                     </div>

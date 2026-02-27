@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Award, Download, Share2, Search, ExternalLink, CheckCircle, Calendar, Building, Loader2 } from "lucide-react";
+import { Medal as Award, DownloadSimple as Download, ShareNetwork as Share2, MagnifyingGlass as Search, ArrowSquareOut as ExternalLink, CheckCircle, Calendar, Buildings as Building, SpinnerGap as Loader2 } from "@phosphor-icons/react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFetchStudentCredentials } from "@/hooks/useCredentials";

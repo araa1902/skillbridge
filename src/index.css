@@ -5,13 +5,12 @@
 /* ─────────────────────────────────────────────
    LAUNCHPAD — Multi-sided Freelance × Student × SME Marketplace
    Design Language: Clean, Purposeful, Trust-first
-   Font: Manrope (display/body) + JetBrains Mono (monospaced)
+   Font: Space Grotesk (display/body)
    Palette: Warm off-white canvas, deep ink navy, 
             electric teal accent, amber highlight
 ───────────────────────────────────────────── */
 
-@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
 
 @layer base {
   :root {
@@ -87,8 +86,8 @@
     --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.22);
 
     /* ── Typography ── */
-    --font-display: 'Manrope', system-ui, -apple-system, sans-serif;
-    --font-sans: 'Manrope', system-ui, -apple-system, sans-serif;
+    --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
     --font-mono: 'JetBrains Mono', monospace;
 
     /* ── Layout ── */
@@ -201,7 +200,7 @@
     overflow-x: hidden;
   }
 
-  /* ── Display headings use Plus Jakarta Sans ── */
+  /* ── Display headings use Space Grotesk ── */
   h1,
   h2,
   h3,
@@ -545,7 +544,7 @@
     gap: 0.4375rem;
     padding: 0 1.125rem;
     height: 2.5rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     font-family: var(--font-sans);
     font-size: 0.875rem;
     font-weight: 600;
@@ -647,7 +646,7 @@
     height: 1.875rem;
     padding: 0 0.75rem;
     font-size: 0.8125rem;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
   }
 
   .btn-sm {
@@ -660,14 +659,14 @@
     height: 2.875rem;
     padding: 0 1.625rem;
     font-size: 1rem;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-full);
   }
 
   .btn-xl {
     height: 3.25rem;
     padding: 0 2rem;
     font-size: 1.0625rem;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-full);
     font-weight: 700;
   }
 
@@ -678,7 +677,7 @@
     justify-content: center;
     width: 2.25rem;
     height: 2.25rem;
-    border-radius: var(--radius-md);
+    border-radius: var(--radius-full);
     border: 1px solid transparent;
     color: hsl(var(--muted-foreground));
     background: transparent;
@@ -704,13 +703,13 @@
   .icon-btn--sm {
     width: 1.875rem;
     height: 1.875rem;
-    border-radius: var(--radius-sm);
+    border-radius: var(--radius-full);
   }
 
   .icon-btn--lg {
     width: 2.75rem;
     height: 2.75rem;
-    border-radius: var(--radius-lg);
+    border-radius: var(--radius-full);
   }
 
 

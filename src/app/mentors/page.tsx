@@ -3,7 +3,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Star, MessageSquare, Calendar } from "lucide-react"
+import { MagnifyingGlass as Search, Star, ChatCircle as MessageSquare, Calendar } from "@phosphor-icons/react"
 
 export default function MentorsPage() {
   return (

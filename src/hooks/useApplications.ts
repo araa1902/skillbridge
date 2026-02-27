@@ -68,6 +68,21 @@ export async function updateApplicationStatus(
   return { error: null }
 }
 
+// ─── Update deliverable link (student submission) ────────────────────────────
+
+export async function updateDeliverableLink(
+  applicationId: string,
+  deliverableLink: string
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('applications')
+    .update({ deliverable_link: deliverableLink })
+    .eq('id', applicationId)
+
+  if (error) return { error: (error as any).message ?? String(error) }
+  return { error: null }
+}
+
 // ─── Employer: Approve deliverable & issue credential ──────────────────────
 
 export async function approveApplicationAndIssueCredential(payload: {
@@ -169,7 +184,7 @@ export function useFetchMyApplications(studentId: string | null) {
 
 // ─── Employer: fetch applications for all their projects ─────────────────────
 
-export function useFetchProjectApplications(businessId: string | null) {
+export function useFetchProjectApplications(businessId: string | null, projectId?: string) {
   const [applications, setApplications] = useState<ApplicationWithDetails[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -183,11 +198,17 @@ export function useFetchProjectApplications(businessId: string | null) {
     setLoading(true)
     setError(null)
 
-    // First, get all project IDs owned by this employer
-    const { data: projData, error: projError } = await supabase
+    // First, get project IDs owned by this employer
+    let projQuery = supabase
       .from('projects')
       .select('id')
       .eq('business_id', businessId)
+
+    if (projectId) {
+      projQuery = projQuery.eq('id', projectId)
+    }
+
+    const { data: projData, error: projError } = await projQuery
 
     if (projError || !projData || projData.length === 0) {
       if (projError) setError(projError.message)
@@ -228,7 +249,7 @@ export function useFetchProjectApplications(businessId: string | null) {
       setApplications(rows)
     }
     setLoading(false)
-  }, [businessId])
+  }, [businessId, projectId])
 
   useEffect(() => { load() }, [load])
 

@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { TrendingUp, Award, Briefcase, Users } from 'lucide-react'
+import { TrendUp as TrendingUp, Medal as Award, Briefcase, Users } from "@phosphor-icons/react"
 
 interface Analytics {
   studentGrowth: number

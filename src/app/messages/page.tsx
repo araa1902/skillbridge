@@ -3,7 +3,7 @@ import { Card } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
-import { Search, Send, Paperclip, MoreVertical } from "lucide-react"
+import { MagnifyingGlass as Search, PaperPlaneRight as Send, Paperclip, DotsThreeVertical as MoreVertical } from "@phosphor-icons/react"
 
 export default function MessagesPage() {
   return (

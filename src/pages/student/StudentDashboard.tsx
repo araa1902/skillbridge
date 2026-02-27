@@ -10,21 +10,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { ProjectCard } from "@/components/ProjectCard"
 import { useAuth } from "@/contexts/AuthContext"
 import { useFetchMyApplications } from "@/hooks/useApplications"
+import { useStudentStats } from "@/hooks/useProjects"
+import { useFetchStudentReferences } from "@/hooks/useReferences"
+import { useFetchStudentCredentials } from "@/hooks/useCredentials"
 import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
-import {
-  Briefcase,
-  Award,
-  TrendingUp,
-  Star,
-  ArrowUpRight,
-  CheckCircle2,
-  MessageSquare,
-  Upload,
-  ChevronRight,
-  Sparkles,
-  CircleDot,
-} from "lucide-react"
+import { Briefcase, Medal as Award, TrendUp as TrendingUp, Star, ArrowUpRight as ArrowUpRight, CheckCircle as CheckCircle2, ChatCircle as MessageSquare, UploadSimple as Upload, CaretRight as ChevronRight, Sparkle as Sparkles, Target as CircleDot } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -42,13 +33,6 @@ const PROFILE_ITEMS: ProfileItem[] = [
   { label: "Bio written", done: true },
   { label: "Portfolio projects", done: false },
   { label: "Profile photo", done: false },
-]
-
-const MOCK_CREDENTIALS = [
-  { label: "Web Design", level: "EQF 5", color: "text-blue-600", bg: "bg-blue-50" },
-  { label: "Data Analysis", level: "EQF 5", color: "text-violet-600", bg: "bg-violet-50" },
-  { label: "Marketing", level: "EQF 4", color: "text-emerald-600", bg: "bg-emerald-50" },
-  { label: "Research", level: "EQF 5", color: "text-orange-600", bg: "bg-orange-50" },
 ]
 
 const fadeUp = {
@@ -153,7 +137,7 @@ const ActiveProjectRow = ({
         {!app.deliverable_link && (
           <Button
             size="sm"
-            className="h-7 text-xs gap-1.5"
+            className="h-7 text-xs gap-1.5 rounded-full border"
             onClick={() => onSubmit(app.id)}
           >
             <Upload className="h-3 w-3" />
@@ -204,6 +188,9 @@ const StudentDashboard = () => {
   const { profile, user } = useAuth()
   const { toast } = useToast()
   const { applications, refetch } = useFetchMyApplications(user?.id ?? null)
+  const { totalEarnings, thisMonthEarnings } = useStudentStats(user?.id ?? null)
+  const { averageRating, totalCount: refCount } = useFetchStudentReferences(user?.id ?? null)
+  const { credentials } = useFetchStudentCredentials(user?.id ?? null)
 
   const activeProjects = applications.filter((a) => a.status === "accepted")
 
@@ -212,7 +199,6 @@ const StudentDashboard = () => {
   const [submitting, setSubmitting] = useState(false)
 
   const recommendedProjects: any[] = []
-  const averageRating = 0
   const firstName = profile?.full_name?.split(" ")[0] ?? "there"
 
   const profileComplete = Math.round(
@@ -278,26 +264,25 @@ const StudentDashboard = () => {
           />
           <StatCard
             label="Credits Earned"
-            value="12"
-            sub="4 badges"
+            value={credentials.length}
+            sub={`${credentials.length === 1 ? '1 badge' : `${credentials.length} badges`}`}
             icon={Award}
             iconClass="text-violet-600"
             delay={0.1}
           />
           <StatCard
             label="Total Earnings"
-            value="£1,240"
-            sub="+£400 this month"
+            value={`£${totalEarnings.toLocaleString()}`}
+            sub={thisMonthEarnings > 0 ? `+£${thisMonthEarnings.toLocaleString()} this month` : 'No earnings this month'}
             icon={TrendingUp}
             iconClass="text-emerald-600"
-            trend="32%"
             delay={0.15}
           />
           <StatCard
             label="References"
             value={
               <span className="flex items-center gap-2">
-                0
+                {refCount}
                 <span className="flex items-center gap-0.5">
                   {[...Array(5)].map((_, i) => (
                     <Star
@@ -492,19 +477,21 @@ const StudentDashboard = () => {
                 </CardHeader>
                 <CardContent>
                   <div className="grid grid-cols-2 gap-2">
-                    {MOCK_CREDENTIALS.map((cred) => (
-                      <div
-                        key={cred.label}
-                        className={cn(
-                          "flex flex-col items-center justify-center gap-1.5 rounded-xl p-3 text-center",
-                          cred.bg
-                        )}
-                      >
-                        <Award className={cn("h-5 w-5", cred.color)} />
-                        <p className="text-xs font-semibold leading-tight">{cred.label}</p>
-                        <span className="text-[10px] text-muted-foreground font-medium">{cred.level}</span>
-                      </div>
-                    ))}
+                    {credentials.length === 0 ? (
+                      <p className="text-[10px] text-muted-foreground col-span-2 text-center py-2">No credentials earned yet.</p>
+                    ) : (
+                      credentials.slice(0, 4).map((cred) => (
+                        <div
+                          key={cred.id}
+                          className={cn(
+                            "flex flex-col items-center justify-center gap-1.5 rounded-xl p-3 text-center bg-violet-50"
+                          )}
+                        >
+                          <Award className={cn("h-5 w-5 text-violet-600")} />
+                          <p className="text-xs font-semibold leading-tight">{cred.project_title || 'Skill'}</p>
+                        </div>
+                      ))
+                    )}
                   </div>
                 </CardContent>
               </Card>

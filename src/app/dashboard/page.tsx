@@ -2,7 +2,7 @@ import { AppLayout } from "@/components/layout/app-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Users, MessageSquare, TrendingUp, Clock, ArrowRight } from "lucide-react"
+import { Calendar, Users, ChatCircle as MessageSquare, TrendUp as TrendingUp, Clock, ArrowRight } from "@phosphor-icons/react"
 
 export default function DashboardPage() {
   return (

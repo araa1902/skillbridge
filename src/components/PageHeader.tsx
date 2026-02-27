@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Bell, Settings, LogOut } from "lucide-react";
+import { Bell, Gear as Settings, SignOut as LogOut } from "@phosphor-icons/react";
 import {
   DropdownMenu,
   DropdownMenuContent,

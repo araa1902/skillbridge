@@ -15,24 +15,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { useParams, useNavigate } from "react-router-dom"
-import {
-  Upload,
-  X,
-  FileText,
-  CheckCircle2,
-  Calendar,
-  Loader2,
-  Briefcase,
-  Building2,
-  Clock,
-  PoundSterling,
-  Sparkles,
-  Plus,
-  ChevronRight,
-  AlertCircle,
-  ArrowLeft,
-  Search,
-} from "lucide-react"
+import { UploadSimple as Upload, X, FileText, CheckCircle as CheckCircle2, Calendar, SpinnerGap as Loader2, Briefcase, Buildings as Building2, Clock, CurrencyGbp as PoundSterling, Sparkle as Sparkles, Plus as Plus, CaretRight as ChevronRight, WarningCircle as AlertCircle, ArrowLeft, MagnifyingGlass as Search } from "@phosphor-icons/react"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { insertApplication } from "@/hooks/useApplications"
