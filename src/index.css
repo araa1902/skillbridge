@@ -510,8 +510,7 @@
       color var(--duration-fast) var(--ease-in-out),
       border-color var(--duration-fast) var(--ease-in-out),
       box-shadow var(--duration-fast) var(--ease-in-out),
-      transform var(--duration-fast) var(--ease-spring),
-      opacity var(--duration-fast) var(--ease-in-out);
+      transform var(--duration-fast) var(--ease-spring);
     text-decoration: none;
   }
 
@@ -534,8 +533,8 @@
   }
 
   .btn-primary:hover {
-    background: hsl(var(--primary-light));
-    border-color: hsl(var(--primary-light));
+    background: hsl(var(--primary) / 0.92);
+    border-color: hsl(var(--primary) / 0.92);
     box-shadow: var(--shadow-teal);
   }
 
@@ -578,7 +577,7 @@
   }
 
   .btn-amber:hover {
-    filter: brightness(1.06);
+    background: hsl(var(--accent-amber) / 0.92);
     box-shadow: 0 4px 12px hsl(var(--accent-amber) / 0.32);
   }
 
@@ -590,7 +589,7 @@
   }
 
   .btn-destructive:hover {
-    filter: brightness(1.07);
+    background: hsl(var(--destructive) / 0.92);
   }
 
   /* Sizes */

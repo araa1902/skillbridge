@@ -153,7 +153,7 @@ const SkillPicker = ({
                         <button
                             key={s}
                             onClick={() => onToggle(s)}
-                            className="inline-flex items-center gap-1 rounded-full bg-foreground text-background px-2.5 py-1 text-xs font-medium transition-opacity hover:opacity-80"
+                            className="inline-flex items-center gap-1 rounded-full bg-foreground text-background px-2.5 py-1 text-xs font-medium transition-colors hover:bg-foreground/95"
                         >
                             {s}
                             <X className="h-3 w-3" />
@@ -213,7 +213,7 @@ export default function Onboarding() {
     const [skills, setSkills] = useState<string[]>([])
 
     // Business fields
-    const [companyName, setCompanyName] = useState(profile?.company_name || '')
+    const [companyName, setCompanyName] = useState('')
     const [mission, setMission] = useState(profile?.bio || '')
 
     const isStudent = role === 'student'

@@ -87,7 +87,7 @@ const Field = ({
   rightElement,
 }: FieldProps) => (
   <div className="space-y-1.5">
-    <Label htmlFor={id} className="text-sm font-medium text-gray-700 dark:text-gray-300">
+    <Label htmlFor={id} className="text-sm font-medium text-gray-700">
       {label}
     </Label>
     <div className="relative">
@@ -99,11 +99,11 @@ const Field = ({
         autoComplete={autoComplete}
         required={required}
         className={cn(
-          "h-11 rounded-lg border bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100 placeholder:text-gray-400",
+          "h-11 rounded-lg border bg-white text-gray-900 placeholder:text-gray-400",
           "transition-all duration-150 focus-visible:ring-2 focus-visible:ring-offset-0",
           error
             ? "border-red-400 focus-visible:ring-red-300"
-            : "border-gray-200 dark:border-gray-700 focus-visible:ring-blue-400",
+            : "border-gray-200 focus-visible:ring-blue-400",
           rightElement && "pr-10"
         )}
       />
@@ -184,10 +184,6 @@ const Auth = () => {
         navigate(DASHBOARD_PATH[ROLE_MAP[userType]]);
       } else {
         const fullName = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
-        const companyName =
-          userType === "employer"
-            ? (form.elements.namedItem("company-name") as HTMLInputElement)?.value.trim()
-            : null;
         const role = ROLE_MAP[userType];
 
         const { data, error } = await supabase.auth.signUp({
@@ -197,7 +193,6 @@ const Auth = () => {
             data: {
               full_name: fullName,
               role,
-              ...(companyName ? { company_name: companyName } : {}),
             },
           },
         });
@@ -225,7 +220,6 @@ const Auth = () => {
                 id: data.user.id,
                 full_name: fullName,
                 role,
-                ...(companyName ? { company_name: companyName } : {}),
               });
 
               if (!insertError || insertError.code === "23505") {
@@ -242,7 +236,7 @@ const Auth = () => {
           if (!profileCreated) console.warn("[Auth] Profile insert failed after 3 attempts");
 
           toast({ title: "Welcome to SkillBridge!", description: "Your account has been created." });
-          navigate(DASHBOARD_PATH[role]);
+          navigate("/onboarding");
         }
       }
     } finally {
@@ -251,7 +245,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-[440px] space-y-6">
 
         {/* ── Logo ─────────────────────────────────────────────────────── */}
@@ -267,7 +261,7 @@ const Auth = () => {
             >
               <span className="text-white font-bold text-sm tracking-tight">SB</span>
             </div>
-            <span className="text-xl font-bold text-gray-900 dark:text-white tracking-tight">
+            <span className="text-xl font-bold text-gray-900 tracking-tight">
               SkillBridge
             </span>
           </Link>
@@ -276,15 +270,15 @@ const Auth = () => {
         {/* ── Card ─────────────────────────────────────────────────────── */}
         <div
           className={cn(
-            "bg-white dark:bg-gray-900 rounded-2xl border border-gray-100 dark:border-gray-800",
-            "shadow-lg shadow-gray-200/60 dark:shadow-gray-950/60",
+            "bg-white rounded-2xl border border-gray-100",
+            "shadow-lg shadow-gray-200/60",
             "ring-1",
             config.ringClass
           )}
         >
           {/* User type tabs */}
-          <div className="px-6 pt-6 pb-4 border-b border-gray-100 dark:border-gray-800">
-            <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-100 dark:bg-gray-800 rounded-xl">
+          <div className="px-6 pt-6 pb-4 border-b border-gray-100">
+            <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-100 rounded-xl">
               {(Object.keys(USER_TYPE_CONFIG) as UserTypeKey[]).map((type) => {
                 const { icon: Icon, label, activeBg } = USER_TYPE_CONFIG[type];
                 const isActive = userType === type;
@@ -298,7 +292,7 @@ const Auth = () => {
                       "transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
                       isActive
                         ? `${activeBg} text-white shadow-sm`
-                        : "text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
+                        : "text-gray-500 hover:text-gray-700"
                     )}
                   >
                     <Icon className="h-4 w-4 shrink-0" />
@@ -311,19 +305,10 @@ const Auth = () => {
 
           {/* Header */}
           <div className="px-6 pt-5 pb-2 text-center space-y-1">
-            <div
-              className={cn(
-                "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-medium border mb-3",
-                config.badge
-              )}
-            >
-              <IconComponent className="h-3 w-3" />
-              {config.label}
-            </div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
               {isLogin ? `Sign in` : `Create your account`}
             </h1>
-            <p className="text-sm text-gray-500 dark:text-gray-400">{config.description}</p>
+            <p className="text-sm text-gray-500">{config.description}</p>
           </div>
 
           {/* Form */}
@@ -339,16 +324,7 @@ const Auth = () => {
               />
             )}
 
-            {!isLogin && userType === "employer" && (
-              <Field
-                id="company-name"
-                label="Company Name"
-                placeholder="Acme Corp"
-                autoComplete="organization"
-                required
-                error={errors["company-name"]}
-              />
-            )}
+
 
             <Field
               id="email"
@@ -378,7 +354,7 @@ const Auth = () => {
                 <button
                   type="button"
                   onClick={() => setShowPassword((s) => !s)}
-                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors"
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
                   aria-label={showPassword ? "Hide password" : "Show password"}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
@@ -402,13 +378,13 @@ const Auth = () => {
               <div className="flex items-center justify-between pt-0.5">
                 <div className="flex items-center gap-2">
                   <Checkbox id="remember" className="h-4 w-4" />
-                  <Label htmlFor="remember" className="text-sm text-gray-600 dark:text-gray-400 cursor-pointer">
+                  <Label htmlFor="remember" className="text-sm text-gray-600 cursor-pointer">
                     Remember me
                   </Label>
                 </div>
                 <Link
                   to="/forgot-password"
-                  className="text-sm font-medium text-blue-600 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300 transition-colors"
+                  className="text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
                 >
                   Forgot password?
                 </Link>
@@ -418,13 +394,13 @@ const Auth = () => {
             {!isLogin && (
               <div className="flex items-start gap-2 pt-0.5">
                 <Checkbox id="terms" required className="mt-0.5 h-4 w-4" />
-                <Label htmlFor="terms" className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed cursor-pointer">
+                <Label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
                   I agree to the{" "}
-                  <Link to="/terms" className="text-blue-600 hover:underline dark:text-blue-400">
+                  <Link to="/terms" className="text-blue-600 hover:underline">
                     Terms of Service
                   </Link>{" "}
                   and{" "}
-                  <Link to="/privacy" className="text-blue-600 hover:underline dark:text-blue-400">
+                  <Link to="/privacy" className="text-blue-600 hover:underline">
                     Privacy Policy
                   </Link>
                 </Label>
@@ -440,7 +416,7 @@ const Auth = () => {
                 "flex items-center justify-center gap-2",
                 "bg-gradient-to-r shadow-sm",
                 config.accentClass,
-                "hover:opacity-90 active:scale-[0.98]",
+                "active:scale-[0.98]",
                 "transition-all duration-150 disabled:opacity-60 disabled:cursor-not-allowed",
                 "focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-blue-500"
               )}
@@ -459,7 +435,7 @@ const Auth = () => {
             </button>
 
             {/* Toggle sign-in / sign-up */}
-            <p className="text-center text-sm text-gray-500 dark:text-gray-400 pt-1">
+            <p className="text-center text-sm text-gray-500 pt-1">
               {isLogin ? "Don't have an account?" : "Already have an account?"}{" "}
               <button
                 type="button"
@@ -467,7 +443,7 @@ const Auth = () => {
                   setIsLogin((v) => !v);
                   setErrors({});
                 }}
-                className="font-semibold text-gray-900 dark:text-white hover:underline transition-colors"
+                className="font-semibold text-gray-900 hover:underline transition-colors"
               >
                 {isLogin ? "Sign up" : "Sign in"}
               </button>
@@ -476,7 +452,7 @@ const Auth = () => {
         </div>
 
         {/* Trust badges */}
-        <div className="flex items-center justify-center gap-5 text-xs text-gray-400 dark:text-gray-600">
+        <div className="flex items-center justify-center gap-5 text-xs text-gray-400">
           {["256-bit encryption", "GDPR compliant", "SOC 2 Type II"].map((badge) => (
             <span key={badge} className="flex items-center gap-1">
               <CheckCircle2 className="h-3 w-3" />

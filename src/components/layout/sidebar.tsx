@@ -1,3 +1,4 @@
+import { useState } from "react"
 import { cn } from "@/lib/utils"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -25,10 +26,14 @@ import {
   Building2,
   Sun,
   Moon,
-  Monitor
+  Monitor,
+  PanelLeftClose,
+  PanelLeftOpen
 } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -165,25 +170,48 @@ const ROLE_META: Record<string, {
    SUB-COMPONENTS
 ───────────────────────────────────────────────────────────────────────────── */
 
-function NavItemRow({ item, isActive }: { item: NavItem; isActive: boolean }) {
-  return (
+function NavItemRow({ item, isActive, isCollapsed }: { item: NavItem; isActive: boolean; isCollapsed: boolean }) {
+  const linkContent = (
     <Link
       to={item.href}
       className={cn(
-        "nav-item group relative",
+        "nav-item group relative flex items-center gap-3 overflow-hidden",
         isActive && "active",
-        item.highlight && !isActive && "nav-item--highlight"
+        item.highlight && !isActive && "nav-item--highlight",
+        isCollapsed && "justify-center px-0 w-10 mx-auto"
       )}
     >
       <item.icon
         className={cn(
-          "nav-item__icon transition-transform duration-150",
+          "nav-item__icon transition-transform duration-150 flex-shrink-0",
           isActive ? "scale-110" : "group-hover:scale-105"
         )}
       />
-      <span className="flex-1 truncate">{item.name}</span>
+      <AnimatePresence initial={false}>
+        {!isCollapsed && (
+          <motion.span
+            initial={{ opacity: 0, width: 0 }}
+            animate={{ opacity: 1, width: "auto" }}
+            exit={{ opacity: 0, width: 0 }}
+            className="flex-1 truncate whitespace-nowrap"
+          >
+            {item.name}
+          </motion.span>
+        )}
+      </AnimatePresence>
     </Link>
   )
+
+  if (isCollapsed) {
+    return (
+      <Tooltip delayDuration={0}>
+        <TooltipTrigger asChild>{linkContent}</TooltipTrigger>
+        <TooltipContent side="right" sideOffset={14}>{item.name}</TooltipContent>
+      </Tooltip>
+    )
+  }
+
+  return linkContent
 }
 
 function UserSkeleton() {
@@ -229,6 +257,7 @@ export function Sidebar({ userType }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { profile, role, loading, signOut } = useAuth()
+  const [isCollapsed, setIsCollapsed] = useState(false)
 
   /* Resolve which persona we're rendering for */
   const detectedType = ((): "student" | "employer" | "university" => {
@@ -258,42 +287,100 @@ export function Sidebar({ userType }: SidebarProps) {
   const allItems = groups.flatMap((g) => g.items)
 
   return (
-    <aside
+    <motion.aside
+      initial={false}
+      animate={{ width: isCollapsed ? 64 : 240 }}
+      transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className={cn(
-        "relative flex h-screen w-[15rem] flex-col",
+        "relative flex h-screen flex-col",
         "bg-card border-r border-border",
-        "overflow-hidden"
+        "overflow-hidden shrink-0 group/sidebar"
       )}
     >
       <SidebarOrb />
 
       {/* ─── Logo / Brand ─────────────────────────────────────────────── */}
-      <div className="relative z-10 flex h-[3.75rem] shrink-0 items-center justify-between px-4 border-b border-border/70">
-        <Link to="/" className="flex items-center gap-2.5 group">
-          {/* Logo mark */}
-          <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center shadow-sm flex-shrink-0 group-hover:scale-105 transition-transform duration-150">
-            <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
+      <div className={cn(
+        "relative z-10 flex h-[3.75rem] shrink-0 items-center px-4 border-b border-border/70",
+        isCollapsed ? "justify-center px-0" : "justify-between"
+      )}>
+        <Link to="/" onClick={(e) => { if (isCollapsed) { e.preventDefault(); setIsCollapsed(false); } }} className="flex items-center gap-2.5 group relative outline-none cursor-pointer">
+          {/* Logo mark - switches to expand icon on hover when collapsed */}
+          <div className={cn(
+            "relative w-7 h-7 rounded-lg flex items-center justify-center flex-shrink-0 transition-all duration-150",
+            isCollapsed ? "group-hover/sidebar:scale-110" : "group-hover:scale-105"
+          )}>
+            {isCollapsed ? (
+              <>
+                <div className="absolute inset-0 bg-primary/90 hover:bg-primary rounded-lg flex items-center justify-center shadow-sm opacity-0 group-hover/sidebar:opacity-100 transition-opacity z-10">
+                  <PanelLeftOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
+                </div>
+                <div className="absolute inset-0 bg-primary rounded-lg flex items-center justify-center shadow-sm group-hover/sidebar:opacity-0 transition-opacity">
+                  <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
+                </div>
+              </>
+            ) : (
+              <div className="absolute inset-0 bg-primary rounded-lg flex items-center justify-center shadow-sm">
+                <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
+              </div>
+            )}
+
           </div>
-          <span
-            className="text-[0.9375rem] font-800 tracking-tight text-foreground"
-            style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.03em" }}
-          >
-            SkillBridge
-          </span>
+          <AnimatePresence initial={false}>
+            {!isCollapsed && (
+              <motion.span
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: "auto" }}
+                exit={{ opacity: 0, width: 0 }}
+                className="text-[0.9375rem] font-800 tracking-tight text-foreground whitespace-nowrap"
+                style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.03em" }}
+              >
+                SkillBridge
+              </motion.span>
+            )}
+          </AnimatePresence>
         </Link>
+        {!isCollapsed && (
+          <button
+            onClick={() => setIsCollapsed(true)}
+            className="text-muted-foreground hover:text-foreground hover:bg-muted p-1.5 rounded-md transition-colors"
+          >
+            <PanelLeftClose className="w-4 h-4" />
+          </button>
+        )}
       </div>
+
       {/* ─── Navigation ───────────────────────────────────────────────── */}
       <ScrollArea className="relative z-10 flex-1 px-3 pt-2 pb-2">
         <nav className="flex flex-col gap-5">
           {groups.map((group, gi) => (
-            <div key={gi} className="flex flex-col gap-0.5">
+            <div key={gi} className="flex flex-col gap-0.5 min-w-0">
               {group.label && (
-                <p className="nav-section-label">{group.label}</p>
+                <AnimatePresence initial={false}>
+                  {!isCollapsed ? (
+                    <motion.p
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="nav-section-label whitespace-nowrap overflow-hidden"
+                    >
+                      {group.label}
+                    </motion.p>
+                  ) : (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: "auto" }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="h-3"
+                    />
+                  )}
+                </AnimatePresence>
               )}
               {group.items.map((item) => (
                 <NavItemRow
                   key={item.href}
                   item={item}
+                  isCollapsed={isCollapsed}
                   isActive={
                     location.pathname === item.href ||
                     (item.href !== "/" && location.pathname.startsWith(item.href))
@@ -306,7 +393,10 @@ export function Sidebar({ userType }: SidebarProps) {
       </ScrollArea>
 
       {/* ─── User profile / footer ────────────────────────────────────── */}
-      <div className="relative z-10 shrink-0 border-t border-border/70 p-3">
+      <div className={cn(
+        "relative z-10 shrink-0 border-t border-border/70",
+        isCollapsed ? "p-2 flex justify-center" : "p-3"
+      )}>
         {loading ? (
           <UserSkeleton />
         ) : (
@@ -314,10 +404,11 @@ export function Sidebar({ userType }: SidebarProps) {
             <DropdownMenuTrigger asChild>
               <button
                 className={cn(
-                  "w-full flex items-center gap-2.5 px-2 py-2 rounded-xl",
+                  "flex items-center rounded-xl",
                   "hover:bg-accent transition-colors duration-150",
                   "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  "group cursor-pointer"
+                  "group cursor-pointer",
+                  isCollapsed ? "justify-center p-2 w-full" : "w-full gap-2.5 px-2 py-2"
                 )}
               >
                 {/* Avatar */}
@@ -331,28 +422,39 @@ export function Sidebar({ userType }: SidebarProps) {
                   {profile?.full_name?.charAt(0)?.toUpperCase() ?? "U"}
                 </div>
 
-                {/* Name + role */}
-                <div className="flex flex-col items-start min-w-0 mr-auto">
-                  <span
-                    className="text-sm font-600 text-foreground truncate w-full leading-tight"
-                    style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.01em" }}
-                  >
-                    {profile?.full_name ?? "User"}
-                  </span>
-                  <span className="text-[0.6875rem] text-muted-foreground mt-0.5 leading-none capitalize">
-                    {meta.label}
-                  </span>
-                </div>
-                {/* Chevron */}
-                <ChevronUp className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                <AnimatePresence initial={false}>
+                  {!isCollapsed && (
+                    <motion.div
+                      key="user-details"
+                      initial={{ opacity: 0, width: 0 }}
+                      animate={{ opacity: 1, width: "auto" }}
+                      exit={{ opacity: 0, width: 0 }}
+                      className="flex flex-col items-start min-w-0 mr-auto whitespace-nowrap overflow-hidden"
+                    >
+                      <span
+                        className="text-sm font-600 text-foreground truncate w-full leading-tight"
+                        style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.01em" }}
+                      >
+                        {profile?.full_name ?? "User"}
+                      </span>
+                      <span className="text-[0.6875rem] text-muted-foreground mt-0.5 leading-none capitalize">
+                        {meta.label}
+                      </span>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                {!isCollapsed && (
+                  <ChevronUp className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                )}
               </button>
             </DropdownMenuTrigger>
 
             <DropdownMenuContent
               className="w-56 rounded-xl shadow-xl border border-border"
-              align="end"
-              side="top"
-              sideOffset={10}
+              align={isCollapsed ? "center" : "end"}
+              side={isCollapsed ? "right" : "top"}
+              sideOffset={isCollapsed ? 14 : 10}
               style={{ fontFamily: "var(--font-sans)" }}
             >
               {/* User info header */}
@@ -390,8 +492,6 @@ export function Sidebar({ userType }: SidebarProps) {
 
               <DropdownMenuSeparator />
 
-
-
               <div className="p-1">
                 <DropdownMenuItem
                   className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg text-destructive focus:bg-destructive/8 focus:text-destructive cursor-pointer"
@@ -405,6 +505,6 @@ export function Sidebar({ userType }: SidebarProps) {
           </DropdownMenu>
         )}
       </div>
-    </aside>
+    </motion.aside>
   )
 }

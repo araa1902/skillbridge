@@ -128,14 +128,16 @@ export function useFetchMessageThreads(userId: string | null) {
     setLoading(true)
     setError(null)
 
-    // Get all projects where user is involved (as creator or has applications/messages)
+    // Get all messages where user is involved
     const { data: userMessages, error: msgError } = await supabase
       .from('messages')
       .select(`
         project_id,
+        content,
+        created_at,
         project:projects!messages_project_id_fkey (id, title)
       `)
-      .or(`sender_id.eq.${userId}`)
+      .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false })
 
     if (msgError) {
@@ -145,10 +147,15 @@ export function useFetchMessageThreads(userId: string | null) {
       return
     }
 
-    // Get unread count for each project
-    const projectIds = Array.from(
-      new Set((userMessages ?? []).map((m: any) => m.project_id))
-    ) as string[]
+    // Get unique project IDs with their most recent message
+    const threadMap = new Map<string, any>()
+    for (const msg of (userMessages ?? [])) {
+      if (!threadMap.has(msg.project_id)) {
+        threadMap.set(msg.project_id, msg)
+      }
+    }
+
+    const projectIds = Array.from(threadMap.keys())
 
     if (projectIds.length === 0) {
       setThreads([])
@@ -159,18 +166,21 @@ export function useFetchMessageThreads(userId: string | null) {
     const threadList: MessageThread[] = []
 
     for (const projId of projectIds) {
+      // Get unread count for each project directed to the user
       const { count, error: countError } = await supabase
         .from('messages')
         .select('*', { count: 'exact', head: true })
         .eq('project_id', projId)
         .eq('read', false)
-        .neq('sender_id', userId)
+        .eq('receiver_id', userId)
 
-      const projectData = userMessages.find((m: any) => m.project_id === projId) as any
+      const projectData = threadMap.get(projId)
 
       threadList.push({
         project_id: projId,
         project_title: projectData?.project?.title ?? 'Unknown Project',
+        last_message: projectData?.content,
+        last_message_at: projectData?.created_at,
         unread_count: !countError && count ? count : 0,
       })
     }

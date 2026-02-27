@@ -36,6 +36,8 @@ import UniversityAnalytics from "./pages/university/Analytics";
 import AllPages from "./pages/AllPages";
 import NotFound from "./pages/NotFound";
 import { Sidebar } from "@/components/layout/sidebar";
+import StudentMessages from "./pages/student/Messages";
+import EmployerMessages from "./pages/employer/Messages";
 
 const queryClient = new QueryClient();
 
@@ -151,6 +153,14 @@ const App = () => (
                   }
                 />
                 <Route
+                  path="/student/messages"
+                  element={
+                    <ProtectedRoute allowedRoles={["student"]}>
+                      <StudentMessages />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
                   path="/student/settings"
                   element={
                     <ProtectedRoute allowedRoles={["student"]}>
@@ -189,6 +199,14 @@ const App = () => (
                   element={
                     <ProtectedRoute allowedRoles={["business"]}>
                       <EmployerReferences />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/employer/messages"
+                  element={
+                    <ProtectedRoute allowedRoles={["business"]}>
+                      <EmployerMessages />
                     </ProtectedRoute>
                   }
                 />
