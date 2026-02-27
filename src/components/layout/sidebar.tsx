@@ -29,7 +29,7 @@ import {
 } from "lucide-react"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
-import { useTheme } from "@/components/theme-provider"
+
 
 /* ─────────────────────────────────────────────────────────────────────────────
    NAV CONFIG
@@ -229,7 +229,6 @@ export function Sidebar({ userType }: SidebarProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const { profile, role, loading, signOut } = useAuth()
-  const { theme, setTheme } = useTheme()
 
   /* Resolve which persona we're rendering for */
   const detectedType = ((): "student" | "employer" | "university" => {
@@ -391,22 +390,7 @@ export function Sidebar({ userType }: SidebarProps) {
 
               <DropdownMenuSeparator />
 
-              <div className="p-1">
-                <DropdownMenuItem
-                  disabled
-                  className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg"
-                >
-                  <div className="relative flex items-center justify-center">
-                    <Sun className="h-4 w-4 text-muted-foreground" />
-                  </div>
-                  <div className="flex items-center justify-between flex-1">
-                    <span>Theme</span>
-                    <span className="text-[10px] font-600 uppercase tracking-tight text-primary/60 bg-primary/5 px-1.5 py-0.5 rounded border border-primary/20">Coming Soon</span>
-                  </div>
-                </DropdownMenuItem>
-              </div>
 
-              <DropdownMenuSeparator />
 
               <div className="p-1">
                 <DropdownMenuItem
