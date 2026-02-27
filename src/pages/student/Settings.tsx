@@ -90,7 +90,7 @@ const Settings = () => {
     <div className="flex flex-col min-h-screen">
 
       <main className="flex-1 bg-background">
-        <div className="container mx-auto px-4 py-12 max-w-4xl">
+        <div className="page-container py-12">
           <div className="mb-8">
             <h1 className="text-3xl font-bold mb-2">Settings</h1>
             <p className="text-muted-foreground">Manage your account and preferences</p>

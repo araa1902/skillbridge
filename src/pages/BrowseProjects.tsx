@@ -102,7 +102,7 @@ const BrowseProjects = () => {
     <div className="min-h-screen bg-background text-foreground">
       {/* Sticky header */}
       <div className="sticky top-0 z-30 bg-background/95 border-b border-border backdrop-blur-sm">
-        <div className="max-w-7xl mx-auto px-6 py-4">
+        <div className="page-container py-4">
           <div className="flex items-center gap-3">
             <div>
               <h1 className="text-3xl font-bold text-foreground mb-2">Browse Projects</h1>
@@ -114,7 +114,7 @@ const BrowseProjects = () => {
 
 
       <main className="flex-1">
-        <div className="max-w-7xl mx-auto px-6 py-8">
+        <div className="page-container py-8">
           {/* Search + Filters */}
           <Card className="bg-card/80 backdrop-blur-sm border-border mb-8">
             <CardContent className="p-6">

@@ -83,7 +83,7 @@ export default function ReferencesPage() {
 
   if (error) {
     return (
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="page-container py-6">
         <div className="p-6 border border-red-200 bg-red-50 rounded-lg text-red-700">
           <h3 className="font-bold">Error</h3>
           <p>{error}</p>
@@ -93,7 +93,7 @@ export default function ReferencesPage() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6 space-y-12">
+    <div className="page-container py-8 space-y-12">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-6 border-b border-border">
         <div className="space-y-1">

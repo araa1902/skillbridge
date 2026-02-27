@@ -226,7 +226,7 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
+      <div className="page-container py-8 space-y-8">
 
         {/* ── Greeting ── */}
         <motion.div

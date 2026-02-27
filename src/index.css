@@ -92,7 +92,7 @@
 
     /* ── Layout ── */
     --page-gutter: clamp(1rem, 4vw, 2.5rem);
-    --content-max: 76rem;
+    --content-max: 96rem;
     --sidebar-w: 15rem;
     --topbar-h: 3.75rem;
 

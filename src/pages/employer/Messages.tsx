@@ -28,7 +28,7 @@ export default function EmployerMessagesHub() {
     };
 
     return (
-        <div className="flex-1 w-full bg-background px-6 py-8 sm:px-10 lg:px-12 mx-auto max-w-5xl">
+        <div className="page-container py-8 flex-1">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Inbox</h1>

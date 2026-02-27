@@ -71,7 +71,7 @@ export default function StudentProfileView() {
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center p-8">
-                <div className="space-y-6 w-full max-w-4xl">
+                <div className="space-y-6 w-full page-container">
                     <Skeleton className="h-64 w-full rounded-xl" />
                     <Skeleton className="h-40 w-full rounded-xl" />
                     <Skeleton className="h-40 w-full rounded-xl" />
@@ -105,7 +105,7 @@ export default function StudentProfileView() {
     return (
         <div className="min-h-screen bg-gray-50 pb-16">
             <header className="bg-white border-b sticky top-0 z-10">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div className="page-container py-4">
                     <Button variant="ghost" size="sm" onClick={() => navigate(-1)} className="hover:bg-gray-100 transition-colors">
                         <ArrowLeft className="h-4 w-4 mr-2" />
                         Back
@@ -113,7 +113,7 @@ export default function StudentProfileView() {
                 </div>
             </header>
 
-            <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            <main className="page-container py-8 space-y-8">
                 {/* Profile Header */}
                 <div className="bg-gradient-to-r from-blue-600 to-indigo-700 rounded-2xl p-8 sm:p-12 text-white shadow-xl relative overflow-hidden">
                     <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl"></div>

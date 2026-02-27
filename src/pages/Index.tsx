@@ -92,7 +92,7 @@ const Index = () => {
         ? 'bg-white/95 backdrop-blur-md shadow-lg border-b border-gray-200'
         : 'bg-transparent'
         }`}>
-        <div className="container mx-auto px-4">
+        <div className="page-container">
           <div className="flex items-center justify-between h-16 md:h-20">
             {/* Logo */}
             <Link to="/" className="flex items-center space-x-2">
@@ -201,7 +201,7 @@ const Index = () => {
             <div className="absolute -bottom-20 left-40 w-72 h-72 bg-slate-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
           </div>
 
-          <div className="container mx-auto px-4 py-16 md:py-24 lg:py-32 relative">
+          <div className="page-container relative">
             <div className="grid lg:grid-cols-2 gap-12 items-center">
               <div className="space-y-8 animate-fade-in">
 
@@ -277,7 +277,7 @@ const Index = () => {
 
         {/* Features Grid - Modern Cards */}
         <section className="py-24 bg-gradient-to-b from-white to-gray-50">
-          <div className="container mx-auto px-4">
+          <div className="page-container">
             <div className="text-center mb-16 space-y-4">
               <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-0">
                 <Sparkles className="w-3 h-3 mr-1" />
@@ -291,7 +291,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 page-container">
               {features.map((feature, index) => (
                 <Card
                   key={index}
@@ -316,8 +316,8 @@ const Index = () => {
 
         {/* Benefits Section - Split Layout */}
         <section className="py-24 bg-gradient-to-br from-slate-700 via-gray-800 to-slate-900 text-white">
-          <div className="container mx-auto px-4">
-            <div className="grid lg:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
+          <div className="page-container">
+            <div className="grid lg:grid-cols-2 gap-12 items-center page-container">
               <div className="space-y-6">
                 <Badge className="bg-white/20 text-white hover:bg-white/30 border-0">
                   Why SkillBridge?
@@ -347,7 +347,7 @@ const Index = () => {
 
         {/* Featured Projects */}
         <section className="py-24 bg-white">
-          <div className="container mx-auto px-4">
+          <div className="page-container">
             <div className="text-center mb-16 space-y-4">
               <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-0">
                 <Briefcase className="w-3 h-3 mr-1" />
@@ -361,7 +361,7 @@ const Index = () => {
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 max-w-6xl mx-auto">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12 page-container">
               {featuredProjects.map((project) => (
                 <ProjectCard key={project.id} {...project} />
               ))}
@@ -380,7 +380,7 @@ const Index = () => {
 
         {/* Testimonials - Modern Design */}
         <section className="py-24 bg-gray-50">
-          <div className="container mx-auto px-4">
+          <div className="page-container">
             <div className="text-center mb-16 space-y-4">
               <Badge className="bg-slate-100 text-slate-700 hover:bg-slate-200 border-0">
                 Success Stories
@@ -390,7 +390,7 @@ const Index = () => {
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <div className="grid md:grid-cols-2 gap-8 page-container">
               {testimonials.map((testimonial, index) => (
                 <Card
                   key={index}
@@ -421,8 +421,8 @@ const Index = () => {
 
         {/* For Employers/Universities Section */}
         <section className="py-24 bg-white">
-          <div className="container mx-auto px-4">
-            <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+          <div className="page-container">
+            <div className="grid md:grid-cols-2 gap-8 page-container">
               {/* Employers */}
               <Card className="border-2 border-slate-100 hover:border-slate-300 transition-all hover:shadow-xl">
                 <CardContent className="p-8">
@@ -460,7 +460,7 @@ const Index = () => {
 
         {/* Final CTA - Modern & Bold */}
         <section className="py-24 bg-gradient-to-r from-slate-800 via-gray-900 to-slate-900">
-          <div className="container mx-auto px-4">
+          <div className="page-container">
             <div className="max-w-4xl mx-auto text-center text-white space-y-8">
               <h2 className="text-5xl md:text-6xl font-bold leading-tight">
                 Ready to transform your career?
@@ -488,7 +488,7 @@ const Index = () => {
 
         {/* Stats Section */}
         <section className="py-16 bg-white border-y">
-          <div className="container mx-auto px-4">
+          <div className="page-container">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               {stats.map((stat, index) => (
                 <div key={index} className="text-center">

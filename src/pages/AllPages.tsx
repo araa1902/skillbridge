@@ -5,38 +5,38 @@ import { ArrowRight, Users, Buildings as Building2, GraduationCap, House as Home
 
 export default function AllPages() {
   const walkthroughPath = [
-    { 
-      step: 1, 
-      path: "/", 
-      name: "Landing Page", 
+    {
+      step: 1,
+      path: "/",
+      name: "Landing Page",
       scriptPointer: "Introduce the skill gap problem and SkillBridge's unique solution",
       duration: "30s"
     },
-    { 
-      step: 2, 
-      path: "/browse-projects", 
-      name: "Browse Projects", 
+    {
+      step: 2,
+      path: "/browse-projects",
+      name: "Browse Projects",
       scriptPointer: "Show real-world projects with AI-powered matching scores. Demonstrate how the intelligent matching engine pairs students with opportunities based on their skills, interests, and career goals - helping them discover relevant projects and explore new fields risk-free.",
       duration: "45s"
     },
-    { 
-      step: 3, 
-      path: "/project/1", 
-      name: "Project Details", 
+    {
+      step: 3,
+      path: "/project/1",
+      name: "Project Details",
       scriptPointer: "Demonstrate detailed project view with clear requirements and learning outcomes",
       duration: "30s"
     },
-    { 
-      step: 4, 
-      path: "/project/1/apply", 
-      name: "Application Process", 
+    {
+      step: 4,
+      path: "/project/1/apply",
+      name: "Application Process",
       scriptPointer: "Show streamlined application that matches student skills to project needs",
       duration: "20s"
     },
-    { 
-      step: 5, 
-      path: "/student/dashboard", 
-      name: "Student Dashboard", 
+    {
+      step: 5,
+      path: "/student/dashboard",
+      name: "Student Dashboard",
       scriptPointer: "Display personalized learning journey and skill development tracking",
       duration: "40s"
     },
@@ -47,17 +47,17 @@ export default function AllPages() {
       scriptPointer: "Show how students track their application statuses and manage submissions",
       duration: "30s"
     },
-    { 
-      step: 7, 
-      path: "/student/references", 
-      name: "References & Validation", 
+    {
+      step: 7,
+      path: "/student/references",
+      name: "References & Validation",
       scriptPointer: "Highlight employer feedback system that validates real-world skills",
       duration: "25s"
     },
-    { 
-      step: 8, 
-      path: "/employer/dashboard", 
-      name: "Employer Dashboard", 
+    {
+      step: 8,
+      path: "/employer/dashboard",
+      name: "Employer Dashboard",
       scriptPointer: "Show how employers access pre-skilled talent and contribute to education",
       duration: "35s"
     },
@@ -68,10 +68,10 @@ export default function AllPages() {
       scriptPointer: "Demonstrate how employers review and accept student applications",
       duration: "30s"
     },
-    { 
-      step: 10, 
-      path: "/employer/projects/new", 
-      name: "Post New Project", 
+    {
+      step: 10,
+      path: "/employer/projects/new",
+      name: "Post New Project",
       scriptPointer: "Demonstrate how industry creates relevant learning opportunities",
       duration: "25s"
     },
@@ -107,7 +107,7 @@ export default function AllPages() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="page-container py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-gray-900 mb-4">
             SkillBridge - High Fidelity Prototype

@@ -96,7 +96,7 @@ export default function UniversityProjects() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="page-container py-6 space-y-6">
       <div className="flex items-center gap-3">
         <Briefcase className="h-8 w-8 text-blue-600" />
         <div>

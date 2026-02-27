@@ -83,7 +83,7 @@ export default function UniversityAnalytics() {
   }
 
   return (
-    <div className="space-y-6 p-6">
+    <div className="page-container py-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">Analytics</h1>
         <p className="text-gray-600">Platform performance and growth metrics</p>

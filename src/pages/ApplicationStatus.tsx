@@ -138,8 +138,8 @@ const ApplicationStatus = () => {
     <div className="flex flex-col min-h-screen">
 
       <main className="flex-1 bg-background">
-        <div className="container mx-auto px-4 py-12">
-          <div className="max-w-4xl mx-auto">
+        <div className="page-container py-12">
+          <div className="">
             <div className="mb-8">
               <Link to="/student/applications" className="text-sm text-muted-foreground hover:text-foreground mb-2 inline-block">
                 ← Back to Applications

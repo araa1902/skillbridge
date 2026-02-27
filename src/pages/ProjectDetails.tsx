@@ -191,7 +191,7 @@ const ProjectDetails = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="container mx-auto max-w-6xl px-4 py-10 space-y-6">
+        <div className="page-container py-10 space-y-6">
           <HeaderSkeleton />
           <ContentSkeleton />
         </div>
@@ -248,7 +248,7 @@ const ProjectDetails = () => {
   // ── Render ──
   return (
     <div className="min-h-screen bg-background">
-      <div className="container mx-auto max-w-6xl px-4 py-10">
+      <div className="page-container py-10">
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-8">

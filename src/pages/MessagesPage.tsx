@@ -84,7 +84,7 @@ function EmptyState() {
       transition={{ duration: 0.4, ease: 'easeOut' }}
       className="flex flex-col items-center justify-center py-32 text-center select-none"
     >
-      <div className="w-16 h-16 bg-primary-subtle rounded-3xl flex items-center justify-center mb-6 shadow-sm border border-primary/10">
+      <div className="w-16 h-16 bg-primary-subtle rounded-3xl flex items-center justify-center mb-6 border border-primary/10">
         <ArrowUp className="w-7 h-7 text-primary" strokeWidth={2.5} />
       </div>
       <h3 className="text-xl font-bold text-foreground mb-2">Connect & Collaborate</h3>
@@ -243,7 +243,7 @@ export default function MessagesPage() {
             {!isMine && (
               <div className="w-9 flex-shrink-0 self-end mb-1">
                 {isLastInGroup ? (
-                  <div className="h-9 w-9 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-[11px] font-bold shadow-sm border border-border">
+                  <div className="h-9 w-9 flex items-center justify-center rounded-full bg-secondary text-secondary-foreground text-[11px] font-bold border border-border">
                     {msg.sender_name?.charAt(0).toUpperCase() ?? '?'}
                   </div>
                 ) : (
@@ -263,7 +263,7 @@ export default function MessagesPage() {
 
               <div
                 className={cn(
-                  'px-5 py-3 text-[0.9375rem] leading-relaxed break-words whitespace-pre-wrap shadow-sm transition-all duration-200',
+                  'px-5 py-3 text-[0.9375rem] leading-relaxed break-words whitespace-pre-wrap transition-all duration-200',
                   bubbleShape,
                   isMine
                     ? 'bg-primary text-white font-medium hover:bg-primary-light'
@@ -317,7 +317,7 @@ export default function MessagesPage() {
     <div className="flex flex-col h-full w-full bg-background overflow-hidden relative">
 
       {/* ── Header ── */}
-      <header className="glass flex items-center gap-4 px-6 py-4 sm:px-10 border-b border-border/40 shrink-0 z-20">
+      <header className="glass shadow-none flex items-center gap-4 px-6 py-4 sm:px-10 border-b border-border/40 shrink-0 z-20">
         <button
           onClick={() => navigate(-1)}
           className="icon-btn icon-btn--sm hover:bg-primary-subtle hover:text-primary transition-all duration-200"
@@ -327,9 +327,6 @@ export default function MessagesPage() {
         </button>
 
         <div className="flex items-center gap-4 min-w-0">
-          <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-primary-subtle text-primary text-sm font-bold shadow-sm border border-primary/10">
-            {recipientName.charAt(0).toUpperCase()}
-          </div>
 
           <div className="flex flex-col min-w-0">
             <h2 className="text-[14px] font-bold text-foreground truncate leading-tight tracking-tight">
@@ -347,7 +344,7 @@ export default function MessagesPage() {
       {/* ── Messages scroll area ── */}
       <main className="flex-1 overflow-y-auto overflow-x-hidden scroll-smooth">
         <div className="w-full h-full">
-          <div className="mx-auto w-full max-w-4xl px-6 sm:px-12 pt-8 pb-32">
+          <div className="page-container pt-8 pb-32">
             <AnimatePresence mode="popLayout">
               {loading ? (
                 <MessageSkeleton />
@@ -366,11 +363,11 @@ export default function MessagesPage() {
 
       {/* ── Input section ── */}
       <footer className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl px-6 pb-8 pt-4 sm:px-12 border-t border-border/40 z-20">
-        <div className="mx-auto max-w-4xl">
+        <div className="page-container">
           <div
             className={cn(
               'flex items-end gap-3 rounded-[24px] border border-border bg-card px-5 py-3.5',
-              'shadow-xl transition-all duration-300 group ring-1 ring-border/5',
+              'transition-all duration-300 group ring-1 ring-border/5',
               'focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5'
             )}
           >
@@ -397,7 +394,7 @@ export default function MessagesPage() {
                 disabled={sending || !messageContent.trim()}
                 aria-label="Send message"
                 className={cn(
-                  'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300 shadow-sm',
+                  'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300',
                   messageContent.trim() && !sending
                     ? 'bg-primary text-white hover:bg-primary-light scale-100 hover:shadow-teal hover:-translate-y-0.5'
                     : 'bg-muted text-muted-foreground scale-95 cursor-not-allowed opacity-50'
