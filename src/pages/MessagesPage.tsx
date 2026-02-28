@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { format, isToday, isYesterday } from 'date-fns'
-import { ArrowLeft, ArrowUp } from "@phosphor-icons/react"
+import { ArrowLeftIcon, ArrowUpIcon } from "@phosphor-icons/react"
 import { cn } from '@/lib/utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -85,7 +85,7 @@ function EmptyState() {
       className="flex flex-col items-center justify-center py-32 text-center select-none"
     >
       <div className="w-16 h-16 bg-primary-subtle rounded-3xl flex items-center justify-center mb-6 border border-primary/10">
-        <ArrowUp className="w-7 h-7 text-primary" strokeWidth={2.5} />
+        <ArrowUpIcon className="w-7 h-7 text-primary" strokeWidth={2.5} />
       </div>
       <h3 className="text-xl font-bold text-foreground mb-2">Connect & Collaborate</h3>
       <p className="text-sm text-muted-foreground max-w-[280px] leading-relaxed">
@@ -303,7 +303,7 @@ export default function MessagesPage() {
             className="border-neutral-200 text-neutral-700"
             onClick={() => navigate(-1)}
           >
-            <ArrowLeft className="h-3.5 w-3.5 mr-1.5" />
+            <ArrowLeftIcon className="h-3.5 w-3.5 mr-1.5" />
             Go back
           </Button>
         </div>
@@ -318,13 +318,14 @@ export default function MessagesPage() {
 
       {/* ── Header ── */}
       <header className="glass shadow-none flex items-center gap-4 px-6 py-4 sm:px-10 border-b border-border/40 shrink-0 z-20">
-        <button
+        <Button
           onClick={() => navigate(-1)}
-          className="icon-btn icon-btn--sm hover:bg-primary-subtle hover:text-primary transition-all duration-200"
+          variant="ghost"
+          size="icon"
           aria-label="Go back"
         >
-          <ArrowLeft className="h-4 w-4" />
-        </button>
+          <ArrowLeftIcon className="h-4 w-4" />
+        </Button>
 
         <div className="flex items-center gap-4 min-w-0">
 
@@ -362,24 +363,24 @@ export default function MessagesPage() {
       </main>
 
       {/* ── Input section ── */}
-      <footer className="absolute bottom-0 left-0 right-0 bg-background/80 backdrop-blur-xl px-6 pb-8 pt-4 sm:px-12 border-t border-border/40 z-20">
-        <div className="page-container">
+      <footer className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-6 pt-3 sm:px-8 bg-gradient-to-t from-background via-background/95 to-transparent">
+        <div className="max-w-3xl mx-auto">
           <div
             className={cn(
-              'flex items-end gap-3 rounded-[24px] border border-border bg-card px-5 py-3.5',
-              'transition-all duration-300 group ring-1 ring-border/5',
-              'focus-within:border-primary/40 focus-within:ring-4 focus-within:ring-primary/5'
+              'flex items-end gap-2 rounded-2xl border border-zinc-200 bg-white px-4 py-3',
+              'shadow-sm transition-all duration-200',
+              'focus-within:border-zinc-400 focus-within:shadow-md'
             )}
           >
             <Textarea
               ref={textareaRef}
-              placeholder={`Send a message to ${recipientName.split(' ')[0]}...`}
+              placeholder={`Message ${recipientName.split(' ')[0]}…`}
               rows={1}
               className={cn(
                 'flex-1 resize-none border-0 bg-transparent p-0 shadow-none',
-                'text-[0.9375rem] text-foreground leading-relaxed',
-                'placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none',
-                'min-h-[26px] max-h-[200px] py-1.0'
+                'text-sm text-zinc-900 leading-relaxed',
+                'placeholder:text-zinc-400 focus-visible:ring-0 focus-visible:ring-offset-0 outline-none',
+                'min-h-[22px] max-h-[180px] py-0.5'
               )}
               value={messageContent}
               onChange={(e) => setMessageContent(e.target.value)}
@@ -388,28 +389,31 @@ export default function MessagesPage() {
               autoFocus
             />
 
-            <div className="flex items-center gap-2 pr-1">
-              <button
-                onClick={handleSendMessage}
-                disabled={sending || !messageContent.trim()}
-                aria-label="Send message"
-                className={cn(
-                  'flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center transition-all duration-300',
-                  messageContent.trim() && !sending
-                    ? 'bg-primary text-white hover:bg-primary-light scale-100 hover:shadow-teal hover:-translate-y-0.5'
-                    : 'bg-muted text-muted-foreground scale-95 cursor-not-allowed opacity-50'
-                )}
-              >
-                {sending ? (
-                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                ) : (
-                  <ArrowUp className="h-4 w-4" strokeWidth={3} />
-                )}
-              </button>
-            </div>
+            <button
+              onClick={handleSendMessage}
+              disabled={sending || !messageContent.trim()}
+              aria-label="Send message"
+              className={cn(
+                'shrink-0 h-8 w-8 rounded-lg flex items-center justify-center transition-all duration-200 mb-0.5',
+                messageContent.trim() && !sending
+                  ? 'bg-teal-600 text-white hover:bg-teal-700'
+                  : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'
+              )}
+            >
+              {sending ? (
+                <div className="h-3.5 w-3.5 border-2 border-zinc-400 border-t-teal-600 rounded-full animate-spin" />
+              ) : (
+                <ArrowUpIcon className="h-3.5 w-3.5" strokeWidth={2.5} />
+              )}
+            </button>
           </div>
+
+          <p className="text-center text-[11px] text-zinc-400 mt-2">
+            Enter to send · Shift+Enter for new line
+          </p>
         </div>
       </footer>
+
     </div>
   )
 }

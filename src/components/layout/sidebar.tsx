@@ -18,17 +18,12 @@ import {
   LogOut,
   BarChart3,
   Briefcase,
-  Award,
   GraduationCap,
   ChevronUp,
   Zap,
   BookOpen,
   Building2,
-  Sun,
-  Moon,
-  Monitor,
-  PanelLeftClose,
-  PanelLeftOpen
+  PanelLeft,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
@@ -58,14 +53,14 @@ const studentNav: NavGroup[] = [
   {
     items: [
       { name: "Dashboard", href: "/student/dashboard", icon: Home },
-      { name: "Browse", href: "/browse-projects", icon: Binoculars },
+      { name: "Browse Projects", href: "/browse-projects", icon: Binoculars },
       { name: "My Applications", href: "/student/applications", icon: LicenseThirdParty },
     ],
   },
   {
     label: "Profile",
     items: [
-      { name: "Portfolio", href: "/student/credentials", icon: Badge },
+      { name: "Credentials", href: "/student/credentials", icon: Badge },
       { name: "References", href: "/student/references", icon: StarReview },
       { name: "Messages", href: "/student/messages", icon: Chat, badge: 3, disabled: true },
     ],
@@ -93,7 +88,7 @@ const employerNav: NavGroup[] = [
   {
     label: "Manage",
     items: [
-      { name: "My Projects", href: "/employer/projects/manage", icon: Roadmap },
+      { name: "Projects", href: "/employer/projects/manage", icon: Roadmap },
       { name: "Applications", href: "/employer/applications", icon: LicenseThirdParty, badge: 5 },
       { name: "References", href: "/employer/references", icon: StarReview },
       { name: "Messages", href: "/employer/messages", icon: Chat, badge: 2, disabled: true },
@@ -313,7 +308,7 @@ export function Sidebar({ userType }: SidebarProps) {
             {isCollapsed ? (
               <>
                 <div className="absolute inset-0 bg-primary/90 hover:bg-primary rounded-lg flex items-center justify-center shadow-sm opacity-0 group-hover/sidebar:opacity-100 transition-opacity z-10">
-                  <PanelLeftOpen className="w-4 h-4 text-white" strokeWidth={2.5} />
+                  <PanelLeft className="w-4 h-4 text-white" strokeWidth={2.5} />
                 </div>
                 <div className="absolute inset-0 bg-primary rounded-lg flex items-center justify-center shadow-sm group-hover/sidebar:opacity-0 transition-opacity">
                   <Zap className="w-4 h-4 text-white" strokeWidth={2.5} />
@@ -345,7 +340,7 @@ export function Sidebar({ userType }: SidebarProps) {
             onClick={() => setIsCollapsed(true)}
             className="text-muted-foreground hover:text-foreground hover:bg-muted p-1.5 rounded-md transition-colors"
           >
-            <PanelLeftClose className="w-4 h-4" />
+            <PanelLeft className="w-4 h-4" />
           </button>
         )}
       </div>

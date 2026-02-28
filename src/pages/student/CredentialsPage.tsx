@@ -2,7 +2,11 @@ import { useAuth } from "@/contexts/AuthContext"
 import { useFetchStudentCredentials } from "@/hooks/useCredentials"
 import { Skeleton } from "@/components/ui/skeleton"
 import { cn } from "@/lib/utils"
-import { Medal as Award, Star, Buildings as Building2, CalendarBlank as CalendarDays, SealCheck as BadgeCheck, Sparkle as Sparkles, ChatCircle as MessageSquare, ShieldCheck as ShieldCheck } from "@phosphor-icons/react"
+import { Medal as Award, Star, Buildings as Building2, CalendarBlank as CalendarDays, SealCheck as BadgeCheck, Sparkle as Sparkles, ChatCircle as MessageSquare, ShieldCheck as ShieldCheck, CheckCircleIcon, QuotesIcon, DownloadSimple, MagnifyingGlass as Search } from "@phosphor-icons/react"
+import { Calendar, Quote } from "lucide-react"
+import { useState, useMemo } from "react"
+import { Input } from "@/components/ui/input"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    HELPERS
@@ -63,124 +67,196 @@ interface Credential {
   issued_at: string
 }
 
-function CredentialCard({ credential, index }: { credential: Credential; index: number }) {
-  const grad = gradientFor(index)
-  const hasRating = credential.rating !== undefined && credential.rating !== null
-  const hasSkills = credential.skills_verified && credential.skills_verified.length > 0
+function CredentialCard({ credential, studentName }: { credential: Credential; index?: number; studentName?: string }) {
+  const hasRating = credential.rating !== undefined && credential.rating !== null;
+  const hasSkills = credential.skills_verified && credential.skills_verified.length > 0;
+
+  const handleDownloadCredential = async () => {
+    const { jsPDF } = await import("jspdf");
+    const doc = new jsPDF("landscape", "mm", "a4");
+
+    // Dimensions
+    const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
+    const margin = 20;
+
+    // Background Color
+    doc.setFillColor(250, 252, 255);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+    // Outer Border (Navy)
+    doc.setDrawColor(20, 30, 70);
+    doc.setLineWidth(4);
+    doc.rect(margin, margin, pageWidth - 2 * margin, pageHeight - 2 * margin);
+
+    // Inner Border (Gold/Accent)
+    doc.setDrawColor(200, 170, 80);
+    doc.setLineWidth(1);
+    doc.rect(margin + 4, margin + 4, pageWidth - 2 * margin - 8, pageHeight - 2 * margin - 8);
+
+    // Header with title
+    doc.setFont("times", "bold");
+    doc.setFontSize(36);
+    doc.setTextColor(20, 30, 70);
+    const title = "CERTIFICATE OF ACHIEVEMENT";
+    doc.text(title, pageWidth / 2, margin + 35, { align: "center" });
+
+    // Ribbon / small text
+    doc.setFont("helvetica", "italic");
+    doc.setFontSize(14);
+    doc.setTextColor(100, 110, 130);
+    doc.text("This certifies that", pageWidth / 2, margin + 55, { align: "center" });
+
+    // Student Name
+    doc.setFont("times", "bolditalic");
+    doc.setFontSize(28);
+    doc.setTextColor(0, 0, 0);
+    const nameToPrint = studentName || "Skilled Student";
+    doc.text(nameToPrint, pageWidth / 2, margin + 75, { align: "center" });
+
+    // Underline for name
+    doc.setDrawColor(200, 170, 80);
+    doc.setLineWidth(0.5);
+    const nameWidth = doc.getTextWidth(nameToPrint);
+    doc.line(pageWidth / 2 - nameWidth / 2 - 10, margin + 80, pageWidth / 2 + nameWidth / 2 + 10, margin + 80);
+
+    // "has successfully completed"
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(14);
+    doc.setTextColor(100, 110, 130);
+    doc.text("has successfully completed the project", pageWidth / 2, margin + 95, { align: "center" });
+
+    // Project title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(20);
+    doc.setTextColor(30, 40, 80);
+    const credTitle = credential.project_title ?? "Project Credential";
+    doc.text(credTitle, pageWidth / 2, margin + 110, { align: "center" });
+
+    // Issuer and Date
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(12);
+    doc.setTextColor(60, 60, 60);
+
+    // Split lower section to Columns
+    doc.setFont("times", "bold");
+    doc.text("ISSUED BY", margin + 30, pageHeight - margin - 40);
+    doc.setFont("helvetica", "normal");
+    doc.text(credential.business_name ?? "SkillBridge Employer", margin + 30, pageHeight - margin - 30);
+
+    doc.setFont("times", "bold");
+    doc.text("DATE", pageWidth - margin - 30, pageHeight - margin - 40, { align: "right" });
+    doc.setFont("helvetica", "normal");
+    const dateText = new Date(credential.issued_at).toLocaleDateString();
+    doc.text(dateText, pageWidth - margin - 30, pageHeight - margin - 30, { align: "right" });
+
+    // Center Signature / Logo area
+    doc.setDrawColor(20, 30, 70);
+    doc.setLineWidth(1);
+    doc.line(pageWidth / 2 - 25, pageHeight - margin - 30, pageWidth / 2 + 25, pageHeight - margin - 30);
+    doc.setFont("times", "italic");
+    doc.setFontSize(10);
+    doc.text("SkillBridge Verified", pageWidth / 2, pageHeight - margin - 22, { align: "center" });
+
+    // Skills
+    if (hasSkills) {
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(100, 100, 100);
+      const skillsStr = `Verified Skills: ${credential.skills_verified!.join(", ")}`;
+      doc.text(skillsStr, pageWidth / 2, pageHeight - margin - 15, { align: "center" });
+    }
+
+    // Save the PDF
+    doc.save(`${(credential.project_title ?? "credential").replace(/\s+/g, "_").toLowerCase()}_certificate.pdf`);
+  };
 
   return (
-    <article className="surface overflow-hidden flex flex-col group transition-all duration-200 hover:-translate-y-1 hover:shadow-lg hover:border-border-strong">
+    <div className="group relative flex flex-col bg-white rounded-xl border border-slate-200 overflow-hidden hover:shadow-lg hover:border-slate-300 transition-all duration-300">
 
-      {/* ── Certificate banner ── */}
-      <div className={cn("relative bg-gradient-to-br p-5 text-white overflow-hidden", grad)}>
-        {/* Decorative ring pattern */}
-        <div
-          aria-hidden="true"
-          className="absolute -right-8 -top-8 w-36 h-36 rounded-full border-[20px] border-white/10 pointer-events-none"
-        />
-        <div
-          aria-hidden="true"
-          className="absolute -right-2 -bottom-6 w-20 h-20 rounded-full border-[12px] border-white/10 pointer-events-none"
-        />
+      <div className="p-6 flex flex-col flex-1 gap-5">
 
-        <div className="relative z-10 flex items-start justify-between gap-3">
-          {/* Badge icon */}
-          <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0">
-            <Award className="w-5 h-5 text-white" strokeWidth={2} />
+        {/* ── Header: Issuer & Rating ── */}
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+              <Building2 className="w-5 h-5 text-slate-400" />
+            </div>
+            <div>
+              <h4 className="text-sm font-semibold text-slate-900">
+                {credential.business_name || "Unknown Company"}
+              </h4>
+            </div>
           </div>
 
-          {/* Rating */}
           {hasRating && (
-            <div className="flex items-center gap-1.5 bg-white/20 backdrop-blur-sm rounded-full px-2.5 py-1 flex-shrink-0">
-              <Star className="w-3.5 h-3.5 fill-yellow-300 text-yellow-300" />
-              <span className="text-sm font-700 text-white tabular-nums">{credential.rating}/5</span>
-              <span className="text-[0.6875rem] text-white/75">{ratingLabel(credential.rating!)}</span>
+            <div className="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-full px-2.5 py-1">
+              <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+              <span className="text-sm font-bold text-slate-700">
+                {Number(credential.rating).toFixed(1)}
+              </span>
             </div>
           )}
         </div>
 
-        {/* Project title */}
-        <div className="relative z-10 mt-4">
-          <h3
-            className="text-base font-700 text-white leading-snug line-clamp-2"
-            style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.018em" }}
-          >
+        {/* ── Project Details & Feedback ── */}
+        <div>
+          <h3 className="text-lg font-bold text-slate-900 leading-snug line-clamp-2">
             {credential.project_title || "Untitled Project"}
           </h3>
-          <div className="flex items-center gap-1.5 mt-1.5">
-            <BadgeCheck className="w-3.5 h-3.5 text-white/70 flex-shrink-0" />
-            <span className="text-xs text-white/75">Verified Credential</span>
-          </div>
-        </div>
-      </div>
 
-      {/* ── Credential body ── */}
-      <div className="flex flex-col flex-1 gap-4 p-5">
-
-        {/* Issuer */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-muted flex items-center justify-center flex-shrink-0">
-            <Building2 className="w-4 h-4 text-muted-foreground" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-[0.6875rem] font-600 uppercase tracking-[0.07em] text-muted-foreground leading-none">
-              Issued by
-            </p>
-            <p className="text-sm font-600 text-foreground mt-0.5 truncate" style={{ fontFamily: "var(--font-display)" }}>
-              {credential.business_name || "Unknown Company"}
-            </p>
-          </div>
+          {credential.feedback && (
+            <div className="relative mt-4">
+              <QuotesIcon className="absolute -top-1 -left-1 w-8 h-8 text-slate-100 rotate-180 -z-10" />
+              <p className="text-sm text-slate-600 leading-relaxed pl-4 border-l-2 border-slate-200">
+                "{credential.feedback}"
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Skills */}
-        {hasSkills ? (
-          <div>
-            <p className="flex items-center gap-1.5 text-[0.6875rem] font-700 uppercase tracking-[0.07em] text-muted-foreground mb-2">
-              <ShieldCheck className="w-3 h-3" />
-              Skills Verified
-            </p>
-            <div className="flex flex-wrap gap-1.5">
+        {/* ── Skills Tags ── */}
+        <div className="mt-auto pt-2">
+          {hasSkills ? (
+            <div className="flex flex-wrap gap-2">
               {credential.skills_verified!.map((skill, idx) => (
-                <span key={idx} className="tag tag--active text-xs">
+                <span
+                  key={idx}
+                  className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-default"
+                >
                   {skill}
                 </span>
               ))}
             </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-muted/40 border border-dashed border-border">
-            <Sparkles className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-            <p className="text-xs text-muted-foreground">No specific skills tagged</p>
-          </div>
-        )}
+          ) : (
+            <p className="text-xs text-slate-400 italic">No specific skills tagged</p>
+          )}
+        </div>
 
-        {/* Feedback quote */}
-        {credential.feedback && (
-          <div className="surface-flat rounded-xl p-3.5 flex gap-2.5">
-            <MessageSquare className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-muted-foreground italic leading-relaxed line-clamp-3">
-              "{credential.feedback}"
-            </p>
-          </div>
-        )}
-
-        {/* Date — pinned to bottom */}
-        <div className="flex items-center gap-1.5 pt-3 mt-auto border-t border-border/60">
-          <CalendarDays className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0" />
-          <p className="text-xs text-muted-foreground">
-            Issued{" "}
+        {/* ── Footer: Date & CTA ── */}
+        <div className="flex items-center justify-between pt-4 mt-2 border-t border-slate-100">
+          <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">
+            <Calendar className="w-3.5 h-3.5" />
             <time dateTime={credential.issued_at}>
-              {new Date(credential.issued_at).toLocaleDateString("en-GB", {
+              Issued {new Date(credential.issued_at).toLocaleDateString("en-GB", {
                 day: "numeric",
                 month: "short",
                 year: "numeric",
               })}
             </time>
-          </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleDownloadCredential}
+            className="flex items-center gap-1 text-xs font-bold text-blue-600 group-hover:text-blue-700 hover:underline cursor-pointer transition-colors"
+          >
+            Export Credential <DownloadSimple className="w-3.5 h-3.5" />
+          </button>
         </div>
+
       </div>
-    </article>
-  )
+    </div>
+  );
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -188,8 +264,36 @@ function CredentialCard({ credential, index }: { credential: Credential; index: 
 ───────────────────────────────────────────────────────────────────────────── */
 
 export default function CredentialsPage() {
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
   const { credentials, loading, error } = useFetchStudentCredentials(user?.id || null)
+
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState("recent");
+
+  const filteredAndSortedCredentials = useMemo(() => {
+    let result = [...credentials];
+
+    // Filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(c =>
+        (c.project_title?.toLowerCase().includes(q)) ||
+        (c.business_name?.toLowerCase().includes(q)) ||
+        (c.skills_verified?.some(s => s.toLowerCase().includes(q)))
+      );
+    }
+
+    // Sort
+    result.sort((a, b) => {
+      if (sortBy === "recent") return new Date(b.issued_at).getTime() - new Date(a.issued_at).getTime();
+      if (sortBy === "oldest") return new Date(a.issued_at).getTime() - new Date(b.issued_at).getTime();
+      if (sortBy === "name") return (a.project_title || "").localeCompare(b.project_title || "");
+      if (sortBy === "rating") return (b.rating || 0) - (a.rating || 0);
+      return 0;
+    });
+
+    return result;
+  }, [credentials, searchQuery, sortBy]);
 
   /* ── Error state ── */
   if (error) {
@@ -211,7 +315,6 @@ export default function CredentialsPage() {
 
       {/* ── Page header ── */}
       <div className="mb-8">
-        <p className="eyebrow mb-2">Portfolio</p>
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
           <div>
             <h1
@@ -223,7 +326,7 @@ export default function CredentialsPage() {
                 lineHeight: 1.1,
               }}
             >
-              Credentials &amp; Certificates
+              Credentials
             </h1>
             <p className="text-muted-foreground mt-2 text-[0.9375rem]">
               Verified badges and certificates earned from completed projects
@@ -242,6 +345,33 @@ export default function CredentialsPage() {
         </div>
       </div>
 
+      {/* ── Filters ── */}
+      {!loading && credentials.length > 0 && (
+        <div className="bg-white p-4 rounded-xl border border-slate-200 mb-8 flex flex-col sm:flex-row gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              placeholder="Search credentials, skills, or companies..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-10 h-10 bg-slate-50 border-slate-200 text-sm"
+            />
+          </div>
+
+          <Select value={sortBy} onValueChange={setSortBy}>
+            <SelectTrigger className="w-full sm:w-[180px] h-10 bg-slate-50 border-slate-200">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="recent">Most Recent</SelectItem>
+              <SelectItem value="oldest">Oldest First</SelectItem>
+              <SelectItem value="name">Project Name (A-Z)</SelectItem>
+              <SelectItem value="rating">Highest Rated</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
       {/* ── Loading ── */}
       {loading ? (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
@@ -250,7 +380,7 @@ export default function CredentialsPage() {
           ))}
         </div>
 
-        /* ── Empty state ── */
+        /* ── Empty state (No credentials at all) ── */
       ) : credentials.length === 0 ? (
         <div className="surface">
           <div className="empty-state py-20">
@@ -270,11 +400,27 @@ export default function CredentialsPage() {
           </div>
         </div>
 
+        /* ── Empty state (Search yielded no results) ── */
+      ) : filteredAndSortedCredentials.length === 0 ? (
+        <div className="surface">
+          <div className="empty-state py-20">
+            <div
+              className="w-16 h-16 rounded-2xl flex items-center justify-center mb-1 bg-slate-100"
+            >
+              <Search className="w-8 h-8 text-slate-400" />
+            </div>
+            <p className="empty-state__title">No matches found</p>
+            <p className="empty-state__body">
+              Try adjusting your search query or filters.
+            </p>
+          </div>
+        </div>
+
         /* ── Credential grid ── */
       ) : (
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {credentials.map((credential, i) => (
-            <CredentialCard key={credential.id} credential={credential} index={i} />
+          {filteredAndSortedCredentials.map((credential, i) => (
+            <CredentialCard key={credential.id} credential={credential} index={i} studentName={profile?.full_name} />
           ))}
         </div>
       )}

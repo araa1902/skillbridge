@@ -438,34 +438,6 @@ const EmployerDashboard = () => {
                 </CardContent>
               </Card>
             </motion.div>
-
-            {/* Tips card */}
-            <motion.div
-              variants={fadeUp}
-              initial="initial"
-              animate="animate"
-              transition={{ duration: 0.3, delay: 0.35 }}
-            >
-              <Card className="shadow-none border-border/60 bg-muted/30">
-                <CardContent className="pt-5 pb-4 space-y-3">
-                  <p className="text-xs font-semibold uppercase tracking-widest text-muted-foreground">
-                    Tips
-                  </p>
-                  <ul className="space-y-2.5">
-                    {[
-                      "Add required skills to attract the right applicants",
-                      "Respond to applications within 48 hours",
-                      "Write references after project completion",
-                    ].map((tip, i) => (
-                      <li key={i} className="flex items-start gap-2 text-xs text-muted-foreground">
-                        <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-muted-foreground/40 shrink-0" />
-                        {tip}
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-              </Card>
-            </motion.div>
           </div>
         </div>
       </div>

@@ -275,41 +275,41 @@ function ReviewRow({
    SIDEBAR PANELS
 ───────────────────────────────────────────────────────────────────────────── */
 
-function TemplatePanel({ onApply }: { onApply: (name: string) => void }) {
-  return (
-    <div className="surface p-5 flex flex-col gap-4">
-      <div className="flex items-center gap-2">
-        <LayoutTemplate className="w-4 h-4 text-primary" />
-        <p
-          className="text-sm font-700 text-foreground"
-          style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.016em" }}
-        >
-          Quick-start Templates
-        </p>
-      </div>
-      <p className="text-xs text-muted-foreground -mt-1">
-        Pre-fill the form with a common project type
-      </p>
-      <div className="flex flex-col gap-2">
-        {Object.keys(TEMPLATES).map((name) => (
-          <button
-            key={name}
-            type="button"
-            onClick={() => onApply(name)}
-            className={cn(
-              "w-full text-left flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl",
-              "border border-border hover:border-primary/30 hover:bg-primary/4",
-              "text-sm font-500 text-foreground transition-all duration-150 group"
-            )}
-          >
-            <span className="truncate">{name}</span>
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors" />
-          </button>
-        ))}
-      </div>
-    </div>
-  )
-}
+// function TemplatePanel({ onApply }: { onApply: (name: string) => void }) {
+//   return (
+//     <div className="surface p-5 flex flex-col gap-4">
+//       <div className="flex items-center gap-2">
+//         <LayoutTemplate className="w-4 h-4 text-primary" />
+//         <p
+//           className="text-sm font-700 text-foreground"
+//           style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.016em" }}
+//         >
+//           Quick-start Templates
+//         </p>
+//       </div>
+//       <p className="text-xs text-muted-foreground -mt-1">
+//         Pre-fill the form with a common project type
+//       </p>
+//       <div className="flex flex-col gap-2">
+//         {Object.keys(TEMPLATES).map((name) => (
+//           <button
+//             key={name}
+//             type="button"
+//             onClick={() => onApply(name)}
+//             className={cn(
+//               "w-full text-left flex items-center justify-between gap-2 px-3 py-2.5 rounded-xl",
+//               "border border-border hover:border-primary/30 hover:bg-primary/4",
+//               "text-sm font-500 text-foreground transition-all duration-150 group"
+//             )}
+//           >
+//             <span className="truncate">{name}</span>
+//             <ChevronRight className="w-3.5 h-3.5 text-muted-foreground flex-shrink-0 group-hover:text-primary transition-colors" />
+//           </button>
+//         ))}
+//       </div>
+//     </div>
+//   )
+// }
 
 function TipsPanel() {
   return (
@@ -978,7 +978,7 @@ export default function NewProject() {
 
           {/* ── Sidebar ── */}
           <aside className="flex flex-col gap-4 lg:sticky lg:top-[calc(var(--topbar-h)+1.5rem)]">
-            <TemplatePanel onApply={applyTemplate} />
+            {/* <TemplatePanel onApply={applyTemplate} /> */}
             <PricingPanel selectedDuration={form.duration} />
             <TipsPanel />
           </aside>
