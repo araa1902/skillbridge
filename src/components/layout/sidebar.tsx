@@ -36,6 +36,7 @@ import {
   Building2,
   PanelLeft,
   GraduationCap,
+  InboxIcon,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
@@ -68,6 +69,7 @@ const studentNav: NavGroup[] = [
       { name: "Dashboard", href: "/student/dashboard", icon: Home },
       { name: "Browse Projects", href: "/browse-projects", icon: CompassIcon },
       { name: "My Applications", href: "/student/applications", icon: SendAlt },
+      { name: "Inbox", href: "/student/messages", icon: InboxIcon },
     ],
   },
   {
@@ -75,13 +77,6 @@ const studentNav: NavGroup[] = [
     items: [
       { name: "Credentials", href: "/student/credentials", icon: Badge },
       { name: "References", href: "/student/references", icon: StarReview },
-      { name: "Messages", href: "/student/messages", icon: Chat, badge: 3, disabled: true },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
-      { name: "Settings", href: "/student/settings", icon: Settings },
     ],
   },
 ]
@@ -101,16 +96,10 @@ const employerNav: NavGroup[] = [
   {
     label: "Manage",
     items: [
-      { name: "Manage Projects", href: "/employer/projects/manage", icon: Portfolio },
+      { name: "Projects", href: "/employer/projects/manage", icon: Portfolio },
       { name: "Applications", href: "/employer/applications", icon: UserMultiple, badge: 5 },
       { name: "References", href: "/employer/references", icon: StarReview },
-      { name: "Messages", href: "/employer/messages", icon: Chat, badge: 2, disabled: true },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
-      { name: "Settings", href: "/employer/settings", icon: Settings },
+      { name: "Inbox", href: "/employer/messages", icon: InboxIcon, badge: 2, disabled: true },
     ],
   },
 ]
@@ -134,12 +123,6 @@ const universityNav: NavGroup[] = [
     label: "Data",
     items: [
       { name: "Analytics", href: "/university/analytics", icon: ChartBar },
-    ],
-  },
-  {
-    label: "Account",
-    items: [
-      { name: "Settings", href: "/university/settings", icon: Settings },
     ],
   },
 ]
@@ -475,17 +458,15 @@ export function Sidebar({ userType }: SidebarProps) {
 
               {/* Settings */}
               <div className="p-1">
-                {allItems.filter((i) => i.name === "Settings").map((item) => (
-                  <DropdownMenuItem key={item.href} asChild>
-                    <Link
-                      to={item.href}
-                      className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer"
-                    >
-                      <item.icon className="h-4 w-4 text-muted-foreground" />
-                      Settings
-                    </Link>
-                  </DropdownMenuItem>
-                ))}
+                <DropdownMenuItem asChild>
+                  <Link
+                    to={`/${detectedType}/settings`}
+                    className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer"
+                  >
+                    <Settings className="h-4 w-4 text-muted-foreground" />
+                    Settings
+                  </Link>
+                </DropdownMenuItem>
 
                 <DropdownMenuItem asChild>
                   <Link

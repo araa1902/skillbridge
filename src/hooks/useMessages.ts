@@ -15,10 +15,8 @@ export interface Message {
 
 export interface MessageThread {
   updated_at: string | number | Date
-  updated_at: any
-  id: Key
   id: string
-  other_user_name: any
+  other_user_name?: string
   project_id: string
   project_title?: string
   last_message?: string
@@ -182,6 +180,8 @@ export function useFetchMessageThreads(userId: string | null) {
       const projectData = threadMap.get(projId)
 
       threadList.push({
+        id: projId,
+        updated_at: projectData?.created_at ?? new Date(),
         project_id: projId,
         project_title: projectData?.project?.title ?? 'Unknown Project',
         last_message: projectData?.content,

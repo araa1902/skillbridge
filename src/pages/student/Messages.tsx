@@ -31,7 +31,7 @@ export default function StudentMessagesHub() {
         <div className="page-container py-8 flex-1">
             <div className="flex items-center justify-between mb-8">
                 <div>
-                    <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Messages</h1>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Inbox</h1>
                     <p className="text-muted-foreground text-sm max-w-xl">
                         Communicate with employers directly regarding your applications and projects.
                     </p>

@@ -106,6 +106,7 @@ export default function MessagesPage() {
 
   const { messages, loading, error, refetch } = useFetchProjectMessages(projectId ?? null)
   const [project, setProject] = useState<Project | null>(null)
+  const [recipientProfile, setRecipientProfile] = useState<{ full_name: string } | null>(null)
   const [messageContent, setMessageContent] = useState('')
   const [sending, setSending] = useState(false)
 
@@ -131,6 +132,16 @@ export default function MessagesPage() {
     }
   }, [projectId, user?.id])
 
+  useEffect(() => {
+    if (!targetId) return
+    supabase
+      .from('profiles')
+      .select('full_name')
+      .eq('id', targetId)
+      .single()
+      .then(({ data }) => setRecipientProfile(data))
+  }, [targetId])
+
   // ── Scroll to bottom ───────────────────────────────────────────────────────
 
   useEffect(() => {
@@ -149,7 +160,7 @@ export default function MessagesPage() {
   // ── Recipient helpers ──────────────────────────────────────────────────────
 
   const otherMessage = messages.find((m) => m.sender_id !== user?.id)
-  const recipientName = otherMessage?.sender_name ?? (project?.title ? `Re: ${project.title}` : '…')
+  const recipientName = otherMessage?.sender_name ?? recipientProfile?.full_name ?? (project?.title ? `Re: ${project.title}` : '…')
 
   // ── Send ───────────────────────────────────────────────────────────────────
 
