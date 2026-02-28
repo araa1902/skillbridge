@@ -8,27 +8,40 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-  DropdownMenuSub,
-  DropdownMenuSubTrigger,
-  DropdownMenuSubContent,
-  DropdownMenuPortal,
 } from "@/components/ui/dropdown-menu"
-import { Home, AddAlt, Roadmap, StarReview, Chat, Settings, Binoculars, LicenseThirdParty, Badge, UserAvatar } from "@carbon/icons-react"
+import {
+  Home,
+  Compass,
+  SendAlt,
+  Badge,
+  StarReview,
+  Chat,
+  Settings,
+  AddAlt,
+  Portfolio,
+  UserMultiple,
+  Education,
+  Enterprise,
+  Course,
+  ChartBar,
+  Binoculars,
+  LicenseThirdParty,
+  UserAvatar
+} from "@carbon/icons-react";
 import {
   LogOut,
-  BarChart3,
-  Briefcase,
-  GraduationCap,
   ChevronUp,
   Zap,
   BookOpen,
   Building2,
   PanelLeft,
+  GraduationCap,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { CompassIcon } from "@phosphor-icons/react"
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -53,8 +66,8 @@ const studentNav: NavGroup[] = [
   {
     items: [
       { name: "Dashboard", href: "/student/dashboard", icon: Home },
-      { name: "Browse Projects", href: "/browse-projects", icon: Binoculars },
-      { name: "My Applications", href: "/student/applications", icon: LicenseThirdParty },
+      { name: "Browse Projects", href: "/browse-projects", icon: CompassIcon },
+      { name: "Applications", href: "/student/applications", icon: SendAlt },
     ],
   },
   {
@@ -88,8 +101,8 @@ const employerNav: NavGroup[] = [
   {
     label: "Manage",
     items: [
-      { name: "Projects", href: "/employer/projects/manage", icon: Roadmap },
-      { name: "Applications", href: "/employer/applications", icon: LicenseThirdParty, badge: 5 },
+      { name: "Projects", href: "/employer/projects/manage", icon: Portfolio },
+      { name: "Applications", href: "/employer/applications", icon: UserMultiple, badge: 5 },
       { name: "References", href: "/employer/references", icon: StarReview },
       { name: "Messages", href: "/employer/messages", icon: Chat, badge: 2, disabled: true },
     ],
@@ -111,16 +124,16 @@ const universityNav: NavGroup[] = [
   {
     label: "Manage",
     items: [
-      { name: "Students", href: "/university/students", icon: GraduationCap },
-      { name: "Projects", href: "/university/projects", icon: Briefcase },
-      { name: "Employers", href: "/university/employers", icon: Building2 },
-      { name: "Courses", href: "/university/courses", icon: BookOpen },
+      { name: "Students", href: "/university/students", icon: Education },
+      { name: "Projects", href: "/university/projects", icon: Portfolio },
+      { name: "Employers", href: "/university/employers", icon: Enterprise },
+      { name: "Courses", href: "/university/courses", icon: Course },
     ],
   },
   {
     label: "Data",
     items: [
-      { name: "Analytics", href: "/university/analytics", icon: BarChart3 },
+      { name: "Analytics", href: "/university/analytics", icon: ChartBar },
     ],
   },
   {
