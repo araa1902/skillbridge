@@ -6,7 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MagnifyingGlass as Search, SlidersHorizontal, Briefcase, Sparkle as Sparkles, Star } from "@phosphor-icons/react";
+import { MagnifyingGlassIcon, SlidersHorizontalIcon, StarIcon } from "@phosphor-icons/react";
 import { useFetchOpenProjects } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
@@ -35,7 +35,12 @@ const BrowseProjects = () => {
   }, [error, toast]);
 
   // Simple skill-based match score using profile skills (student only)
-  const studentSkills: string[] = useMemo(() => [], []); // extend with profile.skills in Phase 4
+  const studentSkills: string[] = useMemo(() => {
+    if (profile?.role === 'student' && profile?.skills) {
+      return profile.skills;
+    }
+    return [];
+  }, [profile]);
 
   const calculateMatchScore = (requiredSkills: string[]) => {
     if (studentSkills.length === 0 || requiredSkills.length === 0) return 0;
@@ -120,7 +125,7 @@ const BrowseProjects = () => {
             <CardContent className="p-6">
               <div className="flex flex-col lg:flex-row lg:items-center gap-4">
                 <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <MagnifyingGlassIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
                     placeholder="Search projects, companies, or skills..."
                     value={searchQuery}
@@ -134,7 +139,7 @@ const BrowseProjects = () => {
                     onClick={() => setShowFilters(!showFilters)}
                     className="bg-background/50 border-input text-foreground"
                   >
-                    <SlidersHorizontal className="mr-2 h-4 w-4" />
+                    <SlidersHorizontalIcon className="mr-2 h-4 w-4" />
                     Filters
                   </Button>
                   <Button variant="ghost" onClick={clearFilters} className="text-muted-foreground hover:text-foreground">
@@ -269,7 +274,7 @@ const BrowseProjects = () => {
                               : "bg-orange-500"
                             } text-white border-0 shadow-lg`}
                         >
-                          <Star className="h-3 w-3 mr-1 fill-current" />
+                          <StarIcon className="h-3 w-3 mr-1 fill-current" />
                           {project.matchScore}% Match
                         </Badge>
                       </div>
@@ -296,7 +301,7 @@ const BrowseProjects = () => {
             <Card className="bg-card/80 backdrop-blur-sm border-border mt-8">
               <CardContent className="text-center py-16">
                 <div className="w-20 h-20 mx-auto mb-6 rounded-2xl bg-muted flex items-center justify-center">
-                  <Search className="h-10 w-10 text-muted-foreground" />
+                  <MagnifyingGlassIcon className="h-10 w-10 text-muted-foreground" />
                 </div>
                 <h3 className="text-xl font-semibold text-foreground mb-2">
                   {error ? "Failed to load projects" : "No projects found"}

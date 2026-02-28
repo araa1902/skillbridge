@@ -27,8 +27,6 @@ export const ProjectCard = ({
   duration,
   tags,
   description,
-  credential = true,
-  matchScore,
   budget,
 }: ProjectCardProps) => {
   const durationLabel =
@@ -45,12 +43,6 @@ export const ProjectCard = ({
           <h3 className="font-semibold text-lg leading-tight transition-colors">
             {title}
           </h3>
-          {matchScore !== undefined && matchScore > 0 && (
-            <div className="flex items-center gap-1 bg-green-50 px-2.5 py-1 rounded-full border border-green-200/50 shrink-0">
-              <Sparkles className="h-3.5 w-3.5 text-green-600" />
-              <span className="text-xs font-semibold text-green-700">{matchScore}%</span>
-            </div>
-          )}
         </div>
         <div className="flex items-center gap-2 text-sm text-gray-600">
           <Building2 className="h-4 w-4 text-gray-400" />
@@ -92,13 +84,6 @@ export const ProjectCard = ({
             </Badge>
           )}
         </div>
-
-        {credential && (
-          <div className="flex items-center gap-2 text-xs text-purple-600 bg-purple-50 px-2.5 py-1.5 rounded-md border border-purple-200/50 w-fit">
-            <Award className="h-3.5 w-3.5" />
-            <span>Verified credential</span>
-          </div>
-        )}
       </CardContent>
 
       <CardFooter className="pt-3">
