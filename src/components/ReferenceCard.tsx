@@ -2,7 +2,7 @@ import { Reference } from "@/types/reference";
 import { ReferenceFromDB } from "@/hooks/useReferences";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, CheckCircle as CheckCircle2, Buildings as Building2, Calendar } from "@phosphor-icons/react";
+import { Star, CheckCircle as CheckCircle2, Buildings as Building2, Calendar, BriefcaseIcon } from "@phosphor-icons/react";
 import { Progress } from "@/components/ui/progress";
 
 interface ReferenceCardProps {
@@ -139,7 +139,6 @@ export function ReferenceCard({ reference, compact = false }: ReferenceCardProps
         </div>
 
         <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4 font-bold border-b border-border pb-4">
-          <Building2 className="w-4 h-4" />
           <span>Project: <span className="text-foreground">{normalized.projectTitle}</span></span>
         </div>
 
@@ -158,7 +157,7 @@ export function ReferenceCard({ reference, compact = false }: ReferenceCardProps
         {/* Overall Feedback */}
         <div className="py-4">
           <h4 className="font-bold text-xs mb-2 uppercase tracking-widest text-muted-foreground">Overall Feedback</h4>
-          <p className="text-foreground/90 leading-relaxed font-medium italic">"{normalized.overallFeedback}"</p>
+          <p className="text-foreground/90 leading-relaxed font-medium">{normalized.overallFeedback}</p>
         </div>
 
         {/* Performance Ratings */}

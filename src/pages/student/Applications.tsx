@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { ArrowLeft, Clock, CheckCircle, XCircle, Buildings as Building2, Calendar, ChatCircle as MessageCircle, FileText, Trash as Trash2, ArrowUUpLeft as Undo2, Eye } from "@phosphor-icons/react";
+import { ArrowLeft, Clock, CheckCircle, XCircle, Buildings as Building2, Calendar, ChatCircle as MessageCircle, FileText, Trash as Trash2, ArrowUUpLeft as Undo2, Eye, HandWithdrawIcon } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -382,12 +382,11 @@ export default function StudentApplications() {
                       {(app.status === "pending" || app.status === "reviewing") && (
                         <Button
                           size="sm"
-                          variant="outline"
-                          className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          variant="destructive"
                           onClick={() => { setSelectedApp(app); setWithdrawDialogOpen(true); }}
                         >
-                          <Trash2 className="h-4 w-4 mr-1" />
-                          Withdraw
+                          <HandWithdrawIcon className="h-4 w-4 mr-1" />
+                          Withdraw Application
                         </Button>
                       )}
                     </div>

@@ -4,7 +4,7 @@ import { Badge } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-con
 import { Button } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/card";
 import { Avatar, AvatarFallback } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/avatar";
-import { Bell, Plus, Users, Briefcase, DollarSign, Clock } from "lucide-react";
+import { Bell, Plus, Users, Briefcase, PoundSterling, Clock } from "lucide-react";
 import Link from "next/link";
 
 export default function BusinessDashboard() {
@@ -58,7 +58,7 @@ export default function BusinessDashboard() {
           <Card>
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium">In Escrow</CardTitle>
-              <DollarSign className="h-4 w-4 text-green-600" />
+              <PoundSterling className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">£2,450</div>
@@ -223,7 +223,7 @@ export default function BusinessDashboard() {
                   Browse Students
                 </Button>
                 <Button variant="outline" className="w-full justify-start">
-                  <DollarSign className="h-4 w-4 mr-2" />
+                  <PoundSterling className="h-4 w-4 mr-2" />
                   Payment History
                 </Button>
               </CardContent>

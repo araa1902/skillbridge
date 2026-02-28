@@ -67,7 +67,7 @@ const studentNav: NavGroup[] = [
     items: [
       { name: "Dashboard", href: "/student/dashboard", icon: Home },
       { name: "Browse Projects", href: "/browse-projects", icon: CompassIcon },
-      { name: "Applications", href: "/student/applications", icon: SendAlt },
+      { name: "My Applications", href: "/student/applications", icon: SendAlt },
     ],
   },
   {
@@ -101,7 +101,7 @@ const employerNav: NavGroup[] = [
   {
     label: "Manage",
     items: [
-      { name: "Projects", href: "/employer/projects/manage", icon: Portfolio },
+      { name: "Manage Projects", href: "/employer/projects/manage", icon: Portfolio },
       { name: "Applications", href: "/employer/applications", icon: UserMultiple, badge: 5 },
       { name: "References", href: "/employer/references", icon: StarReview },
       { name: "Messages", href: "/employer/messages", icon: Chat, badge: 2, disabled: true },
@@ -489,7 +489,7 @@ export function Sidebar({ userType }: SidebarProps) {
 
                 <DropdownMenuItem asChild>
                   <Link
-                    to={`/${detectedType}/profile`}
+                    to={detectedType === 'student' && profile?.id ? `/student-profile/${profile.id}` : `/${detectedType}/profile`}
                     className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer"
                   >
                     <UserAvatar className="h-4 w-4 text-muted-foreground" />

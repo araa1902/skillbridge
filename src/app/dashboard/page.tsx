@@ -2,7 +2,7 @@ import { AppLayout } from "@/components/layout/app-layout"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Users, ChatCircle as MessageSquare, TrendUp as TrendingUp, Clock, ArrowRight } from "@phosphor-icons/react"
+import { CalendarBlankIcon, UsersIcon, ChatCircleIcon as MessageSquareIcon, TrendUpIcon as TrendingUpIcon, ClockIcon, ArrowRightIcon } from "@phosphor-icons/react"
 
 export default function DashboardPage() {
   return (
@@ -21,12 +21,12 @@ export default function DashboardPage() {
           <Card className="bg-gradient-to-br from-blue-100 to-blue-50 border-blue-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-blue-900">Total Sessions</CardTitle>
-              <Calendar className="h-4 w-4 text-blue-600" />
+              <CalendarBlankIcon className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-blue-900">24</div>
               <p className="text-xs text-blue-700 flex items-center mt-1">
-                <TrendingUp className="h-3 w-3 mr-1" />
+                <TrendingUpIcon className="h-3 w-3 mr-1" />
                 +12% from last month
               </p>
             </CardContent>
@@ -35,12 +35,12 @@ export default function DashboardPage() {
           <Card className="bg-gradient-to-br from-purple-100 to-purple-50 border-purple-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-purple-900">Active Mentors</CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
+              <UsersIcon className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-purple-900">8</div>
               <p className="text-xs text-purple-700 flex items-center mt-1">
-                <TrendingUp className="h-3 w-3 mr-1" />
+                <TrendingUpIcon className="h-3 w-3 mr-1" />
                 +2 new this week
               </p>
             </CardContent>
@@ -49,12 +49,12 @@ export default function DashboardPage() {
           <Card className="bg-gradient-to-br from-pink-100 to-pink-50 border-pink-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-pink-900">Messages</CardTitle>
-              <MessageSquare className="h-4 w-4 text-pink-600" />
+              <MessageSquareIcon className="h-4 w-4 text-pink-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-pink-900">156</div>
               <p className="text-xs text-pink-700 flex items-center mt-1">
-                <Clock className="h-3 w-3 mr-1" />
+                <ClockIcon className="h-3 w-3 mr-1" />
                 3 unread
               </p>
             </CardContent>
@@ -63,12 +63,12 @@ export default function DashboardPage() {
           <Card className="bg-gradient-to-br from-green-100 to-green-50 border-green-200">
             <CardHeader className="flex flex-row items-center justify-between pb-2">
               <CardTitle className="text-sm font-medium text-green-900">Hours Learned</CardTitle>
-              <Clock className="h-4 w-4 text-green-600" />
+              <ClockIcon className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-green-900">48h</div>
               <p className="text-xs text-green-700 flex items-center mt-1">
-                <TrendingUp className="h-3 w-3 mr-1" />
+                <TrendingUpIcon className="h-3 w-3 mr-1" />
                 +8h this week
               </p>
             </CardContent>
@@ -93,7 +93,7 @@ export default function DashboardPage() {
                     <p className="text-sm font-medium">React Advanced Patterns</p>
                     <p className="text-xs text-gray-600">with Sarah Johnson</p>
                     <div className="flex items-center text-xs text-gray-500">
-                      <Calendar className="h-3 w-3 mr-1" />
+                      <CalendarBlankIcon className="h-3 w-3 mr-1" />
                       Today, 2:00 PM
                     </div>
                   </div>
@@ -103,7 +103,7 @@ export default function DashboardPage() {
                 </div>
               ))}
               <Button variant="ghost" className="w-full text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                View all sessions <ArrowRight className="ml-2 h-4 w-4" />
+                View all sessions <ArrowRightIcon className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>
@@ -133,7 +133,7 @@ export default function DashboardPage() {
                 </div>
               ))}
               <Button variant="ghost" className="w-full text-purple-600 hover:text-purple-700 hover:bg-purple-50">
-                View all activity <ArrowRight className="ml-2 h-4 w-4" />
+                View all activity <ArrowRightIcon className="ml-2 h-4 w-4" />
               </Button>
             </CardContent>
           </Card>

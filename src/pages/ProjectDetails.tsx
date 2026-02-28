@@ -252,7 +252,7 @@ const ProjectDetails = () => {
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-8">
-          <Link to="/browse-projects" className="hover:text-foreground transition-colors">
+          <Link to="/browse-projects" className="hover:underline">
             Projects
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />

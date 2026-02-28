@@ -1,8 +1,9 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Buildings as Building2, Calendar, Medal as Award, Sparkle as Sparkles, CurrencyDollar as DollarSign } from "@phosphor-icons/react";
+import { Medal as Award, Sparkle as Sparkles, MoneyIcon, ClockIcon } from "@phosphor-icons/react";
 import { Link } from "react-router-dom";
+import { Building2 } from "lucide-react";
 
 interface ProjectCardProps {
   id: string;
@@ -57,12 +58,12 @@ export const ProjectCard = ({
 
         <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
           <div className="flex items-center gap-1">
-            <Calendar className="h-4 w-4 text-gray-400" />
+            <ClockIcon className="h-4 w-4 text-gray-400" />
             <span>{durationLabel}</span>
           </div>
           {budget !== undefined && budget > 0 && (
             <div className="flex items-center gap-1">
-              <DollarSign className="h-4 w-4 text-gray-400" />
+              <MoneyIcon className="h-4 w-4 text-gray-400" />
               <span>£{budget.toLocaleString()}</span>
             </div>
           )}

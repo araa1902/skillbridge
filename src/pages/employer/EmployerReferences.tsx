@@ -9,7 +9,13 @@ import { Switch } from "@/components/ui/switch";
 import { useFetchWrittenReferences, writeReference, useFetchPendingRequests } from "@/hooks/useReferences";
 import { useAuth } from "@/contexts/AuthContext";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CheckCircle as CheckCircle2, Clock, Star, PaperPlaneRight as Send, WarningCircle as AlertCircle, FileText, TrendUp as TrendingUp, CaretRight as ChevronRight, Sparkle as Sparkles, UserCircleCheck as UserCheck } from "@phosphor-icons/react";
+import {
+  CheckCircle as CheckCircle2, Clock, Star, PaperPlaneRight as Send,
+  WarningCircle as AlertCircle, FileText, TrendUp as TrendingUp,
+  CaretRight as ChevronRight, Sparkle as Sparkles, UserCircleCheck as UserCheck,
+  Briefcase,
+  XCircleIcon
+} from "@phosphor-icons/react";
 import {
   Dialog,
   DialogContent,
@@ -18,8 +24,17 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { SendFilled } from "@carbon/icons-react";
+import { Input } from "@/components/ui/input";
 
 /* ─── helpers ──────────────────────────────────────────────────────────── */
 
@@ -42,12 +57,10 @@ const INITIAL_FORM = {
   wouldWorkAgain: true,
 };
 
-/** Convert a 1-5 score to a readable label */
 function scoreLabel(n: number) {
   return ["", "Poor", "Fair", "Good", "Great", "Excellent"][n] ?? n;
 }
 
-/** Compact score pill shown inside metric rows */
 function ScorePill({ value }: { value: number }) {
   const colours: Record<number, string> = {
     1: "bg-red-50 text-red-600 border-red-200",
@@ -59,7 +72,7 @@ function ScorePill({ value }: { value: number }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-700 tabular-nums",
+        "inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-xs font-bold tabular-nums",
         colours[value] ?? "bg-muted text-muted-foreground border-border"
       )}
     >
@@ -80,17 +93,17 @@ interface StatCardProps {
 
 function StatCard({ label, value, icon, loading, iconBg = "bg-teal-50 text-teal-600" }: StatCardProps) {
   return (
-    <div className="surface p-5 flex items-center gap-4">
-      <div className={cn("w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0", iconBg)}>
+    <div className="bg-white border border-slate-200 rounded-2xl p-5 flex items-center gap-4 shadow-sm">
+      <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0", iconBg)}>
         {icon}
       </div>
       <div className="min-w-0">
         {loading ? (
-          <Skeleton className="h-7 w-16 mb-1" />
+          <Skeleton className="h-8 w-16 mb-1" />
         ) : (
-          <p className="text-2xl font-800 tracking-tight text-foreground leading-none">{value}</p>
+          <p className="text-2xl font-bold tracking-tight text-slate-900 leading-none">{value}</p>
         )}
-        <p className="text-sm text-muted-foreground mt-1">{label}</p>
+        <p className="text-sm font-medium text-slate-500 mt-1">{label}</p>
       </div>
     </div>
   );
@@ -102,9 +115,11 @@ const EmployerReferences = () => {
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const { references, loading } = useFetchWrittenReferences(user?.id ?? null);
-  const { requests, loading: loadingRequests } = useFetchPendingRequests(user?.id ?? null);
+  const { requests, loading: loadingRequests, refetch: refetchRequests } = useFetchPendingRequests(user?.id ?? null);
 
-  const [selectedRequestId, setSelectedRequestId] = useState<string | null>(null);
+  // Replaced "selectedRequestId" with the actual request object to trigger the Sheet
+  const [activeRequest, setActiveRequest] = useState<any | null>(null);
+
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState(INITIAL_FORM);
@@ -113,33 +128,31 @@ const EmployerReferences = () => {
     setFormData((prev) => ({ ...prev, [field]: value[0] }));
   };
 
+  const handleOpenForm = (request: any) => {
+    setFormData(INITIAL_FORM); // Reset form
+    setActiveRequest(request); // Open sheet
+  };
+
   const handleSubmitReference = async () => {
-    if (!user || !profile) {
-      toast({ title: "Authentication required", description: "Please sign in to submit a reference.", variant: "destructive" });
-      return;
-    }
+    if (!user || !profile || !activeRequest) return;
+
     if (!formData.overallFeedback.trim()) {
       toast({ title: "Feedback required", description: "Please write overall feedback before submitting.", variant: "destructive" });
-      return;
-    }
-    const selectedRequest = requests.find((r) => r.id === selectedRequestId);
-    if (!selectedRequest) {
-      toast({ title: "Select a student", description: "Please choose a student and project to review.", variant: "destructive" });
       return;
     }
 
     setIsSubmitting(true);
     try {
       const { error } = await writeReference({
-        student_id: selectedRequest.student_id,
-        student_name: selectedRequest.student_name,
+        student_id: activeRequest.student_id,
+        student_name: activeRequest.student_name,
         employer_id: user.id,
         employer_name: profile.full_name || "Employer",
         employer_title: "Employer",
         company_name: profile.company_name || "Company",
         company_logo: undefined,
-        project_id: selectedRequest.project_id,
-        project_title: selectedRequest.project_title,
+        project_id: activeRequest.project_id,
+        project_title: activeRequest.project_title,
         rating: formData.rating,
         skills: [],
         strengths: formData.strengths.split("\n").map((s) => s.trim()).filter(Boolean),
@@ -151,20 +164,21 @@ const EmployerReferences = () => {
         technical_skills: formData.technicalSkills,
         would_work_again: formData.wouldWorkAgain,
         is_public: true,
-        request_id: selectedRequestId,
+        request_id: activeRequest.id,
       });
 
       if (error) {
         toast({ title: "Submission failed", description: error, variant: "destructive" });
       } else {
         setShowSuccessDialog(true);
-        setSelectedRequestId(null);
-        setFormData(INITIAL_FORM);
+        setActiveRequest(null); // Close the sheet
+        setFormData(INITIAL_FORM); // Reset form
+        refetchRequests(); // Clear the queue
       }
     } catch (err) {
       toast({
         title: "Submission failed",
-        description: err instanceof Error ? err.message : "Something went wrong. Please try again.",
+        description: err instanceof Error ? err.message : "Something went wrong.",
         variant: "destructive",
       });
     } finally {
@@ -172,62 +186,53 @@ const EmployerReferences = () => {
     }
   };
 
-  /* ── unauthenticated state ── */
   if (!user) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-6">
-        <div className="empty-state surface max-w-sm w-full">
-          <div className="empty-state__icon">
-            <UserCheck className="w-6 h-6" />
-          </div>
-          <p className="empty-state__title">Sign in required</p>
-          <p className="empty-state__body">Please sign in to manage references for your students.</p>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+        <div className="bg-white border border-slate-200 p-8 rounded-2xl max-w-sm w-full text-center shadow-sm">
+          <UserCheck className="w-12 h-12 text-slate-400 mx-auto mb-4" />
+          <p className="text-lg font-bold text-slate-900">Sign in required</p>
+          <p className="text-sm text-slate-500 mt-2">Please sign in to manage references for your students.</p>
         </div>
       </div>
     );
   }
 
-  const avgRating =
-    references.length > 0
-      ? (references.reduce((s, r) => s + r.rating, 0) / references.length).toFixed(1)
-      : "—";
+  const avgRating = references.length > 0
+    ? (references.reduce((s, r) => s + r.rating, 0) / references.length).toFixed(1)
+    : "—";
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="page-container py-10">
+    <div className="min-h-screen bg-slate-50">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
 
-        {/* ── Page header ── */}
-        <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3">
+        {/* ── Page Header ── */}
+        <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <p className="eyebrow mb-2">References</p>
-            <h1 className="text-display" style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: "clamp(1.75rem,4vw,2.5rem)", letterSpacing: "-0.04em", lineHeight: 1.1 }}>
-              Student References
-            </h1>
-            <p className="text-muted-foreground mt-2 text-[0.9375rem]">
-              Provide feedback for students who completed your projects
-            </p>
+            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Student References</h1>
+            <p className="text-slate-500 mt-1">Review pending requests and manage the feedback you've provided.</p>
           </div>
           {requests.length > 0 && (
-            <Badge className="badge badge--warning self-start sm:self-auto">
-              <Clock className="w-3 h-3" />
-              {requests.length} pending {requests.length === 1 ? "request" : "requests"}
+            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200 shadow-sm py-1.5 px-3">
+              <Clock className="w-4 h-4 mr-1.5" />
+              {requests.length} Action{requests.length !== 1 ? 's' : ''} Required
             </Badge>
           )}
         </div>
 
-        {/* ── Stats row ── */}
-        <div className="grid sm:grid-cols-3 gap-4 mb-8">
+        {/* ── Stats Row ── */}
+        <div className="grid sm:grid-cols-3 gap-5 mb-10">
           <StatCard
             label="References Given"
             value={references.length}
-            icon={<CheckCircle2 className="w-5 h-5" />}
+            icon={<CheckCircle2 className="w-6 h-6" />}
             loading={loading}
-            iconBg="bg-teal-50 text-teal-600"
+            iconBg="bg-blue-50 text-blue-600"
           />
           <StatCard
             label="Pending Requests"
             value={requests.length}
-            icon={<Clock className="w-5 h-5" />}
+            icon={<Clock className="w-6 h-6" />}
             loading={loadingRequests}
             iconBg="bg-amber-50 text-amber-600"
           />
@@ -236,185 +241,137 @@ const EmployerReferences = () => {
             value={
               <span className="flex items-baseline gap-1.5">
                 {avgRating}
-                {references.length > 0 && (
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400 inline" />
-                )}
+                {references.length > 0 && <Star className="w-5 h-5 fill-amber-400 text-amber-400 inline" />}
               </span>
             }
-            icon={<TrendingUp className="w-5 h-5" />}
+            icon={<TrendingUp className="w-6 h-6" />}
             loading={loading}
-            iconBg="bg-violet-50 text-violet-600"
+            iconBg="bg-purple-50 text-purple-600"
           />
         </div>
 
-        {/* ── Two-column layout ── */}
-        <div className="grid lg:grid-cols-5 gap-6 items-start">
+        {/* ── Dashboard Grid ── */}
+        <div className="grid lg:grid-cols-3 gap-8 items-start">
 
-          {/* ── LEFT: Completed references ── */}
+          {/* ── LEFT (Primary Action Queue): Pending Requests ── */}
           <div className="lg:col-span-2 flex flex-col gap-4">
-            <div className="surface p-5">
-              <div className="flex items-center gap-2 mb-5">
-                <FileText className="w-4 h-4 text-muted-foreground" />
-                <h2 className="font-semibold text-[0.9375rem]" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.018em" }}>
-                  Completed References
-                </h2>
-                {!loading && references.length > 0 && (
-                  <span className="ml-auto badge badge--primary">{references.length}</span>
-                )}
-              </div>
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-2">
+              <AlertCircle className="w-5 h-5 text-amber-500" />
+              Action Queue
+            </h2>
 
+            {loadingRequests ? (
+              <div className="space-y-4">
+                {[...Array(2)].map((_, i) => <Skeleton key={i} className="h-24 w-full rounded-2xl" />)}
+              </div>
+            ) : requests.length > 0 ? (
+              <div className="space-y-4">
+                {requests.map((request) => (
+                  <div
+                    key={request.id}
+                    className="bg-white border border-slate-200 rounded-2xl p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-sm hover:border-blue-300 transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 text-lg flex-shrink-0">
+                        {request.student_name?.charAt(0).toUpperCase() ?? "S"}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-bold text-slate-900 truncate">{request.student_name}</p>
+                        <div className="flex items-center gap-1.5 text-sm text-slate-500 mt-0.5">
+                          <Briefcase className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                          <span className="truncate">{request.project_title}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <Button
+                      onClick={() => handleOpenForm(request)}
+                      className="bg-primary hover:bg-blue-700 text-white shadow-sm w-full sm:w-auto"
+                    >
+                      <Sparkles className="w-4 h-4 mr-2" />
+                      Write Reference
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-slate-50 border-2 border-dashed border-slate-200 rounded-2xl p-10 flex flex-col items-center text-center">
+                <CheckCircle2 className="w-12 h-12 text-slate-300 mb-3" />
+                <p className="text-lg font-semibold text-slate-900">You're all caught up!</p>
+                <p className="text-sm text-slate-500 max-w-sm mt-1">
+                  When a student finishes a project and requests a reference, it will appear here in your queue.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* ── RIGHT (History): Completed References ── */}
+          <div className="lg:col-span-1 flex flex-col gap-4">
+            <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2 mb-2">
+              <FileText className="w-5 h-5 text-slate-400" />
+              Past References
+            </h2>
+
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm">
               {loading ? (
-                <div className="flex flex-col gap-3">
-                  {[...Array(3)].map((_, i) => (
-                    <Skeleton key={i} className="h-[4.5rem] w-full rounded-xl" />
-                  ))}
+                <div className="space-y-4">
+                  {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
                 </div>
               ) : references.length > 0 ? (
-                <div className="flex flex-col gap-2">
+                <div className="space-y-3">
                   {references.map((ref) => (
-                    <div
-                      key={ref.id}
-                      className="group flex items-start gap-3 p-3.5 rounded-xl border border-border hover:border-border-strong hover:bg-muted/40 transition-all duration-150"
-                    >
-                      {/* Avatar initials */}
-                      <div className="avatar avatar--sm flex-shrink-0" style={{ background: "hsl(var(--primary-subtle))", color: "hsl(var(--primary))" }}>
+                    <div key={ref.id} className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors cursor-default">
+                      <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 flex-shrink-0 text-sm">
                         {ref.student_name?.charAt(0).toUpperCase() ?? "S"}
                       </div>
-
                       <div className="min-w-0 flex-1">
                         <div className="flex items-start justify-between gap-2">
-                          <p className="font-600 text-sm text-foreground truncate-line">
+                          <p className="font-semibold text-sm text-slate-900 truncate">
                             {ref.student_name}
                           </p>
-                          <span className="star-rating flex-shrink-0">
-                            <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                            <span className="star-rating__count">{ref.rating}</span>
+                          <span className="flex items-center gap-0.5 text-sm font-bold text-slate-700 bg-slate-100 px-1.5 rounded">
+                            <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                            {ref.rating}
                           </span>
                         </div>
-                        <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">{ref.project_title}</p>
-                        <p className="text-xs text-muted-foreground/60 mt-1">
-                          {new Date(ref.created_at).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" })}
-                        </p>
+                        <p className="text-xs text-slate-500 truncate mt-0.5">{ref.project_title}</p>
                       </div>
-
-                      <ChevronRight className="w-4 h-4 text-border-strong flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="empty-state py-10">
-                  <div className="empty-state__icon">
-                    <FileText className="w-5 h-5" />
-                  </div>
-                  <p className="empty-state__title">No references yet</p>
-                  <p className="empty-state__body">References you write will appear here.</p>
+                <div className="text-center py-8">
+                  <p className="text-sm text-slate-500">No references submitted yet.</p>
                 </div>
               )}
             </div>
           </div>
 
-          {/* ── RIGHT: Write a reference form ── */}
-          <div className="lg:col-span-3">
-            <div className="surface p-6 flex flex-col gap-7">
+        </div>
+      </div>
 
-              {/* Form header */}
-              <div className="flex items-start gap-3">
-                <div className="w-10 h-10 rounded-xl bg-teal-50 text-teal-600 flex items-center justify-center flex-shrink-0">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <div>
-                  <h2 className="font-700 text-[1.0625rem]" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.02em" }}>
-                    Write a Reference
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    Provide detailed, honest feedback to help this student grow
-                  </p>
-                </div>
+      {/* ── Slide-over Form (Sheet) ── */}
+      <Sheet open={!!activeRequest} onOpenChange={(open) => !open && setActiveRequest(null)}>
+        <SheetContent className="w-full sm:max-w-xl overflow-y-auto bg-white border-l border-slate-200 p-0 flex flex-col shadow-2xl">
+          <div className="p-6 border-b border-slate-100 bg-slate-50/50 sticky top-0 z-10 backdrop-blur-md">
+            <SheetHeader>
+              <SheetTitle className="text-xl">Submit Reference</SheetTitle>
+              <SheetDescription className="text-slate-500 mt-1.5">
+                Evaluate <strong className="text-slate-900">{activeRequest?.student_name}</strong> for their work on <strong className="text-slate-900">{activeRequest?.project_title}</strong>.
+              </SheetDescription>
+            </SheetHeader>
+          </div>
+
+          <div className="p-6 flex flex-col gap-8">
+
+            {/* ── Section 1: Overall star rating ── */}
+            <section className="flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold">1</span>
+                <Label className="text-sm font-bold text-slate-900">Overall Rating</Label>
               </div>
 
-              <div className="divider" />
-
-              {/* ── Section 1: Student & project selection ── */}
-              <section className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[0.625rem] font-700 flex-shrink-0">1</span>
-                  <Label className="form-label">Select Student & Project</Label>
-                  <span className="text-destructive text-sm">*</span>
-                </div>
-
-                {loadingRequests ? (
-                  <div className="flex flex-col gap-2">
-                    {[...Array(2)].map((_, i) => <Skeleton key={i} className="h-16 w-full rounded-xl" />)}
-                  </div>
-                ) : requests.length > 0 ? (
-                  <div className="flex flex-col gap-2">
-                    {requests.map((request) => {
-                      const isSelected = selectedRequestId === request.id;
-                      return (
-                        <button
-                          key={request.id}
-                          type="button"
-                          onClick={() => setSelectedRequestId(request.id)}
-                          className={cn(
-                            "w-full text-left flex items-center gap-3 p-4 rounded-xl border transition-all duration-150 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                            isSelected
-                              ? "border-primary/40 bg-primary/5 ring-1 ring-primary/25"
-                              : "border-border hover:border-border-strong hover:bg-muted/30"
-                          )}
-                        >
-                          {/* Avatar */}
-                          <div
-                            className="avatar avatar--md flex-shrink-0"
-                            style={
-                              isSelected
-                                ? { background: "hsl(var(--primary-subtle))", color: "hsl(var(--primary))" }
-                                : { background: "hsl(var(--muted))", color: "hsl(var(--muted-foreground))" }
-                            }
-                          >
-                            {request.student_name?.charAt(0).toUpperCase() ?? "S"}
-                          </div>
-
-                          <div className="flex-1 min-w-0">
-                            <p className={cn("font-600 text-sm truncate-line", isSelected ? "text-foreground" : "text-foreground")}>
-                              {request.student_name}
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-0.5 truncate-line">{request.project_title}</p>
-                          </div>
-
-                          <div className={cn(
-                            "w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-all",
-                            isSelected ? "bg-primary border-primary" : "border-border"
-                          )}>
-                            {isSelected && (
-                              <svg className="w-3 h-3 text-white" viewBox="0 0 12 12" fill="none">
-                                <path d="M2 6l3 3 5-5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
-                              </svg>
-                            )}
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
-                ) : (
-                  <div className="flex items-center gap-3 p-4 rounded-xl border border-dashed border-border bg-muted/20">
-                    <AlertCircle className="w-5 h-5 text-muted-foreground flex-shrink-0" />
-                    <div>
-                      <p className="text-sm font-500 text-foreground">No pending requests</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">Students must request a reference before you can submit one.</p>
-                    </div>
-                  </div>
-                )}
-              </section>
-
-              <div className="divider" />
-
-              {/* ── Section 2: Overall star rating ── */}
-              <section className="flex flex-col gap-3">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[0.625rem] font-700 flex-shrink-0">2</span>
-                  <Label className="form-label">Overall Rating</Label>
-                </div>
-
+              <div className="flex items-center gap-2">
                 <div className="flex items-center gap-1">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -422,203 +379,250 @@ const EmployerReferences = () => {
                       type="button"
                       aria-label={`Rate ${star} star${star > 1 ? "s" : ""}`}
                       onClick={() => setFormData((prev) => ({ ...prev, rating: star }))}
-                      className="p-1 rounded-lg hover:bg-amber-50 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      className="p-1.5 rounded-xl hover:bg-slate-50 transition-colors"
                     >
                       <Star
                         className={cn(
-                          "w-7 h-7 transition-all",
+                          "w-8 h-8 transition-all",
                           star <= formData.rating
                             ? "fill-amber-400 text-amber-400 scale-110"
-                            : "text-muted-foreground/30 scale-100"
+                            : "text-slate-200 scale-100"
                         )}
                       />
                     </button>
                   ))}
-                  <div className="ml-3 flex flex-col">
-                    <span className="text-xl font-800 text-foreground leading-none" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.04em" }}>
-                      {formData.rating}.0
-                    </span>
-                    <span className="text-xs text-muted-foreground mt-0.5">{scoreLabel(formData.rating)}</span>
-                  </div>
                 </div>
-              </section>
-
-              <div className="divider" />
-
-              {/* ── Section 3: Performance metrics ── */}
-              <section className="flex flex-col gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[0.625rem] font-700 flex-shrink-0">3</span>
-                  <Label className="form-label">Performance Metrics</Label>
+                <div className="ml-4 flex flex-col">
+                  <span className="text-2xl font-bold text-slate-900 leading-none">
+                    {formData.rating}.0
+                  </span>
+                  <span className="text-xs font-semibold text-slate-500 mt-1 uppercase tracking-wider">{scoreLabel(formData.rating)}</span>
                 </div>
+              </div>
+            </section>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  {METRICS.map(({ key, label }) => (
-                    <div key={key} className="surface-flat p-4 rounded-xl flex flex-col gap-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-600 text-foreground">{label}</span>
-                        <ScorePill value={formData[key as keyof typeof formData] as number} />
-                      </div>
-                      <Slider
-                        value={[formData[key as keyof typeof formData] as number]}
-                        onValueChange={(v) => handleSliderChange(key, v)}
-                        max={5}
-                        min={1}
-                        step={1}
-                        className="w-full"
-                        aria-label={label}
-                      />
-                      {/* Tick labels */}
-                      <div className="flex justify-between px-0.5">
-                        {[1, 2, 3, 4, 5].map((n) => (
-                          <span key={n} className="text-[0.625rem] text-muted-foreground/50 tabular-nums">{n}</span>
-                        ))}
-                      </div>
+            <div className="h-px bg-slate-100" />
+
+            {/* ── Section 2: Performance metrics ── */}
+            <section className="flex flex-col gap-5">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold">2</span>
+                <Label className="text-sm font-bold text-slate-900">Performance Metrics</Label>
+              </div>
+
+              <div className="grid gap-4">
+                {METRICS.map(({ key, label }) => (
+                  <div key={key} className="bg-slate-50 p-5 rounded-2xl flex flex-col gap-4 border border-slate-100">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-bold text-slate-700">{label}</span>
+                      <ScorePill value={formData[key as keyof typeof formData] as number} />
                     </div>
-                  ))}
-                </div>
-              </section>
+                    <Slider
+                      value={[formData[key as keyof typeof formData] as number]}
+                      onValueChange={(v) => handleSliderChange(key, v)}
+                      max={5}
+                      min={1}
+                      step={1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between px-1">
+                      {[1, 2, 3, 4, 5].map((n) => (
+                        <span key={n} className="text-[10px] font-bold text-slate-400 tabular-nums">{n}</span>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
 
-              <div className="divider" />
+            <div className="h-px bg-slate-100" />
 
-              {/* ── Section 4: Written feedback ── */}
-              <section className="flex flex-col gap-5">
-                <div className="flex items-center gap-2">
-                  <span className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-white text-[0.625rem] font-700 flex-shrink-0">4</span>
-                  <Label className="form-label">Written Feedback</Label>
-                </div>
+            {/* ── Section 3: Written feedback ── */}
+            <section className="flex flex-col gap-6">
+              <div className="flex items-center gap-2">
+                <span className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-white text-xs font-bold">3</span>
+                <Label className="text-sm font-bold text-slate-900">Detailed Feedback</Label>
+              </div>
 
-                <div className="form-group">
-                  <Label htmlFor="overall-feedback" className="form-label flex items-center gap-1">
-                    Overall Feedback
-                    <span className="text-destructive">*</span>
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="overall-feedback" className="text-sm font-bold text-slate-700 flex items-center gap-1">
+                    Overall Review
+                    <span className="text-red-500">*</span>
                   </Label>
-                  <p className="form-hint">Describe the student's performance and contribution to the project</p>
                   <Textarea
                     id="overall-feedback"
-                    placeholder="This student demonstrated excellent problem-solving skills and delivered high-quality work throughout the project..."
-                    className="textarea mt-2 min-h-[8rem]"
+                    placeholder="Describe their performance, reliability, and impact..."
+                    className="min-h-[120px] rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
                     value={formData.overallFeedback}
                     onChange={(e) => setFormData((prev) => ({ ...prev, overallFeedback: e.target.value }))}
                   />
+                  <p className="text-[11px] text-slate-400">Be specific about projects and outcomes.</p>
                 </div>
 
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="form-group">
-                    <Label htmlFor="strengths" className="form-label">Key Strengths</Label>
-                    <p className="form-hint">One per line</p>
-                    <Textarea
-                      id="strengths"
-                      placeholder={"Strong attention to detail\nExcellent communication\nProactive problem solver"}
-                      className="textarea mt-2 min-h-[6rem]"
-                      value={formData.strengths}
-                      onChange={(e) => setFormData((prev) => ({ ...prev, strengths: e.target.value }))}
-                    />
+                <div className="grid gap-4">
+                  <div className="space-y-3">
+                    <Label htmlFor="strengths" className="text-sm font-bold text-slate-700">
+                      Key Strengths
+                    </Label>
+                    <div className="space-y-3">
+                      {/* The Input Area */}
+                      <div className="relative flex items-center">
+                        <Input
+                          id="strengths-input"
+                          placeholder="Type a strength and press Enter"
+                          className="rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 pr-12"
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter' || e.key === ',') {
+                              e.preventDefault();
+                              const val = e.currentTarget.value.trim();
+                              if (val && !formData.strengths.split('\n').includes(val)) {
+                                setFormData(prev => ({
+                                  ...prev,
+                                  strengths: prev.strengths ? `${prev.strengths}\n${val}` : val
+                                }));
+                                e.currentTarget.value = '';
+                              }
+                            }
+                          }}
+                        />
+                        <div className="absolute right-3 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                          Enter
+                        </div>
+                      </div>
+
+                      {/* The Visual Pills */}
+                      <div className="flex flex-wrap gap-2">
+                        {formData.strengths.split('\n').filter(Boolean).map((strength, index) => (
+                          <Badge
+                            key={index}
+                            variant="secondary"
+                            className="bg-blue-50 text-blue-700 border-blue-100 px-3 py-1 rounded-full flex items-center gap-1.5 group animate-in fade-in zoom-in duration-200"
+                          >
+                            {strength}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newStrengths = formData.strengths
+                                  .split('\n')
+                                  .filter((_, i) => i !== index)
+                                  .join('\n');
+                                setFormData(prev => ({ ...prev, strengths: newStrengths }));
+                              }}
+                              className="hover:text-blue-900 text-blue-300 transition-colors"
+                            >
+                              <XCircleIcon className="h-3.5 w-3.5" />
+                            </button>
+                          </Badge>
+                        ))}
+
+                        {/* Empty State hint inside the pill area */}
+                        {formData.strengths.split('\n').filter(Boolean).length === 0 && (
+                          <p className="text-xs text-slate-400 italic ml-1">
+                            No strengths added yet.
+                          </p>
+                        )}
+                      </div>
+                    </div>
                   </div>
 
-                  <div className="form-group">
-                    <Label htmlFor="improvements" className="form-label flex items-center gap-1.5">
-                      Areas for Improvement
-                      <span className="badge badge--default" style={{ fontSize: "0.6875rem" }}>optional</span>
+                  <div className="space-y-2">
+                    <Label htmlFor="improvements" className="text-sm font-bold text-slate-700">
+                      Growth Areas <span className="text-slate-400 font-normal ml-1">(Optional)</span>
                     </Label>
-                    <p className="form-hint">Constructive growth points</p>
                     <Textarea
                       id="improvements"
-                      placeholder="Could explore more advanced techniques in..."
-                      className="textarea mt-2 min-h-[6rem]"
+                      placeholder="What could they work on for their next project?"
+                      className="min-h-[80px] rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
                       value={formData.areasForImprovement}
                       onChange={(e) => setFormData((prev) => ({ ...prev, areasForImprovement: e.target.value }))}
                     />
                   </div>
                 </div>
-              </section>
+              </div>
+            </section>
 
-              <div className="divider" />
+            <div className="h-px bg-slate-100" />
 
-              {/* ── Section 5: Would work again toggle ── */}
-              <section>
-                <div className="flex items-center justify-between gap-4 p-4 rounded-xl border border-border bg-muted/20">
-                  <div className="flex items-start gap-3">
-                    <UserCheck className="w-5 h-5 text-muted-foreground flex-shrink-0 mt-0.5" />
-                    <div>
-                      <Label htmlFor="work-again" className="form-label cursor-pointer">
-                        Would you work with this student again?
-                      </Label>
-                      <p className="form-hint mt-0.5">
-                        This helps other employers assess the student's reliability
-                      </p>
-                    </div>
+            {/* ── Section 4: Recommendation ── */}
+            <section className="bg-blue-50/50 p-5 rounded-2xl border border-blue-100/50">
+              <div className="flex items-center justify-between gap-6">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-full bg-white border border-blue-100 flex items-center justify-center flex-shrink-0 text-blue-600 shadow-sm">
+                    <UserCheck className="w-5 h-5" />
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    {formData.wouldWorkAgain ? (
-                      <span className="badge badge--success">Yes</span>
-                    ) : (
-                      <span className="badge badge--default">No</span>
-                    )}
-                    <Switch
-                      id="work-again"
-                      checked={formData.wouldWorkAgain}
-                      onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, wouldWorkAgain: checked }))}
-                    />
+                  <div className="space-y-0.5">
+                    <Label htmlFor="work-again" className="text-sm font-bold text-slate-900 cursor-pointer">
+                      Would you work with them again?
+                    </Label>
+                    <p className="text-[12px] text-slate-500 leading-tight">
+                      This indicator helps verify reliability for future employers.
+                    </p>
                   </div>
                 </div>
-              </section>
-
-              {/* ── Submit ── */}
-              <div className="flex items-center gap-3 pt-1">
-                <Button
-                  className="btn btn-primary btn-lg flex-1"
-                  onClick={handleSubmitReference}
-                  disabled={isSubmitting || !selectedRequestId}
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="animate-spin-smooth w-4 h-4 border-2 border-white/30 border-t-white rounded-full" />
-                      Submitting…
-                    </>
-                  ) : (
-                    <>
-                      <Send className="w-4 h-4" />
-                      Submit Reference
-                    </>
-                  )}
-                </Button>
-                <Button
-                  variant="outline"
-                  className="btn btn-secondary btn-lg"
-                  onClick={() => { setSelectedRequestId(null); setFormData(INITIAL_FORM); }}
-                  disabled={isSubmitting}
-                >
-                  Reset
-                </Button>
+                <div className="flex items-center gap-3">
+                  <span className={cn(
+                    "text-xs font-bold px-2.5 py-1 rounded-full",
+                    formData.wouldWorkAgain ? "bg-emerald-100 text-emerald-700" : "bg-slate-200 text-slate-600"
+                  )}>
+                    {formData.wouldWorkAgain ? "Yes" : "No"}
+                  </span>
+                  <Switch
+                    id="work-again"
+                    checked={formData.wouldWorkAgain}
+                    onCheckedChange={(checked) => setFormData((prev) => ({ ...prev, wouldWorkAgain: checked }))}
+                  />
+                </div>
               </div>
+            </section>
 
+            <div className="flex items-center gap-3 py-4">
+              <Button
+                className="flex-1 bg-primary hover:bg-primary/90 text-white h-12 text-base font-bold rounded-xl shadow-lg shadow-blue-500/20"
+                onClick={handleSubmitReference}
+                disabled={isSubmitting || !activeRequest}
+              >
+                {isSubmitting ? (
+                  <>
+                    <span className="animate-spin mr-2 h-4 w-4 border-2 border-white/20 border-t-white rounded-full" />
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <SendFilled className="w-4 h-4 mr-2" />
+                    Submit Reference
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="outline"
+                className="h-12 px-6 rounded-xl border-slate-200 text-slate-600 font-bold hover:bg-slate-50"
+                onClick={() => setFormData(INITIAL_FORM)}
+                disabled={isSubmitting}
+              >
+                Reset
+              </Button>
             </div>
           </div>
-        </div>
-      </div>
+        </SheetContent>
+      </Sheet>
 
-      {/* ── Success dialog ── */}
+      {/* ── Success Dialog ── */}
       <Dialog open={showSuccessDialog} onOpenChange={setShowSuccessDialog}>
-        <DialogContent className="modal modal--narrow text-center">
-          <DialogHeader>
-            <div className="flex justify-center mb-3">
-              <div className="w-14 h-14 rounded-2xl bg-teal-50 text-teal-600 flex items-center justify-center animate-bounce-in">
-                <CheckCircle2 className="w-7 h-7" />
-              </div>
-            </div>
-            <DialogTitle className="text-xl font-800" style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.025em" }}>
-              Reference submitted!
-            </DialogTitle>
-            <DialogDescription className="text-muted-foreground mt-1">
-              Your reference has been submitted successfully and is now visible to the student.
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-4">
-            <Button className="btn btn-primary w-full" onClick={() => setShowSuccessDialog(false)}>
-              Done
-            </Button>
-          </DialogFooter>
+        <DialogContent className="sm:max-w-sm text-center p-8 rounded-3xl border-none shadow-2xl">
+          <div className="w-20 h-20 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto mb-6">
+            <CheckCircle2 className="w-10 h-10" />
+          </div>
+          <DialogTitle className="text-2xl font-bold text-slate-900">Reference Published!</DialogTitle>
+          <DialogDescription className="text-slate-500 mt-2 text-base">
+            Your feedback has been successfully added to the student's profile.
+          </DialogDescription>
+          <Button
+            className="w-full bg-slate-900 text-white hover:bg-slate-800 h-12 text-base font-bold mt-8 rounded-xl"
+            onClick={() => setShowSuccessDialog(false)}
+          >
+            Back to Dashboard
+          </Button>
         </DialogContent>
       </Dialog>
     </div>

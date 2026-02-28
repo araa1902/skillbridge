@@ -3,7 +3,7 @@ import { useParams, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Clock, Users, Star, Calendar, CurrencyDollar as DollarSign, ArrowLeft, CheckCircle as CheckCircle2, MapPin, Medal as Award } from "@phosphor-icons/react";
+import { Clock, Users, Star, Calendar, CurrencyDollar as PoundSterling, ArrowLeft, CheckCircle as CheckCircle2, MapPin, Medal as Award } from "@phosphor-icons/react";
 
 const SessionDetails = () => {
   const { id } = useParams();
@@ -98,7 +98,7 @@ const SessionDetails = () => {
 
                 <div className="space-y-4">
                   <div className="flex items-center gap-3">
-                    <DollarSign className="w-5 h-5 text-gray-500" />
+                    <PoundSterling className="w-5 h-5 text-gray-500" />
                     <div>
                       <p className="font-semibold">Price</p>
                       <p className="text-gray-600 text-xl font-bold">${session.price}</p>

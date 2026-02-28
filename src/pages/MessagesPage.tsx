@@ -9,7 +9,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useToast } from '@/hooks/use-toast'
 import { format, isToday, isYesterday } from 'date-fns'
-import { ArrowLeftIcon, ArrowUpIcon } from "@phosphor-icons/react"
+import { ArrowLeftIcon, ArrowUpIcon, HandshakeIcon } from "@phosphor-icons/react"
 import { cn } from '@/lib/utils'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -85,11 +85,11 @@ function EmptyState() {
       className="flex flex-col items-center justify-center py-32 text-center select-none"
     >
       <div className="w-16 h-16 bg-primary-subtle rounded-3xl flex items-center justify-center mb-6 border border-primary/10">
-        <ArrowUpIcon className="w-7 h-7 text-primary" strokeWidth={2.5} />
+        <HandshakeIcon className="w-7 h-7 text-primary" strokeWidth={2.5} />
       </div>
       <h3 className="text-xl font-bold text-foreground mb-2">Connect & Collaborate</h3>
       <p className="text-sm text-muted-foreground max-w-[280px] leading-relaxed">
-        Building trust starts with a chat. Send your first message to kick off the project.
+        Send your first message to kick off the project.
       </p>
     </motion.div>
   )

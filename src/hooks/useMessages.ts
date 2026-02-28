@@ -14,6 +14,11 @@ export interface Message {
 }
 
 export interface MessageThread {
+  updated_at: string | number | Date
+  updated_at: any
+  id: Key
+  id: string
+  other_user_name: any
   project_id: string
   project_title?: string
   last_message?: string

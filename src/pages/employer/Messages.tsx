@@ -125,12 +125,6 @@ export default function EmployerMessagesHub() {
                                         {thread.last_message ? thread.last_message : "Click to view conversation"}
                                     </p>
                                 </div>
-
-                                <div className="absolute right-5 opacity-0 group-hover:opacity-100 transition-opacity translate-x-1 translate-y-4 duration-300">
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                        <CaretRightIcon className="w-4 h-4 text-primary" weight="bold" />
-                                    </div>
-                                </div>
                             </motion.div>
                         ))}
                     </AnimatePresence>

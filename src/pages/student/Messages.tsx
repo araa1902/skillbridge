@@ -28,7 +28,7 @@ export default function StudentMessagesHub() {
     };
 
     return (
-        <div className="flex-1 w-full bg-background px-6 py-8 sm:px-10 lg:px-12 mx-auto max-w-5xl">
+        <div className="page-container py-8 flex-1">
             <div className="flex items-center justify-between mb-8">
                 <div>
                     <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Messages</h1>
@@ -124,12 +124,6 @@ export default function StudentMessagesHub() {
                                     )}>
                                         {thread.last_message ? thread.last_message : "No messages yet"}
                                     </p>
-                                </div>
-
-                                <div className="absolute right-5 opacity-0 group-hover:opacity-100 transition-opacity translate-x-1 translate-y-4 duration-300">
-                                    <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                                        <CaretRightIcon className="w-4 h-4 text-primary" weight="bold" />
-                                    </div>
                                 </div>
                             </motion.div>
                         ))}

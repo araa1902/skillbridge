@@ -5,6 +5,10 @@ import type { Database } from '@/types'
 export type CredentialRow = Database['public']['Tables']['credentials']['Row']
 
 export interface CredentialWithDetails extends CredentialRow {
+  skills: any[]
+  skills: any[]
+  company_name: any
+  employer_name: any
   student_name?: string
   business_name?: string
   project_title?: string
