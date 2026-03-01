@@ -10,12 +10,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import {
-  Home,
-  Compass,
-  SendAlt,
   Badge,
   StarReview,
-  Chat,
   Settings,
   AddAlt,
   Portfolio,
@@ -24,8 +20,6 @@ import {
   Enterprise,
   Course,
   ChartBar,
-  Binoculars,
-  LicenseThirdParty,
   UserAvatar
 } from "@carbon/icons-react";
 import {
@@ -37,12 +31,14 @@ import {
   PanelLeft,
   GraduationCap,
   InboxIcon,
+  Compass,
+  Send,
+  LayoutDashboard
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { CompassIcon } from "@phosphor-icons/react"
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -66,9 +62,9 @@ type NavGroup = {
 const studentNav: NavGroup[] = [
   {
     items: [
-      { name: "Dashboard", href: "/student/dashboard", icon: Home },
-      { name: "Browse Projects", href: "/browse-projects", icon: CompassIcon },
-      { name: "My Applications", href: "/student/applications", icon: SendAlt },
+      { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
+      { name: "Browse Projects", href: "/browse-projects", icon: Compass },
+      { name: "My Applications", href: "/student/applications", icon: Send },
       { name: "Inbox", href: "/student/messages", icon: InboxIcon },
     ],
   },
@@ -84,7 +80,7 @@ const studentNav: NavGroup[] = [
 const employerNav: NavGroup[] = [
   {
     items: [
-      { name: "Dashboard", href: "/employer/dashboard", icon: Home },
+      { name: "Dashboard", href: "/employer/dashboard", icon: LayoutDashboard },
       {
         name: "Post a Project",
         href: "/employer/projects/new",
@@ -107,7 +103,7 @@ const employerNav: NavGroup[] = [
 const universityNav: NavGroup[] = [
   {
     items: [
-      { name: "Dashboard", href: "/university/dashboard", icon: Home },
+      { name: "Dashboard", href: "/university/dashboard", icon: LayoutDashboard },
     ],
   },
   {

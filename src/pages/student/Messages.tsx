@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useFetchMessageThreads } from "@/hooks/useMessages";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChatCircleDots, UserCircle, CaretRight, WarningCircle, CaretRightIcon } from "@phosphor-icons/react";
+import { ChatCircleDots, UserCircle, CaretRight, WarningCircle, CaretRightIcon, ChatCircleDotsIcon, UserCircleIcon } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
+import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export default function StudentMessagesHub() {
@@ -66,7 +66,7 @@ export default function StudentMessagesHub() {
                     className="flex flex-col items-center justify-center py-24 text-center border border-dashed border-border rounded-3xl bg-muted/30"
                 >
                     <div className="w-16 h-16 bg-primary-subtle text-primary rounded-full flex items-center justify-center mb-6">
-                        <ChatCircleDots className="w-8 h-8" weight="duotone" />
+                        <ChatCircleDotsIcon className="w-8 h-8" weight="duotone" />
                     </div>
                     <h3 className="text-xl font-bold text-foreground mb-2">No active conversations</h3>
                     <p className="text-muted-foreground text-sm max-w-sm">
@@ -94,7 +94,7 @@ export default function StudentMessagesHub() {
                             >
                                 <div className="relative">
                                     <div className="w-12 h-12 bg-primary/10 text-primary rounded-full flex items-center justify-center">
-                                        <UserCircle className="w-7 h-7" weight="duotone" />
+                                        <UserCircleIcon className="w-7 h-7" weight="duotone" />
                                     </div>
                                     {thread.unread_count > 0 && (
                                         <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[10px] font-bold text-white shadow-sm ring-2 ring-card z-10">
@@ -105,15 +105,23 @@ export default function StudentMessagesHub() {
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <h3 className={cn(
-                                            "text-base font-semibold truncate pr-4",
-                                            thread.unread_count > 0 ? "text-foreground" : "text-foreground/90"
-                                        )}>
-                                            {thread.project_title}
-                                        </h3>
+                                        <div className="flex flex-col">
+                                            <h3 className={cn(
+                                                "text-[15px] font-bold truncate pr-4 leading-none mb-1",
+                                                thread.unread_count > 0 ? "text-foreground" : "text-foreground/90"
+                                            )}>
+                                                {thread.other_user_name}
+                                            </h3>
+                                            <div className="flex items-center gap-2 text-[10px] font-bold text-primary uppercase tracking-widest truncate ml-1.5">
+                                                <div className="w-1.5 h-[1px] bg-border shrink-0" />
+                                                {thread.project_title}
+                                            </div>
+                                        </div>
                                         {thread.last_message_at && (
                                             <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                                {formatDistanceToNow(new Date(thread.last_message_at), { addSuffix: true })}
+                                                {isToday(new Date(thread.last_message_at))
+                                                    ? format(new Date(thread.last_message_at), 'HH:mm')
+                                                    : format(new Date(thread.last_message_at), 'MMM d, HH:mm')}
                                             </span>
                                         )}
                                     </div>

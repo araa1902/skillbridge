@@ -138,7 +138,11 @@ export function useFetchMessageThreads(userId: string | null) {
         project_id,
         content,
         created_at,
-        project:projects!messages_project_id_fkey (id, title)
+        sender_id,
+        receiver_id,
+        project:projects!messages_project_id_fkey (id, title),
+        sender:profiles!messages_sender_id_fkey (full_name),
+        receiver:profiles!messages_receiver_id_fkey (full_name)
       `)
       .or(`sender_id.eq.${userId},receiver_id.eq.${userId}`)
       .order('created_at', { ascending: false })
@@ -150,7 +154,7 @@ export function useFetchMessageThreads(userId: string | null) {
       return
     }
 
-    // Get unique project IDs with their most recent message
+    // Group by project_id and pick the latest message
     const threadMap = new Map<string, any>()
     for (const msg of (userMessages ?? [])) {
       if (!threadMap.has(msg.project_id)) {
@@ -169,6 +173,13 @@ export function useFetchMessageThreads(userId: string | null) {
     const threadList: MessageThread[] = []
 
     for (const projId of projectIds) {
+      const msg = threadMap.get(projId)
+
+      // Determine other user's name
+      const otherUserName = msg.sender_id === userId
+        ? msg.receiver?.full_name
+        : msg.sender?.full_name
+
       // Get unread count for each project directed to the user
       const { count, error: countError } = await supabase
         .from('messages')
@@ -177,15 +188,14 @@ export function useFetchMessageThreads(userId: string | null) {
         .eq('read', false)
         .eq('receiver_id', userId)
 
-      const projectData = threadMap.get(projId)
-
       threadList.push({
         id: projId,
-        updated_at: projectData?.created_at ?? new Date(),
+        updated_at: msg.created_at,
         project_id: projId,
-        project_title: projectData?.project?.title ?? 'Unknown Project',
-        last_message: projectData?.content,
-        last_message_at: projectData?.created_at,
+        project_title: msg.project?.title ?? 'Unknown Project',
+        other_user_name: otherUserName ?? 'User',
+        last_message: msg.content,
+        last_message_at: msg.created_at,
         unread_count: !countError && count ? count : 0,
       })
     }

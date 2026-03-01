@@ -15,7 +15,6 @@ import ProjectDetails from "./pages/ProjectDetails";
 import ApplicationForm from "./pages/ApplicationForm";
 import ApplicationStatus from "./pages/ApplicationStatus";
 import StudentDashboard from "./pages/student/StudentDashboard";
-import StudentReferences from "./pages/student/StudentReferences";
 import CredentialsPage from "./pages/student/CredentialsPage";
 import ReferencesPage from "./pages/student/ReferencesPage";
 import MessagesPage from "./pages/MessagesPage";

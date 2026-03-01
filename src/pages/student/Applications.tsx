@@ -1,5 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,6 +41,7 @@ import { ReferenceCard } from "@/components/ReferenceCard";
 import { Link as LinkIcon, UploadSimple as Upload } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 // ─── Status badge helper ──────────────────────────────────────────────────────
 
@@ -184,6 +186,28 @@ export default function StudentApplications() {
     }
   };
 
+  const FILTERS = ["all", "pending", "reviewing", "accepted", "completed", "rejected"] as const;
+  type Filter = typeof FILTERS[number];
+
+  const STATUS_STYLES: Record<Filter, string> = {
+    all: "bg-slate-100 text-slate-600",
+    pending: "bg-amber-100 text-amber-600",
+    reviewing: "bg-blue-100 text-blue-600",
+    accepted: "bg-emerald-100 text-emerald-600",
+    completed: "bg-green-100 text-green-600",
+    rejected: "bg-red-100 text-red-600",
+  };
+
+  const ACTIVE_BADGE_STYLES: Record<Filter, string> = {
+    all: "bg-slate-200 text-slate-700",
+    pending: "bg-amber-200 text-amber-700",
+    reviewing: "bg-blue-200 text-blue-700",
+    accepted: "bg-emerald-200 text-emerald-700",
+    completed: "bg-green-200 text-green-700",
+    rejected: "bg-red-200 text-red-700",
+  };
+
+
   // ── Filter ────────────────────────────────────────────────────────────────
 
   const filtered = applications.filter((a) => {
@@ -212,21 +236,44 @@ export default function StudentApplications() {
         </div>
 
         {/* Filter tabs */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {(["all", "pending", "reviewing", "accepted", "completed", "rejected"] as const).map((f) => (
-            <Button
-              key={f}
-              variant={selectedFilter === f ? "default" : "outline"}
-              size="sm"
-              onClick={() => setSelectedFilter(f)}
-            >
-              {f.charAt(0).toUpperCase() + f.slice(1)} ({counts[f]})
-            </Button>
-          ))}
-        </div>
+        <Tabs value={selectedFilter} onValueChange={setSelectedFilter}>
+          <TabsList className="inline-flex h-auto bg-slate-50 border border-slate-200 rounded-2xl p-1.5 gap-1 overflow-x-auto">
+            {FILTERS.map((f) => {
+              const isActive = selectedFilter === f;
+              return (
+                <TabsTrigger
+                  key={f}
+                  value={f}
+                  className={cn(
+                    // Base
+                    "relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium",
+                    "capitalize whitespace-nowrap transition-all duration-200",
+                    // Inactive
+                    "text-slate-500 hover:text-slate-700 hover:bg-slate-100",
+                    // Active
+                    "data-[state=active]:bg-white data-[state=active]:shadow-sm",
+                    "data-[state=active]:ring-1 data-[state=active]:ring-slate-200/80",
+                    isActive && STATUS_STYLES[f].replace("bg-", "data-[state=active]:text-").split(" ")[0],
+                  )}
+                >
+                  {f}
+                  <span
+                    className={cn(
+                      "inline-flex items-center justify-center min-w-[20px] h-5 px-1.5",
+                      "text-[10px] font-semibold rounded-full transition-colors duration-200",
+                      isActive ? ACTIVE_BADGE_STYLES[f] : "bg-slate-200 text-slate-500"
+                    )}
+                  >
+                    {counts[f]}
+                  </span>
+                </TabsTrigger>
+              );
+            })}
+          </TabsList>
+        </Tabs>
 
         {/* Application list */}
-        <div className="space-y-4">
+        <div className="space-y-4 mt-4">
           {loading ? (
             Array.from({ length: 3 }).map((_, i) => <AppSkeleton key={i} />)
           ) : filtered.length === 0 ? (

@@ -4,7 +4,7 @@ import { useFetchMessageThreads } from "@/hooks/useMessages";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChatCircleDots, UserCircle, CaretRight, WarningCircle, CaretRightIcon } from "@phosphor-icons/react";
 import { Skeleton } from "@/components/ui/skeleton";
-import { formatDistanceToNow } from "date-fns";
+import { format, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
 
 export default function EmployerMessagesHub() {
@@ -105,15 +105,23 @@ export default function EmployerMessagesHub() {
 
                                 <div className="flex-1 min-w-0">
                                     <div className="flex items-center justify-between mb-1">
-                                        <h3 className={cn(
-                                            "text-base font-semibold truncate pr-4",
-                                            thread.unread_count > 0 ? "text-foreground" : "text-foreground/90"
-                                        )}>
-                                            {thread.project_title}
-                                        </h3>
+                                        <div className="flex flex-col">
+                                            <h3 className={cn(
+                                                "text-[15px] font-bold truncate pr-4 leading-none mb-1",
+                                                thread.unread_count > 0 ? "text-foreground" : "text-foreground/90"
+                                            )}>
+                                                {thread.other_user_name}
+                                            </h3>
+                                            <div className="flex items-center gap-2 text-[10px] font-bold text-muted-foreground/60 uppercase tracking-widest truncate ml-1.5">
+                                                <div className="w-1.5 h-[1px] bg-border shrink-0" />
+                                                {thread.project_title}
+                                            </div>
+                                        </div>
                                         {thread.last_message_at && (
                                             <span className="text-xs text-muted-foreground whitespace-nowrap">
-                                                {formatDistanceToNow(new Date(thread.last_message_at), { addSuffix: true })}
+                                                {isToday(new Date(thread.last_message_at))
+                                                    ? format(new Date(thread.last_message_at), 'HH:mm')
+                                                    : format(new Date(thread.last_message_at), 'MMM d, HH:mm')}
                                             </span>
                                         )}
                                     </div>

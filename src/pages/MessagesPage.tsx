@@ -23,9 +23,9 @@ interface Project {
 
 function formatMessageTime(dateString: string): string {
   const date = new Date(dateString)
-  if (isToday(date)) return format(date, 'h:mm a')
-  if (isYesterday(date)) return `Yesterday ${format(date, 'h:mm a')}`
-  return format(date, 'MMM d, h:mm a')
+  if (isToday(date)) return format(date, 'HH:mm')
+  if (isYesterday(date)) return `Yesterday ${format(date, 'HH:mm')}`
+  return format(date, 'MMM d, HH:mm')
 }
 
 function formatDateDivider(dateString: string): string {

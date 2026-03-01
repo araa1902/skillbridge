@@ -113,8 +113,64 @@
     /* purple — SME persona */
     --role-freelancer: 174 82% 34%;
     /* teal — freelancer persona */
+
+    /* ── Animation Keyframes ── */
+    --animate-blob: blob 7s infinite;
+    --animate-shimmer: shimmer 2s infinite linear;
+    --animate-float: float 6s ease-in-out infinite;
   }
 
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+
+  @keyframes shimmer {
+    from {
+      background-position: 200% 0;
+    }
+
+    to {
+      background-position: -200% 0;
+    }
+  }
+
+  @keyframes float {
+
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  @keyframes glow-pulse {
+
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+    }
+
+    50% {
+      box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
+    }
+  }
 }
 
 
@@ -246,8 +302,9 @@
   }
 
   ::selection {
-    background: hsl(var(--primary) / 0.14);
-    color: hsl(var(--foreground));
+    background: hsl(var(--primary) / 0.12);
+    color: hsl(var(--primary));
+    text-shadow: 0 0 8px hsl(var(--primary) / 0.2);
   }
 
   :focus-visible {
@@ -258,8 +315,8 @@
 
   /* Thin tasteful scrollbar */
   ::-webkit-scrollbar {
-    width: 4px;
-    height: 4px;
+    width: 3px;
+    height: 3px;
   }
 
   ::-webkit-scrollbar-track {
@@ -400,15 +457,6 @@
     box-shadow: var(--shadow-lg);
   }
 
-  /* Teal-tinted brand surface (hero, CTA blocks) */
-  .surface-brand {
-    background: linear-gradient(135deg,
-        hsl(var(--primary) / 0.07) 0%,
-        hsl(var(--primary) / 0.02) 100%);
-    border: 1px solid hsl(var(--primary) / 0.16);
-    border-radius: var(--radius-xl);
-  }
-
   /* Premium gradient card */
   .surface-gradient {
     background: linear-gradient(140deg,
@@ -418,6 +466,63 @@
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-teal);
   }
+
+  /* ─────────────────────────────────────────────
+
+     WOW FACTOR UTILITIES
+  ───────────────────────────────────────────── */
+
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg,
+        hsl(var(--foreground)) 0%,
+        hsl(var(--primary)) 100%);
+  }
+
+  .text-gradient-brand {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg,
+        hsl(var(--primary)) 0%,
+        hsl(var(--role-sme)) 100%);
+  }
+
+  .glass-card {
+    background: rgba(255, 255, 255, 0.4);
+    backdrop-filter: blur(12px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+  }
+
+  .shimmer {
+    background: linear-gradient(90deg,
+        transparent 0%,
+        hsl(var(--muted) / 0.4) 50%,
+        transparent 100%);
+    background-size: 200% 100%;
+    animation: shimmer 2s infinite linear;
+  }
+
+  .animate-blob {
+    animation: var(--animate-blob);
+  }
+
+  .animate-float {
+    animation: var(--animate-float);
+  }
+
+  .hover-lift {
+    @apply transition-transform duration-300;
+  }
+
+  .hover-lift:hover {
+    @apply -translate-y-1;
+  }
+
+  .surface-glow:hover {
+    box-shadow: 0 0 20px 2px hsl(var(--primary) / 0.1);
+    border-color: hsl(var(--primary) / 0.3);
+  }
+
 
 
   /* ─────────────────────────────────────────────
@@ -2050,15 +2155,11 @@
 
     0%,
     100% {
-      transform: translateY(0) rotate(0deg);
+      transform: translateY(0);
     }
 
-    33% {
-      transform: translateY(-10px) rotate(0.5deg);
-    }
-
-    66% {
-      transform: translateY(-5px) rotate(-0.3deg);
+    50% {
+      transform: translateY(-10px);
     }
   }
 
@@ -2182,19 +2283,19 @@
 
   @keyframes blob {
     0% {
-      transform: translate(0, 0) scale(1);
+      transform: translate(0px, 0px) scale(1);
     }
 
     33% {
-      transform: translate(28px, -40px) scale(1.07);
+      transform: translate(30px, -50px) scale(1.1);
     }
 
     66% {
-      transform: translate(-18px, 18px) scale(0.93);
+      transform: translate(-20px, 20px) scale(0.9);
     }
 
     100% {
-      transform: translate(0, 0) scale(1);
+      transform: translate(0px, 0px) scale(1);
     }
   }
 
