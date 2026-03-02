@@ -6,7 +6,9 @@ export interface Message {
   id: string
   project_id: string
   sender_id: string
+  receiver_id: string
   sender_name?: string
+  receiver_name?: string
   sender_avatar?: string
   content: string
   created_at: string
@@ -49,7 +51,8 @@ export function useFetchProjectMessages(projectId: string | null) {
       .from('messages')
       .select(`
         *,
-        sender:profiles!messages_sender_id_fkey (full_name)
+        sender:profiles!messages_sender_id_fkey (full_name),
+        receiver:profiles!messages_receiver_id_fkey (full_name)
       `)
       .eq('project_id', projectId)
       .order('created_at', { ascending: true })
@@ -61,6 +64,7 @@ export function useFetchProjectMessages(projectId: string | null) {
       const rows = (data ?? []).map((row: any) => ({
         ...row,
         sender_name: row.sender?.full_name ?? 'Unknown',
+        receiver_name: row.receiver?.full_name ?? 'Unknown',
       })) as Message[]
       setMessages(rows)
     }
@@ -95,6 +99,7 @@ export function useFetchProjectMessages(projectId: string | null) {
             const newMessage: Message = {
               ...newRow,
               sender_name: '...', // Fallback since real-time payload lacks joined data
+              receiver_name: '...',
               sender_avatar: null,
             }
             return [...prev, newMessage]
@@ -170,6 +175,20 @@ export function useFetchMessageThreads(userId: string | null) {
       return
     }
 
+    // Get all unread message counts for this user in one query
+    const { data: unreadData } = await supabase
+      .from('messages')
+      .select('project_id')
+      .eq('read', false)
+      .eq('receiver_id', userId)
+
+    const unreadCountsMap = new Map<string, number>()
+    if (unreadData) {
+      for (const row of unreadData) {
+        unreadCountsMap.set(row.project_id, (unreadCountsMap.get(row.project_id) || 0) + 1)
+      }
+    }
+
     const threadList: MessageThread[] = []
 
     for (const projId of projectIds) {
@@ -180,14 +199,6 @@ export function useFetchMessageThreads(userId: string | null) {
         ? msg.receiver?.full_name
         : msg.sender?.full_name
 
-      // Get unread count for each project directed to the user
-      const { count, error: countError } = await supabase
-        .from('messages')
-        .select('*', { count: 'exact', head: true })
-        .eq('project_id', projId)
-        .eq('read', false)
-        .eq('receiver_id', userId)
-
       threadList.push({
         id: projId,
         updated_at: msg.created_at,
@@ -196,7 +207,7 @@ export function useFetchMessageThreads(userId: string | null) {
         other_user_name: otherUserName ?? 'User',
         last_message: msg.content,
         last_message_at: msg.created_at,
-        unread_count: !countError && count ? count : 0,
+        unread_count: unreadCountsMap.get(projId) || 0,
       })
     }
 

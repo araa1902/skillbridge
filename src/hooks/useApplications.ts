@@ -56,13 +56,13 @@ export async function updateApplicationStatus(
       .update({ status: 'in_progress' })
       .eq('id', projectId)
 
-    // 2. Reject all other pending applications for this project
+    // 2. Reject all other pending and reviewing applications for this project
     await supabase
       .from('applications')
       .update({ status: 'rejected' })
       .eq('project_id', projectId)
       .neq('id', applicationId)
-      .eq('status', 'pending')
+      .in('status', ['pending', 'reviewing'])
   }
 
   return { error: null }

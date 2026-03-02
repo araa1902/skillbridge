@@ -3,18 +3,55 @@ import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
 import { Gear as SettingsIcon } from "@phosphor-icons/react"
+import { useState, useEffect } from 'react'
+import { supabase } from '@/lib/supabase'
 
 export default function UniversitySettings() {
-  const { profile, user } = useAuth()
+  const { profile, user, refreshProfile } = useAuth()
   const { toast } = useToast()
 
-  const handleSave = () => {
-    toast({
-      title: 'Settings saved',
-      description: 'Your university settings have been updated.',
-    })
+  const [loading, setLoading] = useState(false)
+  const [companyName, setCompanyName] = useState('')
+  const [bio, setBio] = useState('')
+
+  useEffect(() => {
+    if (profile) {
+      setCompanyName(profile.company_name || profile.full_name || '')
+      setBio(profile.bio || '')
+    }
+  }, [profile])
+
+  const handleSave = async () => {
+    if (!user) return
+    setLoading(true)
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({
+          company_name: companyName,
+          bio: bio,
+        })
+        .eq('id', user.id)
+
+      if (error) throw error
+
+      await refreshProfile()
+      toast({
+        title: 'Settings saved',
+        description: 'Your university profile has been updated.',
+      })
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save settings',
+        variant: 'destructive',
+      })
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -36,8 +73,20 @@ export default function UniversitySettings() {
             <Label htmlFor="name">University Name</Label>
             <Input
               id="name"
-              value={profile?.full_name || ''}
-              readOnly
+              placeholder="e.g. University of Bath"
+              value={companyName}
+              onChange={(e) => setCompanyName(e.target.value)}
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="bio">Public Description (Bio)</Label>
+            <Textarea
+              id="bio"
+              placeholder="Tell students about your institution..."
+              value={bio}
+              onChange={(e) => setBio(e.target.value)}
               className="mt-1"
             />
           </div>
@@ -87,8 +136,9 @@ export default function UniversitySettings() {
 
       {/* Actions */}
       <div className="flex gap-3">
-        <Button onClick={handleSave}>Save Changes</Button>
-        <Button variant="outline">Cancel</Button>
+        <Button onClick={handleSave} disabled={loading}>
+          {loading ? 'Saving...' : 'Save Changes'}
+        </Button>
       </div>
     </div>
   )

@@ -413,48 +413,6 @@ const StudentDashboard = () => {
 
           {/* ── Right: sidebar ── */}
           <div className="space-y-4">
-
-            {/* Profile Strength */}
-            <motion.div
-              variants={fadeUp}
-              initial="initial"
-              animate="animate"
-              transition={{ duration: 0.3, delay: 0.3 }}
-            >
-              <Card className="shadow-none border-border/60">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-semibold">Profile Strength</CardTitle>
-                    <span className="text-xs font-semibold text-foreground">{profileComplete}%</span>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <Progress value={profileComplete} className="h-1.5" />
-                  <ul className="space-y-2">
-                    {PROFILE_ITEMS.map((item) => (
-                      <li key={item.label} className="flex items-center gap-2.5 text-xs">
-                        <div
-                          className={cn(
-                            "h-1.5 w-1.5 rounded-full shrink-0",
-                            item.done ? "bg-emerald-500" : "bg-muted-foreground/30"
-                          )}
-                        />
-                        <span className={item.done ? "text-foreground" : "text-muted-foreground"}>
-                          {item.label}
-                        </span>
-                        {item.done && (
-                          <CheckCircle2 className="h-3 w-3 text-emerald-500 ml-auto" />
-                        )}
-                      </li>
-                    ))}
-                  </ul>
-                  <Button variant="outline" size="sm" className="w-full text-xs" asChild>
-                    <Link to="/student/settings">Complete Profile</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </motion.div>
-
             {/* Credentials */}
             <motion.div
               variants={fadeUp}

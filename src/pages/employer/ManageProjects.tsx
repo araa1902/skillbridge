@@ -10,6 +10,7 @@ import { Progress } from "@/components/ui/progress";
 import { ArrowLeft, Briefcase, CheckCircle as CheckCircle2, Clock, DownloadSimple as Download, PencilSimple as Edit, Eye, Faders as Filter, MagnifyingGlass as Search, TrendUp as TrendingUp, Users } from "@phosphor-icons/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyProjects, useEmployerStats, ProjectRow } from "@/hooks/useProjects";
+import { RotateCcwIcon, SearchIcon } from "lucide-react";
 
 type Project = {
   id: string;
@@ -111,7 +112,6 @@ export default function ManageProjects() {
   const statusFilters = [
     { value: "all", label: "All" },
     { value: "active", label: "Active" },
-    { value: "draft", label: "Drafts" },
     { value: "completed", label: "Completed" },
     { value: "closed", label: "Closed" },
   ] as const;
@@ -272,7 +272,7 @@ export default function ManageProjects() {
               <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                 <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center">
                   <div className="relative w-full sm:max-w-xs">
-                    <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                     <Input
                       value={searchQuery}
                       onChange={(event) => setSearchQuery(event.target.value)}
@@ -294,11 +294,8 @@ export default function ManageProjects() {
                 </div>
 
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" className="border-border text-slate-700">
-                    <Filter className="mr-2 h-4 w-4" />
-                    Advanced filters
-                  </Button>
-                  <Button variant="ghost" size="sm" onClick={handleResetFilters}>
+                  <Button variant="outline" size="sm" onClick={handleResetFilters}>
+                    <RotateCcwIcon className="mr-2 h-4 w-4" />
                     Reset
                   </Button>
                 </div>
@@ -498,12 +495,6 @@ export default function ManageProjects() {
                       <span>Open roles to fill</span>
                       <span className="font-medium text-foreground">
                         {projects.reduce((sum, project) => sum + project.talentsNeeded, 0)}
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span>Drafts ready to launch</span>
-                      <span className="font-medium text-foreground">
-                        {statusCounts.draft ?? 0} brief{(statusCounts.draft ?? 0) === 1 ? "" : "s"}
                       </span>
                     </div>
                   </div>

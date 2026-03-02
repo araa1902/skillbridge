@@ -497,9 +497,38 @@ export default function Applications() {
               Review the submitted deliverable and validate the project has been completed. Note: Completing this project will release payment to the student.
             </DialogDescription>
           </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label>Rating</Label>
+              <div className="flex items-center gap-1">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <Star
+                    key={star}
+                    className={cn(
+                      "h-6 w-6 cursor-pointer hover:scale-110 transition-transform",
+                      star <= rating ? "text-amber-400 fill-amber-400" : "text-slate-300"
+                    )}
+                    weight={star <= rating ? "fill" : "regular"}
+                    onClick={() => setRating(star)}
+                  />
+                ))}
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="feedback">Feedback for Student</Label>
+              <Textarea
+                id="feedback"
+                placeholder="Share your experience working with this student..."
+                value={feedback}
+                onChange={(e) => setFeedback(e.target.value)}
+                className="resize-none"
+                rows={4}
+              />
+            </div>
+          </div>
           <div className="flex justify-end gap-2 mt-2">
             <Button variant="outline" onClick={() => setCompleteDialogOpen(false)} disabled={actionLoading}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700" onClick={handleApproveAndComplete}>
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleApproveAndComplete} disabled={actionLoading}>
               Complete Project
             </Button>
           </div>

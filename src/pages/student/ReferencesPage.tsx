@@ -130,11 +130,11 @@ const StudentReferences = () => {
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
-    doc.text("Professional Reference Portfolio", 20, 22);
+    doc.text("Reference Portfolio", 20, 22);
 
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text("Verified by SkillBridge Connects", 20, 32);
+    doc.text("Issued by SkillBridge", 20, 32);
 
     // --- Student Info ---
     y = 55;
@@ -202,7 +202,6 @@ const StudentReferences = () => {
       doc.setFontSize(8);
       doc.setTextColor(150, 150, 150);
       doc.text(`Page ${i} of ${pageCount}`, pageWidth - 35, 285);
-      doc.text("skillbridge-connects.vercel.app", 20, 285);
     }
 
     doc.save(`${(user?.user_metadata?.full_name || "student").replace(/\s+/g, "_")}_references.pdf`);
@@ -302,7 +301,7 @@ const StudentReferences = () => {
           {references.length > 0 && (
             <div className="flex gap-2 flex-wrap">
               <Button variant="outline" size="sm" onClick={handleExportReferencesPdf}>
-                <DownloadSimpleIcon className="w-4 h-4 mr-2" /> Export All PDF
+                <DownloadSimpleIcon className="w-4 h-4 mr-2" /> Export All
               </Button>
               <Button size="sm">
                 <ShareIcon className="w-4 h-4 mr-2" /> Share Profile

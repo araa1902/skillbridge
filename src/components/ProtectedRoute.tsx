@@ -66,6 +66,9 @@ export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) 
     if (role === 'business' && !profile?.company_name) {
       return <Navigate to="/onboarding" replace />
     }
+    if (role === 'university' && !profile?.company_name) {
+      return <Navigate to="/onboarding" replace />
+    }
   }
 
   // 5. All checks pass – render the protected content

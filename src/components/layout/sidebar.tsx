@@ -20,7 +20,7 @@ import {
   Enterprise,
   Course,
   ChartBar,
-  UserAvatar
+  UserAvatar,
 } from "@carbon/icons-react";
 import {
   LogOut,
@@ -33,7 +33,16 @@ import {
   InboxIcon,
   Compass,
   Send,
-  LayoutDashboard
+  LayoutDashboard,
+  Search,
+  Star,
+  Award,
+  BriefcaseBusinessIcon,
+  NotebookIcon,
+  UsersIcon,
+  CirclePlusIcon,
+  SendIcon,
+  ClipboardPlusIcon
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
@@ -63,16 +72,16 @@ const studentNav: NavGroup[] = [
   {
     items: [
       { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
-      { name: "Browse Projects", href: "/browse-projects", icon: Compass },
-      { name: "My Applications", href: "/student/applications", icon: Send },
+      { name: "Browse Projects", href: "/browse-projects", icon: Search },
+      { name: "My Applications", href: "/student/applications", icon: SendIcon },
       { name: "Inbox", href: "/student/messages", icon: InboxIcon },
     ],
   },
   {
     label: "Profile",
     items: [
-      { name: "Credentials", href: "/student/credentials", icon: Badge },
-      { name: "References", href: "/student/references", icon: StarReview },
+      { name: "Credentials", href: "/student/credentials", icon: Award },
+      { name: "References", href: "/student/references", icon: Star },
     ],
   },
 ]
@@ -84,7 +93,7 @@ const employerNav: NavGroup[] = [
       {
         name: "Post a Project",
         href: "/employer/projects/new",
-        icon: AddAlt,
+        icon: ClipboardPlusIcon,
         highlight: true,
       },
     ],
@@ -92,9 +101,9 @@ const employerNav: NavGroup[] = [
   {
     label: "Manage",
     items: [
-      { name: "Projects", href: "/employer/projects/manage", icon: Portfolio },
-      { name: "Applications", href: "/employer/applications", icon: UserMultiple, badge: 5 },
-      { name: "References", href: "/employer/references", icon: StarReview },
+      { name: "Projects", href: "/employer/projects/manage", icon: BriefcaseBusinessIcon },
+      { name: "Applications", href: "/employer/applications", icon: UsersIcon, badge: 5 },
+      { name: "References", href: "/employer/references", icon: NotebookIcon },
       { name: "Inbox", href: "/employer/messages", icon: InboxIcon, badge: 2, disabled: true },
     ],
   },
@@ -332,7 +341,7 @@ export function Sidebar({ userType }: SidebarProps) {
             onClick={() => setIsCollapsed(true)}
             className="text-muted-foreground hover:text-foreground hover:bg-muted p-1.5 rounded-md transition-colors"
           >
-            <PanelLeft className="w-4 h-4" />
+            <PanelLeft className="w-5 h-5" />
           </button>
         )}
       </div>

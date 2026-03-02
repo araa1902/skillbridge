@@ -11,10 +11,9 @@ import { cn } from "@/lib/utils";
 
 // ─── Role Maps ───────────────────────────────────────────────────────────────
 
-const ROLE_MAP: Record<"student" | "employer" | "university", UserRole> = {
+const ROLE_MAP: Record<"student" | "employer", UserRole> = {
   student: "student",
   employer: "business",
-  university: "university",
 };
 
 const DASHBOARD_PATH: Record<UserRole, string> = {
@@ -48,17 +47,17 @@ const USER_TYPE_CONFIG = {
     badge: "text-emerald-700 bg-emerald-50 border-emerald-200",
     description: "Post projects, discover talent, build teams",
   },
-  university: {
-    icon: School,
-    label: "University",
-    accent: "violet",
-    accentClass: "from-violet-500 to-violet-700",
-    ringClass: "ring-violet-500/30",
-    activeBg: "bg-violet-600",
-    activeText: "text-violet-600",
-    badge: "text-violet-700 bg-violet-50 border-violet-200",
-    description: "Manage programs, track outcomes, connect with industry",
-  },
+  // university: {
+  //   icon: School,
+  //   label: "University",
+  //   accent: "violet",
+  //   accentClass: "from-violet-500 to-violet-700",
+  //   ringClass: "ring-violet-500/30",
+  //   activeBg: "bg-violet-600",
+  //   activeText: "text-violet-600",
+  //   badge: "text-violet-700 bg-violet-50 border-violet-200",
+  //   description: "Manage programs, track outcomes, connect with industry",
+  // },
 } as const;
 
 type UserTypeKey = keyof typeof USER_TYPE_CONFIG;
@@ -176,12 +175,26 @@ const Auth = () => {
 
     try {
       if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
         if (error) {
           toast({ title: "Sign in failed", description: error.message, variant: "destructive" });
           return;
         }
-        navigate(DASHBOARD_PATH[ROLE_MAP[userType]]);
+
+        const userRole = data.user?.user_metadata?.role;
+        const expectedRole = ROLE_MAP[userType];
+
+        if (userRole && userRole !== expectedRole) {
+          await supabase.auth.signOut();
+          toast({
+            title: "Login failed",
+            description: `Please enter the correct credentials and select the right tab to sign in.`,
+            variant: "destructive"
+          });
+          return;
+        }
+
+        navigate(DASHBOARD_PATH[expectedRole]);
       } else {
         const fullName = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
         const role = ROLE_MAP[userType];
@@ -251,16 +264,6 @@ const Auth = () => {
         {/* ── Logo ─────────────────────────────────────────────────────── */}
         <div className="flex justify-center">
           <Link to="/" className="flex items-center gap-2.5 group">
-            <div
-              className={cn(
-                "w-10 h-10 rounded-xl flex items-center justify-center shadow-md",
-                "bg-gradient-to-br",
-                config.accentClass,
-                "transition-transform duration-200 group-hover:scale-105"
-              )}
-            >
-              <span className="text-white font-bold text-sm tracking-tight">SB</span>
-            </div>
             <span className="text-xl font-bold text-gray-900 tracking-tight">
               SkillBridge
             </span>
@@ -278,7 +281,7 @@ const Auth = () => {
         >
           {/* User type tabs */}
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-            <div className="grid grid-cols-3 gap-1.5 p-1 bg-gray-100 rounded-xl">
+            <div className="grid grid-cols-2 gap-1.5 p-1 bg-gray-100 rounded-xl">
               {(Object.keys(USER_TYPE_CONFIG) as UserTypeKey[]).map((type) => {
                 const { icon: Icon, label, activeBg } = USER_TYPE_CONFIG[type];
                 const isActive = userType === type;
@@ -450,17 +453,6 @@ const Auth = () => {
             </p>
           </form>
         </div>
-
-        {/* Trust badges */}
-        <div className="flex items-center justify-center gap-5 text-xs text-gray-400">
-          {["256-bit encryption", "GDPR compliant", "SOC 2 Type II"].map((badge) => (
-            <span key={badge} className="flex items-center gap-1">
-              <CheckCircle2 className="h-3 w-3" />
-              {badge}
-            </span>
-          ))}
-        </div>
-
       </div>
     </div>
   );

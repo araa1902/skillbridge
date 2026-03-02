@@ -85,7 +85,7 @@ const App = () => (
                   <Route
                     path="/onboarding"
                     element={
-                      <ProtectedRoute allowedRoles={["student", "business"]}>
+                      <ProtectedRoute allowedRoles={["student", "business", "university"]}>
                         <Onboarding />
                       </ProtectedRoute>
                     }

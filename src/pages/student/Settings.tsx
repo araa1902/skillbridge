@@ -119,7 +119,6 @@ const Settings = () => {
                     </div>
                     <div>
                       <p className="font-semibold text-lg">{fullName || "Profile Display Name"}</p>
-                      <p className="text-sm text-muted-foreground">This is how you appear to others on the platform.</p>
                     </div>
                   </div>
 
@@ -140,7 +139,7 @@ const Settings = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="university">University</Label>
-                    <Input id="university" value="University of Manchester" readOnly disabled className="bg-muted/50" />
+                    <Input id="university" value={profile?.company_name || ""} readOnly disabled className="bg-muted/50" />
                     <p className="text-[10px] text-muted-foreground">University is verified and cannot be changed.</p>
                   </div>
 

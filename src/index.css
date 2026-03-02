@@ -1,102 +1,170 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap');
+/* Option A — Full replacement (simpler, more cohesive) */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* Option B — Split pairing (more typographic hierarchy) */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@700;800&display=swap');
+/* Keep Space Grotesk for body only */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;400;500;600&display=swap');
+
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ─────────────────────────────────────────────
-   LAUNCHPAD — Multi-sided Freelance × Student × SME Marketplace
+   SkillBridge — Multi-sided University × Student × SME Marketplace
    Design Language: Clean, Purposeful, Trust-first
    Font: Space Grotesk (display/body)
-   Palette: Warm off-white canvas, deep ink navy, 
+   Palette: Warm off-white canvas (#F8F6F3), deep ink navy, 
             electric teal accent, amber highlight
+   Note: --accent-amber is reserved for trust signals (ratings, credentials)
+   Primary CTAs should use --primary (Teal)
 ───────────────────────────────────────────── */
+
+/* ─────────────────────────────────────────────────────────
+   SKILLBRIDGE — University-Integrated Micro-Credential Platform
+   Design Language : Clean · Purposeful · Trust-first
+   Font            : Space Grotesk (display / body)
+   Palette         : Warm canvas · Deep ink · Electric teal ·
+                     Amber credentials · Slate secondary
+   ───────────────────────────────────────────────────────── */
 
 @layer base {
   :root {
-    /* ── Canvas ── */
+    /* ── Canvas ───────────────────────────────────────────
+       Warm off-white base keeps the UI approachable for
+       anxious students — not clinical white, not cold grey.  */
     --background: 34 20% 97%;
-    /* warm off-white #F8F6F3 */
+    /* #F8F6F3 warm off-white  */
     --foreground: 220 30% 10%;
-    /* deep ink #131A27 */
+    /* #131A27 deep ink navy   */
     --card: 0 0% 100%;
     --card-foreground: 220 30% 10%;
     --popover: 0 0% 100%;
     --popover-foreground: 220 30% 10%;
 
-    /* ── Brand: Electric Teal ── */
+
+    /* ── Brand: Electric Teal ────────────────────────────
+       Primary teal is used ONLY for interactive affordances
+       (buttons, links, active states, focus rings).
+       Do NOT use for decorative fills — reserve that for
+       role-student token below.                            */
     --primary: 174 82% 34%;
     /* #0FA878 rich teal-green */
     --primary-light: 174 72% 44%;
-    /* hover / lighter teal */
+    /* hover / lighter teal    */
     --primary-subtle: 174 60% 94%;
-    /* tinted surface */
+    /* tinted surface / chip bg */
     --primary-foreground: 0 0% 100%;
 
-    /* ── Secondary: Warm Slate ── */
+
+    /* ── Secondary: Warm Slate ───────────────────────────  */
     --secondary: 220 16% 94%;
     --secondary-foreground: 220 20% 28%;
 
-    /* ── Accent: Amber Spark ── */
-    --accent-amber: 38 96% 52%;
-    /* #F9A825 — CTA highlights, stars, badges */
-    --accent-amber-subtle: 38 96% 95%;
 
-    /* ── Muted surfaces ── */
+    /* ── Accent: Amber Credential ────────────────────────
+       Amber is RESERVED for trust & credential signals only:
+         • Micro-credential badges / stars / ratings
+         • "Verified" labels and co-brand chips
+         • Match score highlights
+       Do NOT use amber for primary CTAs — use --primary.  */
+    --accent-amber: 38 96% 48%;
+    /* Darkened: #F59B00 — WCAG AA on white */
+    --accent-amber-subtle: 38 96% 95%;
+    /* Pale amber chip / badge bg           */
+
+
+    /* ── Muted surfaces ──────────────────────────────────  */
     --muted: 220 16% 95%;
-    --muted-foreground: 220 12% 50%;
+    --muted-foreground: 220 12% 40%;
+    /* ↑ Darkened 50%→40% for WCAG AA on #F8F6F3 */
     --accent: 220 16% 93%;
     --accent-foreground: 220 20% 16%;
 
-    /* ── Semantic ── */
-    --destructive: 4 82% 56%;
+
+    /* ── Semantic ────────────────────────────────────────  */
+    --destructive: 4 82% 45%;
+    /* ↓ Darkened 56%→45% for WCAG AA on white  */
     --destructive-foreground: 0 0% 100%;
-    --success: 158 68% 36%;
+    --success: 158 68% 32%;
+    /* ↓ Darkened slightly for text legibility  */
     --success-subtle: 158 55% 93%;
-    --warning: 38 92% 52%;
+    --warning: 38 92% 44%;
+    /* ↓ Darkened for WCAG AA on light surfaces */
     --warning-subtle: 38 96% 94%;
-    --info: 210 90% 55%;
+    --info: 210 85% 48%;
+    /* ↓ Darkened 55%→48% for WCAG AA          */
     --info-subtle: 210 80% 94%;
 
-    /* ── Chrome ── */
+
+    /* ── Chrome ──────────────────────────────────────────  */
     --border: 220 16% 88%;
-    --border-strong: 220 16% 78%;
+    --border-strong: 220 16% 76%;
+    /* ↑ Strengthened for input borders         */
     --input: 220 16% 88%;
     --ring: 174 82% 34%;
+    /* Matches --primary                        */
 
-    /* ── Shape ── */
+
+    /* ── Shape ───────────────────────────────────────────
+       Consistent 12px base radius — confident but friendly.
+       Inputs use --radius-md, modals --radius-xl,
+       pills / tags / buttons --radius-full.               */
     --radius: 0.75rem;
-    /* 12px — confident but soft */
+    /* 12px  */
     --radius-xs: 0.375rem;
+    /*  6px  */
     --radius-sm: 0.5rem;
+    /*  8px  */
     --radius-md: 0.75rem;
+    /* 12px  */
     --radius-lg: 1rem;
+    /* 16px  */
     --radius-xl: 1.25rem;
+    /* 20px  */
     --radius-2xl: 1.75rem;
+    /* 28px  */
     --radius-full: 9999px;
 
-    /* ── Elevation ── */
+
+    /* ── Elevation ───────────────────────────────────────
+       Shadow colours use the foreground ink RGB directly
+       for perceptually neutral shadows (avoids blue cast). */
     --shadow-xs: 0 1px 2px 0 rgba(13, 20, 38, 0.04);
-    --shadow-sm: 0 1px 3px 0 rgba(13, 20, 38, 0.07), 0 1px 2px -1px rgba(13, 20, 38, 0.05);
-    --shadow-md: 0 4px 10px -2px rgba(13, 20, 38, 0.08), 0 2px 4px -2px rgba(13, 20, 38, 0.05);
-    --shadow-lg: 0 12px 28px -4px rgba(13, 20, 38, 0.10), 0 4px 8px -2px rgba(13, 20, 38, 0.06);
+    --shadow-sm: 0 1px 3px 0 rgba(13, 20, 38, 0.07),
+      0 1px 2px -1px rgba(13, 20, 38, 0.05);
+    --shadow-md: 0 4px 10px -2px rgba(13, 20, 38, 0.08),
+      0 2px 4px -2px rgba(13, 20, 38, 0.05);
+    --shadow-lg: 0 12px 28px -4px rgba(13, 20, 38, 0.10),
+      0 4px 8px -2px rgba(13, 20, 38, 0.06);
     --shadow-xl: 0 24px 48px -12px rgba(13, 20, 38, 0.14);
     --shadow-2xl: 0 40px 72px -16px rgba(13, 20, 38, 0.18);
-    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.20);
+    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.22);
     --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.22);
+    /* Amber glow — use on credential cards / badge highlights */
+    --shadow-amber: 0 6px 20px -4px hsl(var(--accent-amber) / 0.28);
 
-    /* ── Typography ── */
-    --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-    --font-sans: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-    --font-mono: 'JetBrains Mono', monospace;
 
-    /* ── Layout ── */
+    /* ── Typography ──────────────────────────────────────
+       Both display and sans intentionally share Space Grotesk
+       — a single humanist face signals focus & clarity.   */
+    /* Option A */
+    --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+
+
+    /* ── Layout ──────────────────────────────────────────  */
     --page-gutter: clamp(1rem, 4vw, 2.5rem);
     --content-max: 96rem;
     --sidebar-w: 15rem;
     --topbar-h: 3.75rem;
 
-    /* ── Motion ── */
+
+    /* ── Motion ──────────────────────────────────────────
+       --ease-spring is used only for micro-interactions
+       (button press, avatar hover) — never for page transitions
+       where it may feel jarring.                          */
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
@@ -106,70 +174,208 @@
     --duration-slow: 340ms;
     --duration-page: 480ms;
 
-    /* ── Marketplace-specific ── */
-    --role-student: 217 85% 56%;
-    /* blue — student persona */
-    --role-sme: 266 68% 54%;
-    /* purple — SME persona */
-    --role-freelancer: 174 82% 34%;
-    /* teal — freelancer persona */
 
-    /* ── Animation Keyframes ── */
+    /* ── Persona Role Tokens ─────────────────────────────
+       Three stakeholders; each has a distinct hue so role-
+       specific UI zones (dashboards, badges, nav accents)
+       are instantly distinguishable.
+
+       Student   → Teal   (talent supply — mirrors brand)
+       SME       → Purple (employer / project poster)
+       University → Blue  (admin / institutional oversight)
+
+       NOTE: --role-freelancer has been removed.
+       SkillBridge is student-only (verified .ac.uk SSO).  */
+    --role-student: 174 82% 34%;
+    /* teal  — matches --primary        */
+    --role-sme: 266 68% 54%;
+    /* purple — SME / employer persona  */
+    --role-university: 217 85% 52%;
+    /* blue   — university admin persona */
+
+
+    /* ── SkillBridge Platform Tokens ────────────────────
+       Purpose-built tokens for marketplace-specific UI.
+       These should be used by their semantic name — not
+       substituted with generic --primary / --accent-amber. */
+
+    /* AI match confidence: teal→green gradient signal */
+    --match-high: 158 72% 36%;
+    /* strong match  ≥ 80%  */
+    --match-mid: 38 92% 44%;
+    /* good match    50–79% */
+    --match-low: 220 12% 60%;
+    /* weak match    < 50%  */
+
+    /* Credential / badge surface */
+    --credential-bg: 38 96% 95%;
+    /* amber-subtle wash behind badge   */
+    --credential-border: 38 80% 76%;
+    /* warm amber ring on credential    */
+    --credential-text: 38 90% 30%;
+    /* dark amber label text            */
+
+    /* Application timeline state colours */
+    --status-applied: 217 85% 52%;
+    /* blue  — submitted                */
+    --status-reviewing: 266 68% 54%;
+    /* purple — under review            */
+    --status-shortlisted: 174 72% 36%;
+    /* teal  — shortlisted              */
+    --status-complete: 158 68% 32%;
+    /* green — completed / paid         */
+    --status-rejected: 4 82% 45%;
+    /* red   — not progressed           */
+
+    /* Escrow payment states */
+    --escrow-held: 38 92% 44%;
+    /* amber — funds in escrow          */
+    --escrow-released: 158 68% 32%;
+    /* green — payment released         */
+
+
+    /* ── Animation Shorthand Vars ────────────────────────  */
     --animate-blob: blob 7s infinite;
     --animate-shimmer: shimmer 2s infinite linear;
     --animate-float: float 6s ease-in-out infinite;
   }
 
-  @keyframes blob {
-    0% {
-      transform: translate(0px, 0px) scale(1);
-    }
 
-    33% {
-      transform: translate(30px, -50px) scale(1.1);
-    }
+  /* ── Dark Mode ─────────────────────────────────────────
+     Full token inversion that preserves all contrast ratios.
+     Shadow RGB values shift to a lighter ink to stay visible
+     on dark surfaces.                                     */
+  .dark {
+    --background: 222 24% 10%;
+    /* #0F1420 deep navy canvas         */
+    --foreground: 34 18% 94%;
+    /* #EEE9E2 warm off-white text      */
+    --card: 222 22% 14%;
+    /* elevated surface                 */
+    --card-foreground: 34 18% 94%;
+    --popover: 222 22% 14%;
+    --popover-foreground: 34 18% 94%;
 
-    66% {
-      transform: translate(-20px, 20px) scale(0.9);
-    }
+    --primary: 174 76% 48%;
+    /* lightened teal for dark bg       */
+    --primary-light: 174 70% 58%;
+    --primary-subtle: 174 40% 18%;
+    /* dark tinted surface              */
+    --primary-foreground: 0 0% 100%;
 
-    100% {
-      transform: translate(0px, 0px) scale(1);
-    }
+    --secondary: 222 18% 20%;
+    --secondary-foreground: 220 16% 72%;
+
+    --accent-amber: 38 96% 56%;
+    /* slightly lighter on dark bg      */
+    --accent-amber-subtle: 38 60% 16%;
+
+    --muted: 222 18% 18%;
+    --muted-foreground: 220 12% 60%;
+    --accent: 222 18% 20%;
+    --accent-foreground: 220 16% 82%;
+
+    --destructive: 4 72% 58%;
+    --destructive-foreground: 0 0% 100%;
+    --success: 158 60% 48%;
+    --success-subtle: 158 40% 14%;
+    --warning: 38 88% 56%;
+    --warning-subtle: 38 50% 14%;
+    --info: 210 80% 62%;
+    --info-subtle: 210 50% 14%;
+
+    --border: 222 18% 22%;
+    --border-strong: 222 16% 30%;
+    --input: 222 18% 22%;
+    --ring: 174 76% 48%;
+
+    /* Shadows lighten in dark mode to stay perceptible */
+    --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.20);
+    --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.28),
+      0 1px 2px -1px rgba(0, 0, 0, 0.20);
+    --shadow-md: 0 4px 10px -2px rgba(0, 0, 0, 0.32),
+      0 2px 4px -2px rgba(0, 0, 0, 0.22);
+    --shadow-lg: 0 12px 28px -4px rgba(0, 0, 0, 0.38),
+      0 4px 8px -2px rgba(0, 0, 0, 0.26);
+    --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.44);
+    --shadow-2xl: 0 40px 72px -16px rgba(0, 0, 0, 0.52);
+    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.30);
+    --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.32);
+    --shadow-amber: 0 6px 20px -4px hsl(var(--accent-amber) / 0.36);
+
+    --role-student: 174 76% 52%;
+    --role-sme: 266 62% 66%;
+    --role-university: 217 80% 66%;
+
+    --match-high: 158 60% 52%;
+    --match-mid: 38 88% 56%;
+    --match-low: 220 10% 48%;
+
+    --credential-bg: 38 50% 14%;
+    --credential-border: 38 70% 36%;
+    --credential-text: 38 90% 72%;
+
+    --status-applied: 217 80% 66%;
+    --status-reviewing: 266 62% 66%;
+    --status-shortlisted: 174 72% 52%;
+    --status-complete: 158 60% 48%;
+    --status-rejected: 4 72% 58%;
+
+    --escrow-held: 38 88% 56%;
+    --escrow-released: 158 60% 48%;
+  }
+}
+
+
+@keyframes blob {
+  0% {
+    transform: translate(0px, 0px) scale(1);
   }
 
-  @keyframes shimmer {
-    from {
-      background-position: 200% 0;
-    }
-
-    to {
-      background-position: -200% 0;
-    }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
   }
 
-  @keyframes float {
-
-    0%,
-    100% {
-      transform: translateY(0);
-    }
-
-    50% {
-      transform: translateY(-10px);
-    }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
   }
 
-  @keyframes glow-pulse {
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
+}
 
-    0%,
-    100% {
-      box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
-    }
+@keyframes shimmer {
+  from {
+    background-position: 200% 0;
+  }
 
-    50% {
-      box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
-    }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes float {
+
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 hsl(var(--primary) / 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 0 8px hsl(var(--primary) / 0);
   }
 }
 
@@ -203,9 +409,17 @@
     font-family: var(--font-sans);
     font-size: 0.9375rem;
     line-height: 1.65;
-    letter-spacing: -0.009em;
+    letter-spacing: 0;
+    /* Reset for better readability */
     min-height: 100svh;
     overflow-x: hidden;
+  }
+
+  /* Looser spacing for small text */
+  .text-xs,
+  .text-sm,
+  small {
+    letter-spacing: 0.005em;
   }
 
   /* ── Display headings use Space Grotesk ── */
@@ -237,14 +451,16 @@
     font-size: clamp(1.2rem, 2.2vw, 1.5rem);
     letter-spacing: -0.024em;
     line-height: 1.28;
-    font-weight: 650;
+    font-weight: 600;
+    /* Standardized from 650 */
   }
 
   h4 {
     font-size: 1.125rem;
     letter-spacing: -0.018em;
     line-height: 1.35;
-    font-weight: 620;
+    font-weight: 600;
+    /* Standardized from 620 */
   }
 
   h5 {
@@ -385,12 +601,42 @@
     min-height: 100svh;
   }
 
+  @media (max-width: 768px) {
+    .app-shell {
+      grid-template-columns: 1fr;
+    }
+
+    .app-shell__sidebar {
+      display: none;
+      /* Toggle with .sidebar--open if needed */
+      position: fixed;
+      left: 0;
+      bottom: 0;
+      width: 100%;
+      height: auto;
+      border-right: none;
+      border-top: 1px solid hsl(var(--border));
+      flex-direction: row;
+      justify-content: space-around;
+      padding: 0.5rem;
+      z-index: 100;
+      background: hsl(var(--card));
+    }
+
+    .app-shell__main {
+      padding-bottom: 5rem;
+      /* Space for mobile nav */
+    }
+  }
+
   .app-shell__topbar {
     grid-column: 1 / -1;
     height: var(--topbar-h);
     display: flex;
     align-items: center;
     padding-inline: var(--page-gutter);
+    background: hsl(var(--card));
+    /* Fallback for browsers without backdrop-filter */
     background: hsl(var(--card) / 0.92);
     backdrop-filter: blur(20px) saturate(160%);
     -webkit-backdrop-filter: blur(20px) saturate(160%);
@@ -1118,25 +1364,19 @@
     overflow: hidden;
   }
 
-  .gig-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(135deg, hsl(var(--primary) / 0) 0%, hsl(var(--primary) / 0.03) 100%);
-    opacity: 0;
-    transition: opacity var(--duration-base) var(--ease-in-out);
-    pointer-events: none;
-    border-radius: inherit;
-  }
-
   .gig-card:hover {
     box-shadow: var(--shadow-lg);
     transform: translateY(-3px);
-    border-color: hsl(var(--primary) / 0.22);
+    border-color: hsl(var(--primary) / 0.35);
+    /* Increased prominence */
   }
 
-  .gig-card:hover::before {
-    opacity: 1;
+  /* Match score badge positioning */
+  .card-match-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 10;
   }
 
   /* Profile / freelancer card */
@@ -1374,6 +1614,14 @@
     font-family: var(--font-display);
   }
 
+  /* Micro-credential reinforcement */
+  .text-credential {
+    color: hsl(38 90% 35%);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-shadow: 0 0 12px hsl(var(--accent-amber) / 0.15);
+  }
+
   /* Price display */
   .price {
     font-family: var(--font-display);
@@ -1531,6 +1779,70 @@
 
 
   /* ─────────────────────────────────────────────
+     APPLICATION STATUS TIMELINE
+  ───────────────────────────────────────────── */
+
+  .timeline-status {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    position: relative;
+    padding-left: 1.5rem;
+  }
+
+  .timeline-status::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: hsl(var(--border));
+    border-radius: var(--radius-full);
+  }
+
+  .timeline-status__item {
+    position: relative;
+  }
+
+  .timeline-status__item::before {
+    content: '';
+    position: absolute;
+    left: -1.5rem;
+    top: 0.5rem;
+    width: 0.75rem;
+    height: 0.75rem;
+    background: hsl(var(--card));
+    border: 2px solid hsl(var(--border));
+    border-radius: var(--radius-full);
+    transform: translateX(-50%);
+    z-index: 1;
+  }
+
+  .timeline-status__item--current::before {
+    border-color: hsl(var(--primary));
+    background: hsl(var(--primary));
+    box-shadow: 0 0 0 4px hsl(var(--primary) / 0.15);
+  }
+
+  .timeline-status__item--complete::before {
+    border-color: hsl(var(--success));
+    background: hsl(var(--success));
+  }
+
+  .timeline-status__item--error::before {
+    border-color: hsl(var(--destructive));
+    background: hsl(var(--destructive));
+  }
+
+  .timeline-status__content {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+
+  /* ─────────────────────────────────────────────
      TABS
   ───────────────────────────────────────────── */
 
@@ -1674,7 +1986,18 @@
     position: relative;
     max-height: calc(100svh - 4rem);
     overflow-y: auto;
-    animation: scale-in var(--duration-slow) var(--ease-out-expo) both;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .modal {
+      animation: scale-in var(--duration-slow) var(--ease-out-expo) both;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .modal {
+      animation: fade-in var(--duration-base) var(--ease-in-out) both;
+    }
   }
 
   .modal--wide {
@@ -2131,6 +2454,28 @@
     background: hsl(var(--primary-subtle));
     color: hsl(var(--primary));
     font-weight: 600;
+  }
+
+  /* ── Accessibility: High Contrast Mode ── */
+  @media (forced-colors: active) {
+
+    .btn,
+    .tab,
+    .nav-item,
+    .checkbox,
+    .input,
+    .select,
+    .textarea {
+      outline: 2px solid ButtonText;
+      outline-offset: 2px;
+    }
+
+    .btn-primary,
+    .tab--active,
+    .nav-item.active {
+      background-color: SelectedItem;
+      color: SelectedItemText;
+    }
   }
 }
 

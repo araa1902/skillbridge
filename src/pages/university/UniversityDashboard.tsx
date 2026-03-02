@@ -1,6 +1,5 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUniversityStats, useFetchMyStudents } from '@/hooks/useUniversityData'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
@@ -32,130 +31,12 @@ interface StudentData {
 
 const UniversityDashboard = () => {
   const { user, profile } = useAuth()
-  const [stats, setStats] = useState<Stats>({
-    totalStudents: 0,
-    totalProjects: 0,
-    totalCredentialsIssued: 0,
-    activeConnections: 0,
-  })
-  const [students, setStudents] = useState<StudentData[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
 
-  useEffect(() => {
-    const loadDashboardData = async () => {
-      try {
-        setLoading(true)
-        setError(null)
+  const { stats, loading: statsLoading } = useUniversityStats(user?.id)
+  const { students, loading: studentsLoading } = useFetchMyStudents(user?.id)
 
-        // 1. Fetch all student IDs for this university
-        const { data: allUnivStudents, error: univStudentsError } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('role', 'student')
-          .eq('university_id', user!.id)
-
-        if (univStudentsError) throw univStudentsError
-
-        const studentIds = allUnivStudents?.map(s => s.id) || []
-        const studentCount = studentIds.length
-
-        let projectCount = 0
-        let credentialCount = 0
-        let activeConnections = 0
-
-        if (studentIds.length > 0) {
-          // Get total credentials issued to these students
-          const { count: cCount, error: credentialError } = await supabase
-            .from('credentials')
-            .select('*', { count: 'exact', head: true })
-            .in('student_id', studentIds)
-
-          if (credentialError) throw credentialError
-          credentialCount = cCount ?? 0
-
-          // Get projects students have applied to
-          const { data: appsData, error: appError } = await supabase
-            .from('applications')
-            .select('project_id, status')
-            .in('student_id', studentIds)
-
-          if (appError) throw appError
-
-          projectCount = new Set((appsData ?? []).map(a => a.project_id)).size
-
-          // Get active connections (unique project-based conversations involving these students)
-          const { data: messageData, error: messageError } = await supabase
-            .from('messages')
-            .select('project_id, sender_id, receiver_id')
-
-          if (messageError) throw messageError
-
-          const relevantMessages = (messageData ?? []).filter((m: any) =>
-            studentIds.includes(m.sender_id) || studentIds.includes(m.receiver_id)
-          )
-          activeConnections = new Set(relevantMessages.map(m => m.project_id)).size
-        }
-
-        setStats({
-          totalStudents: studentCount,
-          totalProjects: projectCount,
-          totalCredentialsIssued: credentialCount,
-          activeConnections: activeConnections,
-        })
-
-        // Get student list with stats
-        const { data: studentList, error: studentListError } = await supabase
-          .from('profiles')
-          .select(`
-            id,
-            full_name,
-            email,
-            created_at
-          `)
-          .eq('role', 'student')
-          .eq('university_id', user!.id)
-          .order('created_at', { ascending: false })
-          .limit(20)
-
-        if (studentListError) throw studentListError
-
-        // Fetch applications and credentials for each student
-        const studentsWithStats = await Promise.all(
-          (studentList ?? []).map(async (student: any) => {
-            const [appData, credData] = await Promise.all([
-              supabase
-                .from('applications')
-                .select('*', { count: 'exact', head: true })
-                .eq('student_id', student.id),
-              supabase
-                .from('credentials')
-                .select('*', { count: 'exact', head: true })
-                .eq('student_id', student.id),
-            ])
-
-            return {
-              id: student.id,
-              full_name: student.full_name,
-              email: student.email,
-              applications_count: appData.count ?? 0,
-              credentials_earned: credData.count ?? 0,
-              joined_at: student.created_at,
-            }
-          })
-        )
-
-        setStudents(studentsWithStats)
-      } catch (err) {
-        console.error('Dashboard error:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load dashboard')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadDashboardData()
-  }, [user?.id])
+  const loading = statsLoading || studentsLoading
+  const error = null; // Error handling simplified to fit new hooks
 
   if (!profile || profile.role !== 'university') {
     return (

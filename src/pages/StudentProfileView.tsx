@@ -129,7 +129,6 @@ export default function StudentProfileView() {
                                     <Briefcase className="h-5 w-5" /> Student
                                 </p>
                             </div>
-
                             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4">
                                 <Badge variant="secondary" className="bg-white/20 hover:bg-white/30 text-white border-none py-1.5 px-3">
                                     <Award className="h-4 w-4 mr-1.5" /> {credentials.length} Credentials

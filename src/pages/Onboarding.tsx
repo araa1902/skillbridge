@@ -9,6 +9,11 @@ import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
 import { CaretRight as ChevronRight, ArrowLeft, Check, MagnifyingGlass as Search, X, Sparkle as Sparkles, Buildings as Building2 } from "@phosphor-icons/react"
 import { cn } from '@/lib/utils'
+import { useUniversities } from '@/hooks/useUniversityData'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
+import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react'
+import { universities as initialCsvUnis } from '@/types/fetchUnis'
 
 // ─── Skills Master List ───────────────────────────────────────────────────────
 
@@ -198,6 +203,64 @@ const SkillPicker = ({
     )
 }
 
+// ─── University picker ──────────────────────────────────────────────────────────
+
+const UniversityCombobox = ({
+    value,
+    onChange,
+    unis,
+    placeholder = "Search for your university..."
+}: {
+    value: string
+    onChange: (v: string) => void
+    unis: { name: string }[]
+    placeholder?: string
+}) => {
+    const [query, setQuery] = useState('')
+
+    const filteredUniversities =
+        query === ''
+            ? unis
+            : unis.filter((u) =>
+                u.name.toLowerCase().includes(query.toLowerCase())
+            )
+
+    return (
+        <Combobox value={value} onChange={onChange}>
+            <div className="relative mt-1">
+                <ComboboxInput
+                    className={cn(
+                        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                        "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                    )}
+                    displayValue={(u: string) => u}
+                    onChange={(event) => setQuery(event.target.value)}
+                    placeholder={placeholder}
+                />
+                <ComboboxOptions className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded-md border border-border bg-background py-1 text-base shadow-md ring-1 ring-black ring-opacity-5 focus:outline-none sm:text-sm">
+                    {filteredUniversities.length === 0 && query !== '' ? (
+                        <div className="relative cursor-default select-none py-2 px-4 text-muted-foreground">
+                            Nothing found.
+                        </div>
+                    ) : (
+                        filteredUniversities.map((u) => (
+                            <ComboboxOption
+                                key={u.name}
+                                value={u.name}
+                                className="group relative cursor-default select-none py-2 pl-3 pr-9 text-foreground data-[focus]:bg-muted data-[focus]:text-foreground"
+                            >
+                                <span className="block truncate group-data-[selected]:font-semibold">
+                                    {u.name}
+                                </span>
+                            </ComboboxOption>
+                        ))
+                    )}
+                </ComboboxOptions>
+            </div>
+        </Combobox>
+    )
+}
+
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function Onboarding() {
@@ -208,16 +271,33 @@ export default function Onboarding() {
     const [direction, setDirection] = useState(1)
     const [loading, setLoading] = useState(false)
 
+    // CSV Unis
+    const [csvUnis, setCsvUnis] = useState<{ name: string }[]>([])
+    useState(() => {
+        if (initialCsvUnis.length > 0) {
+            setCsvUnis(initialCsvUnis)
+        } else {
+            fetch("/universities.csv").then(res => res.text()).then(text => {
+                const lines = text.split("\n").slice(1).filter(l => l.trim())
+                setCsvUnis(lines.map(l => ({ name: l.split(",")[0].trim() })))
+            }).catch(console.error)
+        }
+    })
+
     // Student fields
     const [bio, setBio] = useState(profile?.bio || '')
     const [skills, setSkills] = useState<string[]>([])
+    const { universities: dbUniversities } = useUniversities()
+    const [studentUniName, setStudentUniName] = useState('')
+    const isUniversityVerified = !!profile?.university_id
 
     // Business fields
     const [companyName, setCompanyName] = useState('')
     const [mission, setMission] = useState(profile?.bio || '')
 
     const isStudent = role === 'student'
-    const maxSteps = 3
+    const isUniversity = role === 'university'
+    const maxSteps = isUniversity ? 3 : 3
 
     const go = (next: number) => {
         setDirection(next > step ? 1 : -1)
@@ -233,9 +313,21 @@ export default function Onboarding() {
         if (!user) return
         setLoading(true)
         try {
-            const payload = isStudent
-                ? { bio, skills }
-                : { company_name: companyName, bio: mission }
+            let payload: any = {}
+            if (isStudent) {
+                // Try to find if the selected university exists in DB
+                const matchedDbUni = dbUniversities.find(u => u.full_name?.toLowerCase() === studentUniName.toLowerCase() || u.company_name?.toLowerCase() === studentUniName.toLowerCase())
+                payload = {
+                    bio,
+                    skills,
+                    company_name: studentUniName,
+                    university_id: matchedDbUni ? matchedDbUni.id : null
+                }
+            } else if (isUniversity) {
+                payload = { company_name: companyName, bio: mission, full_name: companyName, university_id: user.id } // Ensure full_name is also updated for DB lookup
+            } else {
+                payload = { company_name: companyName, bio: mission }
+            }
 
             const { error } = await supabase
                 .from('profiles')
@@ -245,7 +337,10 @@ export default function Onboarding() {
             if (error) throw error
             await refreshProfile()
             toast.success('Profile saved!')
-            navigate(isStudent ? '/student/dashboard' : '/employer/dashboard', { replace: true })
+            navigate(
+                role === 'student' ? '/student/dashboard' : role === 'university' ? '/university/dashboard' : '/employer/dashboard',
+                { replace: true }
+            )
         } catch (err: any) {
             toast.error(err.message || 'Something went wrong')
         } finally {
@@ -275,17 +370,46 @@ export default function Onboarding() {
                     A short bio helps businesses understand who you are at a glance.
                 </p>
             </div>
-            <Textarea
-                placeholder="e.g. Final-year Computer Science student with a passion for building clean, fast web apps…"
-                value={bio}
-                onChange={(e) => setBio(e.target.value)}
-                className="h-36 text-sm resize-none bg-muted/30 border-ring-2 focus-visible:ring-1"
-            />
+
+            <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Your University</Label>
+                {isUniversityVerified ? (
+                    <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-md border text-sm text-foreground">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        <span className="font-medium">{dbUniversities.find(u => u.id === profile?.university_id)?.full_name || 'Verified University'}</span>
+                        <Badge variant="secondary" className="bg-green-100/80 text-green-700 hover:bg-green-100 ml-auto flex items-center gap-1">
+                            <Check className="h-3 w-3" /> Verified
+                        </Badge>
+                    </div>
+                ) : (
+                    <UniversityCombobox
+                        value={studentUniName}
+                        onChange={setStudentUniName}
+                        unis={csvUnis}
+                        placeholder="Search for your university..."
+                    />
+                )}
+                {isUniversityVerified && (
+                    <p className="text-[11px] text-muted-foreground mt-1">
+                        Your account is verified and strictly linked to this university.
+                    </p>
+                )}
+            </div>
+
+            <div className="space-y-1.5">
+                <Label className="text-sm font-medium">Bio</Label>
+                <Textarea
+                    placeholder="e.g. Final-year Computer Science student with a passion for building clean, fast web apps…"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    className="h-32 text-sm resize-none bg-muted/30 focus-visible:ring-1"
+                />
+            </div>
             <p className="text-xs text-muted-foreground text-right">{bio.length} / 300</p>
             <NavRow
                 showBack={false}
                 onNext={() => go(2)}
-                nextDisabled={!bio.trim()}
+                nextDisabled={!bio.trim() || (!isUniversityVerified && !studentUniName.trim())}
             />
         </motion.div>,
 
@@ -376,17 +500,32 @@ export default function Onboarding() {
             className="space-y-5"
         >
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">Company name</h2>
+                <h2 className="text-lg font-semibold tracking-tight">
+                    {isUniversity ? "University Name" : "Company name"}
+                </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                    This is what students will see when browsing your projects.
+                    {isUniversity
+                        ? "Select your institution to establish your portal."
+                        : "This is what students will see when browsing your projects."}
                 </p>
             </div>
-            <Input
-                placeholder="e.g. Acme Labs"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                className="h-11 text-sm bg-muted/30 border-0 focus-visible:ring-1"
-            />
+
+            {isUniversity ? (
+                <UniversityCombobox
+                    value={companyName}
+                    onChange={setCompanyName}
+                    unis={csvUnis}
+                    placeholder="Search for your university..."
+                />
+            ) : (
+                <Input
+                    placeholder="e.g. Acme Labs"
+                    value={companyName}
+                    onChange={(e) => setCompanyName(e.target.value)}
+                    className="h-11 text-sm bg-muted/30 border-0 focus-visible:ring-1"
+                />
+            )}
+
             <NavRow
                 showBack={false}
                 onNext={() => go(2)}
@@ -406,16 +545,20 @@ export default function Onboarding() {
             className="space-y-5"
         >
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">Company mission</h2>
+                <h2 className="text-lg font-semibold tracking-tight">
+                    {isUniversity ? "Public Description (Bio)" : "Company mission"}
+                </h2>
                 <p className="text-sm text-muted-foreground mt-1">
-                    Briefly describe what you do — students use this to decide whether to apply.
+                    {isUniversity
+                        ? "Briefly describe your institution for students."
+                        : "Briefly describe what you do — students use this to decide whether to apply."}
                 </p>
             </div>
             <Textarea
-                placeholder="We help small businesses automate their operations through…"
+                placeholder={isUniversity ? "Tell students about your institution..." : "We help small businesses automate their operations through…"}
                 value={mission}
                 onChange={(e) => setMission(e.target.value)}
-                className="h-36 text-sm resize-none bg-muted/30 border-0 focus-visible:ring-1"
+                className="h-36 text-sm resize-none bg-muted/30 border-1 focus-visible:border-2"
             />
             <p className="text-xs text-muted-foreground text-right">{mission.length} / 300</p>
             <NavRow
@@ -440,20 +583,26 @@ export default function Onboarding() {
                 <Building2 className="h-6 w-6 text-background" />
             </div>
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">Ready to hire</h2>
+                <h2 className="text-lg font-semibold tracking-tight">You're all set</h2>
                 <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-                    Post your first project and connect with verified university talent instantly.
+                    {isUniversity
+                        ? "Your portal is ready. Check your university dashboard."
+                        : "Post your first project and connect with verified university talent instantly."}
                 </p>
             </div>
 
             {/* Summary */}
             <div className="rounded-xl border bg-muted/30 p-4 text-left space-y-3">
                 <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Company</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                        {isUniversity ? "University" : "Company"}
+                    </p>
                     <p className="text-sm font-semibold">{companyName}</p>
                 </div>
                 <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Mission</p>
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
+                        {isUniversity ? "Description" : "Mission"}
+                    </p>
                     <p className="text-sm text-foreground leading-relaxed line-clamp-2">{mission}</p>
                 </div>
             </div>

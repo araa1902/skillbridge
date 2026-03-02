@@ -59,6 +59,8 @@ const ApplicationStatus = () => {
         `)
         .eq("project_id", id)
         .eq("student_id", user.id)
+        .order("created_at", { ascending: false })
+        .limit(1)
         .maybeSingle();
 
       if (appError) {

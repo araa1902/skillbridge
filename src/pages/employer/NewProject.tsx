@@ -17,7 +17,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ArrowLeft, ArrowRight, SpinnerGap as Loader2, Plus as Plus, X, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Sparkle as Sparkles, Lightbulb, CurrencyGbp as PoundSterling, Clock, CalendarBlank as CalendarDays, Checks as ListChecks, Briefcase, Tag as Tag, FileText, Info as Info, Rocket as Rocket, BookmarkSimple as BookMarked, Layout as LayoutTemplate, TrendUp as TrendingUp, ShieldCheck as ShieldCheck, Users } from "@phosphor-icons/react"
+import { ArrowLeft, ArrowRight, SpinnerGap as Loader2, Plus as Plus, X, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Sparkle as Sparkles, Lightbulb, CurrencyGbp as PoundSterling, Clock, CalendarBlank as CalendarDays, Checks as ListChecks, Briefcase, Tag as Tag, FileText, Info as Info, Rocket as Rocket, BookmarkSimple as BookMarked, Layout as LayoutTemplate, TrendUp as TrendingUp, ShieldCheck as ShieldCheck, Users, BriefcaseIcon, BinocularsIcon } from "@phosphor-icons/react"
 import { useAuth } from "@/contexts/AuthContext"
 import { insertProject, updateProject } from "@/hooks/useProjects"
 import { useToast } from "@/hooks/use-toast"
@@ -29,36 +29,84 @@ import { ProjectStatus } from "@/types"
    CONSTANTS
 ───────────────────────────────────────────────────────────────────────────── */
 
-const CATEGORIES = [
-  { value: "web-dev", label: "Web Development" },
-  { value: "mobile-dev", label: "Mobile Development" },
-  { value: "design", label: "UI/UX & Design" },
-  { value: "marketing", label: "Marketing" },
-  { value: "data", label: "Data & Analytics" },
-  { value: "content", label: "Content Creation" },
-  { value: "research", label: "Research" },
-  { value: "bizdev", label: "Business Development" },
-]
 
-const ALL_SKILLS = [
-  "Web Development", "Mobile Development", "UI/UX Design", "Graphic Design",
-  "Data Analysis", "Machine Learning", "Content Writing", "Copywriting",
-  "Social Media", "Marketing", "Research", "Business Analysis",
-]
+export const CATEGORIES = [
+  { value: "software-dev", label: "Software & Web Development" },
+  { value: "data-ai", label: "Data Science & AI" },
+  { value: "design-creative", label: "Design & Creative" },
+  { value: "marketing-pr", label: "Digital Marketing & PR" },
+  { value: "business-finance", label: "Business & Finance" },
+  { value: "writing-translation", label: "Writing & Translation" },
+  { value: "engineering-cad", label: "Engineering & Architecture" },
+  { value: "research-admin", label: "Research & Admin" },
+];
 
-const DURATIONS = [
-  { value: "10", label: "10-hour Sprint", sub: "Quick turnaround", range: "£200–£500" },
-  { value: "20", label: "20-hour Project", sub: "Standard scope", range: "£400–£1,000" },
-  { value: "ongoing", label: "Ongoing Collaboration", sub: "Long-term partner", range: "£800–£2,000" },
-]
+// Replaced broad categories with specific, highly-searched hard skills
+export const ALL_SKILLS = [
+  // Tech & Data
+  "React", "TypeScript", "Python", "Node.js", "WordPress", "Shopify",
+  "SQL", "Excel", "Machine Learning", "Data Visualization", "PowerBI",
+  // Design & Creative
+  "UI/UX Design", "Figma", "Adobe Creative Suite", "Video Editing", "Animation",
+  // Marketing & Writing
+  "SEO", "Copywriting", "Social Media Management", "Content Strategy", "Email Marketing",
+  // Business & Research
+  "Market Research", "Financial Modeling", "Data Entry", "Project Management", "Business Analysis"
+].sort(); // Alphabetical sorting makes the dropdown easier to read
 
-const TIPS = [
-  { icon: ListChecks, text: "Be specific about deliverables — numbered lists work best" },
-  { icon: CalendarDays, text: "Set realistic timelines — students balance coursework" },
-  { icon: Users, text: "Respond to applicants within 48 hours for best results" },
-  { icon: ShieldCheck, text: "Funds are held in escrow until you approve delivery" },
-  { icon: TrendingUp, text: "Projects with clear budgets receive 3× more applications" },
-]
+export const DURATIONS = [
+  {
+    value: "5",
+    label: "Micro-Task (≤ 5 hrs)",
+    sub: "Quick fixes & audits",
+    range: "£75 – £125"
+  },
+  {
+    value: "10",
+    label: "Sprint (10 hrs)",
+    sub: "Standard deliverables",
+    range: "£150 – £250"
+  },
+  {
+    value: "20",
+    label: "Deep Dive (20 hrs)",
+    sub: "Complex, multi-step projects",
+    range: "£300 – £500"
+  },
+  {
+    value: "40",
+    label: "Capstone (40+ hrs)",
+    sub: "Major builds & research",
+    range: "£600 – £1,000+"
+  },
+];
+
+export const TIPS = [
+  {
+    icon: ListChecks,
+    text: "Be specific about deliverables. Bullet points and numbered lists work best."
+  },
+  {
+    icon: CalendarDays,
+    text: "Set realistic deadlines."
+  },
+  {
+    icon: Lightbulb,
+    text: "Tag accurate skills. Our matching algorithm uses these to notify the best students."
+  },
+  {
+    icon: Users,
+    text: "Review applications quickly. Top student talent gets booked fast."
+  },
+  {
+    icon: TrendingUp,
+    text: "Competitive budgets matter. Projects priced fairly receive more applications."
+  },
+  {
+    icon: ShieldCheck,
+    text: "Secure transactions. Your funds are safely held in escrow until you approve the work."
+  },
+];
 
 type Template = {
   title: string; category: string; description: string
@@ -105,8 +153,8 @@ const TEMPLATES: Record<string, Template> = {
 ───────────────────────────────────────────────────────────────────────────── */
 
 const STEPS = [
-  { id: 1, label: "Basics", icon: Briefcase },
-  { id: 2, label: "Scope", icon: ListChecks },
+  { id: 1, label: "Basics", icon: BriefcaseIcon },
+  { id: 2, label: "Scope", icon: BinocularsIcon },
   { id: 3, label: "Skills", icon: Tag },
   { id: 4, label: "Budget", icon: PoundSterling },
   { id: 5, label: "Review", icon: CheckCircle2 },
@@ -351,12 +399,6 @@ function PricingPanel({ selectedDuration }: { selectedDuration: string }) {
       <p className="text-xs text-muted-foreground leading-relaxed">
         Your budget is held securely in escrow. Funds are only released when you're satisfied with the final deliverables.
       </p>
-      {active && (
-        <div className="mt-1 px-3 py-2 rounded-xl bg-primary/8 border border-primary/16">
-          <p className="text-xs font-600 text-muted-foreground">Suggested for {active.label}</p>
-          <p className="text-sm font-700 text-primary mt-0.5">{active.range}</p>
-        </div>
-      )}
     </div>
   )
 }

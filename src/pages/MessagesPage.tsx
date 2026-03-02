@@ -130,7 +130,7 @@ export default function MessagesPage() {
     if (projectId && user?.id) {
       markProjectMessagesAsRead(projectId, user.id).catch(console.error)
     }
-  }, [projectId, user?.id])
+  }, [projectId, user?.id, messages.length])
 
   useEffect(() => {
     if (!targetId) return
@@ -159,8 +159,16 @@ export default function MessagesPage() {
 
   // ── Recipient helpers ──────────────────────────────────────────────────────
 
-  const otherMessage = messages.find((m) => m.sender_id !== user?.id)
-  const recipientName = otherMessage?.sender_name ?? recipientProfile?.full_name ?? (project?.title ? `Re: ${project.title}` : '…')
+  const firstMessage = messages[0]
+  const threadOtherUserId = firstMessage
+    ? (firstMessage.sender_id === user?.id ? firstMessage.receiver_id : firstMessage.sender_id)
+    : null
+
+  const threadOtherUserName = firstMessage
+    ? (firstMessage.sender_id === user?.id ? firstMessage.receiver_name : firstMessage.sender_name)
+    : null
+
+  const recipientName = threadOtherUserName ?? recipientProfile?.full_name ?? (project?.title ? `Re: ${project.title}` : '…')
 
   // ── Send ───────────────────────────────────────────────────────────────────
 
@@ -170,9 +178,10 @@ export default function MessagesPage() {
 
     let receiverId =
       targetId ||
+      threadOtherUserId ||
       (user.role === 'student' && project?.business_id
         ? project.business_id
-        : otherMessage?.sender_id ?? '')
+        : '')
 
     if (!receiverId) {
       toast({
@@ -201,7 +210,7 @@ export default function MessagesPage() {
 
     setSending(false)
     textareaRef.current?.focus()
-  }, [messageContent, projectId, user, targetId, project, otherMessage, toast, refetch])
+  }, [messageContent, projectId, user, targetId, project, threadOtherUserId, toast, refetch])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
