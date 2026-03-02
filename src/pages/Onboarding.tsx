@@ -277,10 +277,26 @@ export default function Onboarding() {
         if (initialCsvUnis.length > 0) {
             setCsvUnis(initialCsvUnis)
         } else {
-            fetch("/universities.csv").then(res => res.text()).then(text => {
-                const lines = text.split("\n").slice(1).filter(l => l.trim())
-                setCsvUnis(lines.map(l => ({ name: l.split(",")[0].trim() })))
-            }).catch(console.error)
+            fetch("/universities.csv")
+                .then(async res => {
+                    if (!res.ok) throw new Error("Response not OK");
+                    const contentType = res.headers.get("content-type");
+                    const text = await res.text();
+
+                    if (text.trim().startsWith("<") || (contentType && contentType.includes("text/html"))) {
+                        console.error("Received HTML instead of CSV", { contentType, preview: text.slice(0, 100) });
+                        throw new Error("Invalid response content");
+                    }
+                    return text;
+                })
+                .then(text => {
+                    const lines = text.split("\n").slice(1).filter(l => l.trim())
+                    setCsvUnis(lines.map(l => ({ name: l.split(",")[0].trim() })))
+                })
+                .catch(err => {
+                    console.error("Failed to load universities:", err);
+                    setCsvUnis([]);
+                })
         }
     })
 

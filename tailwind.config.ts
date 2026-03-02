@@ -1,4 +1,4 @@
-import {heroui} from '@heroui/theme';
+import { heroui } from '@heroui/theme';
 import type { Config } from "tailwindcss";
 
 export default {
@@ -106,5 +106,5 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"),heroui()],
+  plugins: [require("tailwindcss-animate"), heroui()],
 } satisfies Config;

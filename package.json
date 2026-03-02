@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@carbon/icons-react": "^11.76.0",
+    "@clerk/clerk-react": "^5.61.3",
     "@headlessui/react": "^2.2.9",
     "@heroui/system": "^2.4.27",
     "@heroui/tabs": "^2.2.28",

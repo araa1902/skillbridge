@@ -20,7 +20,19 @@ let universities: University[] = [];
 async function loadUniversities() {
     try {
         const response = await fetch("/universities.csv");
+        if (!response.ok) {
+            console.error("Failed to load universities: response not OK");
+            return;
+        }
+        const contentType = response.headers.get("content-type");
         const csvContent = await response.text();
+
+        // Robust check: if it looks like HTML, don't parse it
+        if (csvContent.trim().startsWith("<") || (contentType && contentType.includes("text/html"))) {
+            console.error("Failed to load universities: received HTML instead of CSV", { contentType, preview: csvContent.slice(0, 100) });
+            return;
+        }
+
         universities = parseUniversitiesFromCSV(csvContent);
     } catch (error) {
         console.error("Failed to load universities from CSV:", error);
