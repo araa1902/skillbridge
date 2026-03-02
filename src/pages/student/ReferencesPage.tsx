@@ -424,7 +424,9 @@ const StudentReferences = () => {
                   <p className="text-gray-500 mb-6 text-sm max-w-sm mx-auto">
                     Complete projects and request references from employers to build your professional reputation.
                   </p>
-                  <Button>Browse Projects</Button>
+                  <a href="/browse-projects" className="btn btn-primary btn-sm mt-2">
+                    Browse Projects
+                  </a>
                 </CardContent>
               </Card>
             )}

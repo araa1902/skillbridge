@@ -14,57 +14,10 @@ import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import { Combobox, ComboboxInput, ComboboxOption, ComboboxOptions } from '@headlessui/react'
 import { universities as initialCsvUnis } from '@/types/fetchUnis'
+import { SearchIcon } from 'lucide-react'
 
-// ─── Skills Master List ───────────────────────────────────────────────────────
+import { ALL_SKILLS } from '@/data/skills'
 
-const ALL_SKILLS = [
-    // Engineering & Dev
-    "React", "Next.js", "Vue.js", "Angular", "Svelte",
-    "TypeScript", "JavaScript", "Node.js", "Express.js", "NestJS",
-    "Python", "Django", "FastAPI", "Flask",
-    "Java", "Spring Boot", "Kotlin", "Swift", "Objective-C",
-    "C", "C++", "C#", ".NET", "Rust", "Go",
-    "PHP", "Laravel", "Ruby", "Ruby on Rails",
-    "React Native", "Flutter", "Expo",
-    "GraphQL", "REST API", "WebSockets", "tRPC",
-    "PostgreSQL", "MySQL", "MongoDB", "Redis", "Supabase", "Firebase",
-    "Docker", "Kubernetes", "CI/CD", "GitHub Actions", "AWS", "GCP", "Azure",
-    "Linux", "Bash / Shell", "Terraform",
-
-    // Data & AI
-    "Machine Learning", "Deep Learning", "NLP", "Computer Vision",
-    "TensorFlow", "PyTorch", "Scikit-learn", "Pandas", "NumPy",
-    "Data Analysis", "Data Visualisation", "Power BI", "Tableau",
-    "SQL", "Spark", "Hadoop", "Airflow",
-    "Reinforcement Learning", "LLMs", "Prompt Engineering",
-
-    // Design
-    "UI/UX Design", "Figma", "Adobe XD", "Sketch",
-    "Graphic Design", "Illustrator", "Photoshop", "After Effects",
-    "Motion Design", "3D Modelling", "Blender", "Brand Design",
-    "Design Systems", "Wireframing", "Prototyping",
-
-    // Marketing & Growth
-    "Digital Marketing", "SEO", "SEM / PPC", "Content Marketing",
-    "Email Marketing", "Copywriting", "Social Media", "Influencer Marketing",
-    "Growth Hacking", "Analytics", "Google Analytics", "A/B Testing",
-    "CRM", "HubSpot", "Salesforce",
-
-    // Business & Strategy
-    "Project Management", "Agile / Scrum", "Product Management",
-    "Business Analysis", "Market Research", "Financial Modelling",
-    "Accounting", "Operations", "Supply Chain", "Consulting",
-    "Sales", "Business Development", "Pitch Decks", "Fundraising",
-
-    // Media & Content
-    "Video Editing", "Premiere Pro", "DaVinci Resolve",
-    "Podcast Production", "Photography", "Content Creation",
-    "Scriptwriting", "Journalism", "Translation / Localisation",
-
-    // Soft & Other
-    "Public Speaking", "Research", "Technical Writing",
-    "Community Management", "Event Planning", "Customer Support",
-]
 
 // ─── Slide transition ─────────────────────────────────────────────────────────
 
@@ -127,19 +80,19 @@ const SkillPicker = ({
 
     const filtered = useMemo(() => {
         const q = query.toLowerCase().trim()
-        return q ? ALL_SKILLS.filter((s) => s.toLowerCase().includes(q)) : ALL_SKILLS
+        return q ? ALL_SKILLS.sort().filter((s) => s.toLowerCase().includes(q)) : ALL_SKILLS.sort()
     }, [query])
 
     return (
         <div className="space-y-4">
             {/* Search */}
             <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
+                <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground pointer-events-none" />
                 <Input
                     placeholder="Search skills…"
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    className="pl-9 h-9 text-sm bg-muted/40 border-0 focus-visible:ring-1"
+                    className="pl-9 h-9 text-sm bg-muted/40 border-1 focus-visible:ring-0"
                 />
                 {query && (
                     <button
@@ -230,8 +183,8 @@ const UniversityCombobox = ({
             <div className="relative mt-1">
                 <ComboboxInput
                     className={cn(
-                        "flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
-                        "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                        "flex h-10 w-full rounded-md border-1 border-input bg-background px-3 py-2 text-sm ring-offset-background",
+                        "placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-0"
                     )}
                     displayValue={(u: string) => u}
                     onChange={(event) => setQuery(event.target.value)}
@@ -538,7 +491,7 @@ export default function Onboarding() {
                     placeholder="e.g. Acme Labs"
                     value={companyName}
                     onChange={(e) => setCompanyName(e.target.value)}
-                    className="h-11 text-sm bg-muted/30 border-0 focus-visible:ring-1"
+                    className="h-11 text-sm bg-muted/30 border-1 focus-visible:ring-0"
                 />
             )}
 

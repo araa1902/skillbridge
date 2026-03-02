@@ -6,11 +6,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
-import { X, SpinnerGap as Loader2 } from "@phosphor-icons/react";
-import { useState, useEffect } from "react";
+import { X, SpinnerGap as Loader2, MagnifyingGlass as SearchIcon } from "@phosphor-icons/react";
+import { useState, useEffect, useMemo } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/lib/supabase";
 import { toast } from "sonner";
+import { ALL_SKILLS } from "@/data/skills";
+import { cn } from "@/lib/utils";
 
 const Settings = () => {
   const { profile, user, refreshProfile } = useAuth();
@@ -51,39 +53,33 @@ const Settings = () => {
     }
   };
 
-  const handleAddSkill = async () => {
-    if (!user || !newSkill.trim() || skills.includes(newSkill.trim())) return;
+  const handleAddSkill = () => {
+    if (!newSkill.trim() || skills.includes(newSkill.trim())) return;
+    setSkills([...skills, newSkill.trim()]);
+    setNewSkill("");
+  };
 
-    const updatedSkills = [...skills, newSkill.trim()];
+  const handleSaveSkills = async () => {
+    if (!user) return;
+    setLoading(true);
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ skills: updatedSkills })
+        .update({ skills: skills })
         .eq('id', user.id);
 
       if (error) throw error;
-      setSkills(updatedSkills);
-      setNewSkill("");
+      await refreshProfile();
+      toast.success("Skills updated successfully");
     } catch (error: any) {
-      toast.error(error.message || "Failed to add skill");
+      toast.error(error.message || "Failed to update skills");
+    } finally {
+      setLoading(false);
     }
   };
 
-  const handleRemoveSkill = async (skillToRemove: string) => {
-    if (!user) return;
-
-    const updatedSkills = skills.filter((s) => s !== skillToRemove);
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .update({ skills: updatedSkills })
-        .eq('id', user.id);
-
-      if (error) throw error;
-      setSkills(updatedSkills);
-    } catch (error: any) {
-      toast.error(error.message || "Failed to remove skill");
-    }
+  const handleRemoveSkill = (skillToRemove: string) => {
+    setSkills(skills.filter((s) => s !== skillToRemove));
   };
 
   return (
@@ -172,29 +168,110 @@ const Settings = () => {
                     Add skills to showcase your abilities to employers
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-2">
-                    <Input
-                      placeholder="Add a skill..."
-                      value={newSkill}
-                      onChange={(e) => setNewSkill(e.target.value)}
-                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), handleAddSkill())}
-                    />
-                    <Button onClick={handleAddSkill}>Add</Button>
+                <CardContent className="space-y-6">
+                  {/* Current Skills */}
+                  <div className="flex flex-wrap gap-2 min-h-[40px] p-4 rounded-xl bg-muted/30 border border-dashed border-border/60">
+                    {skills.length === 0 ? (
+                      <p className="text-sm text-muted-foreground w-full text-center py-2">No skills added yet.</p>
+                    ) : (
+                      skills.map((skill) => (
+                        <Badge key={skill} variant="secondary" className="text-sm py-1.5 px-3 bg-foreground text-background hover:bg-foreground/90 transition-colors">
+                          {skill}
+                          <button
+                            onClick={() => handleRemoveSkill(skill)}
+                            className="ml-2 hover:text-red-400"
+                          >
+                            <X className="h-3 w-3" />
+                          </button>
+                        </Badge>
+                      ))
+                    )}
                   </div>
 
-                  <div className="flex flex-wrap gap-2">
-                    {skills.map((skill) => (
-                      <Badge key={skill} variant="outline" className="text-sm py-2 px-3">
-                        {skill}
+                  <div className="space-y-4">
+                    <Label>Find & Add Skills</Label>
+                    <div className="relative">
+                      <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                      <Input
+                        placeholder="Search skills (e.g. React, Python, Marketing)..."
+                        value={newSkill}
+                        onChange={(e) => setNewSkill(e.target.value)}
+                        className="pl-9 h-10 bg-muted/40 border-border/60 focus-visible:ring-0"
+                      />
+                      {newSkill && (
                         <button
-                          onClick={() => handleRemoveSkill(skill)}
-                          className="ml-2 hover:text-destructive"
+                          onClick={() => setNewSkill('')}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         >
-                          <X className="h-3 w-3" />
+                          <X className="h-4 w-4" />
                         </button>
-                      </Badge>
-                    ))}
+                      )}
+                    </div>
+
+                    {/* Filtered Skills List */}
+                    <div className="h-64 overflow-y-auto rounded-xl border bg-muted/10 p-4">
+                      {newSkill.trim() ? (
+                        <div className="flex flex-wrap gap-2">
+                          {ALL_SKILLS.filter(s =>
+                            s.toLowerCase().includes(newSkill.toLowerCase()) && !skills.includes(s)
+                          ).length === 0 ? (
+                            <div className="w-full text-center py-8 space-y-3">
+                              <p className="text-sm text-muted-foreground">No matching skills found.</p>
+                              {!skills.includes(newSkill.trim()) && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleAddSkill()}
+                                  className="h-8"
+                                >
+                                  Add "{newSkill}" as custom skill
+                                </Button>
+                              )}
+                            </div>
+                          ) : (
+                            ALL_SKILLS
+                              .filter(s => s.toLowerCase().includes(newSkill.toLowerCase()) && !skills.includes(s))
+                              .sort()
+                              .map((skill) => (
+                                <button
+                                  key={skill}
+                                  onClick={() => {
+                                    setSkills([...skills, skill]);
+                                    setNewSkill("");
+                                  }}
+                                  className="rounded-full px-3 py-1.5 text-xs font-medium border bg-background border-border text-foreground hover:border-foreground hover:bg-foreground hover:text-background transition-all"
+                                >
+                                  {skill}
+                                </button>
+                              ))
+                          )}
+                        </div>
+                      ) : (
+                        <div className="flex flex-wrap gap-2">
+                          {ALL_SKILLS
+                            .filter(s => !skills.includes(s))
+                            .sort()
+                            .map((skill) => (
+                              <button
+                                key={skill}
+                                onClick={() => {
+                                  setSkills([...skills, skill]);
+                                }}
+                                className="rounded-full px-3 py-1.5 text-xs font-medium border bg-background border-border text-foreground hover:border-foreground hover:bg-foreground hover:text-background transition-all"
+                              >
+                                {skill}
+                              </button>
+                            ))}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="pt-4 border-t">
+                    <Button onClick={handleSaveSkills} disabled={loading}>
+                      {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                      Save Skills
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
