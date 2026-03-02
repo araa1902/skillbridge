@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
-import { Reference } from '../types/index'
+import { Reference, ReferenceRequestFromDB } from '../types/index'
 import type { Database } from '@/types'
 
 export interface ReferenceFromDB {
@@ -267,7 +267,7 @@ export async function deleteReference(
 // ─── Fetch pending reference requests for an employer ──────────────────────
 
 export function useFetchPendingRequests(employerId: string | null) {
-  const [requests, setRequests] = useState<any[]>([])
+  const [requests, setRequests] = useState<ReferenceRequestFromDB[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -309,7 +309,7 @@ export function useFetchPendingRequests(employerId: string | null) {
 // ─── Fetch reference requests for a student ──────────────────────────────
 
 export function useFetchMyReferenceRequests(studentId: string | null) {
-  const [requests, setRequests] = useState<any[]>([])
+  const [requests, setRequests] = useState<ReferenceRequestFromDB[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -354,7 +354,7 @@ export async function createReferenceRequest(payload: {
   project_id: string
   student_name: string
   project_title: string
-}): Promise<{ data: any; error: string | null }> {
+}): Promise<{ data: ReferenceRequestFromDB | null; error: string | null }> {
   try {
     const { data, error } = await supabase
       .from('reference_requests')

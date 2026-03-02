@@ -35,3 +35,16 @@ export interface ReferenceRequest {
   requestedAt: string;
   completedAt?: string;
 }
+
+export interface ReferenceRequestFromDB {
+  id: string;
+  student_id: string;
+  student_name: string;
+  employer_id: string;
+  project_id: string;
+  project_title: string;
+  status: 'pending' | 'completed' | 'declined';
+  requested_at: string;
+  completed_at?: string;
+  updated_at?: string;
+}

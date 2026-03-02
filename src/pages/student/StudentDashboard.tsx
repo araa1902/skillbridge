@@ -17,6 +17,7 @@ import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { Briefcase, Medal as Award, TrendUp as TrendingUp, Star, ArrowUpRight as ArrowUpRight, CheckCircle as CheckCircle2, ChatCircle as MessageSquare, UploadSimple as Upload, CaretRight as ChevronRight, Sparkle as Sparkles, Target as CircleDot } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
+import { DashboardGreeting } from "@/components/DashboardGreeting"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -228,29 +229,14 @@ const StudentDashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="page-container py-8 space-y-8">
 
-        {/* ── Greeting ── */}
-        <motion.div
-          variants={fadeUp}
-          initial="initial"
-          animate="animate"
-          transition={{ duration: 0.3 }}
-        >
-          <h1
-            className="text-display"
-            style={{
-              fontFamily: "var(--font-display)",
-              fontWeight: 800,
-              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
-              letterSpacing: "-0.04em",
-              lineHeight: 1.1,
-            }}
-          >
-            Welcome Back, {firstName}
-          </h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Here's what's happening with your projects today.
-          </p>
-        </motion.div>
+        <DashboardGreeting
+          firstName={firstName}
+          subtext={
+            activeProjects.length > 0
+              ? `You're making great progress on ${activeProjects.length} active project${activeProjects.length > 1 ? "s" : ""}. Keep it up!`
+              : "Here's what's happening with your projects today."
+          }
+        />
 
         {/* ── Stat row ── */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

@@ -440,6 +440,12 @@
     font-weight: 800;
   }
 
+  .text-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+  }
+
   h2 {
     font-size: clamp(1.5rem, 3.5vw, 2.125rem);
     letter-spacing: -0.032em;

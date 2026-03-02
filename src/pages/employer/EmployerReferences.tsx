@@ -14,7 +14,7 @@ import {
   WarningCircle as AlertCircle, FileText, TrendUp as TrendingUp,
   CaretRight as ChevronRight, Sparkle as Sparkles, UserCircleCheck as UserCheck,
   Briefcase,
-  XCircleIcon
+  XCircle
 } from "@phosphor-icons/react";
 import {
   Dialog,
@@ -511,7 +511,7 @@ const EmployerReferences = () => {
                               }}
                               className="hover:text-blue-900 text-blue-300 transition-colors"
                             >
-                              <XCircleIcon className="h-3.5 w-3.5" />
+                              <XCircle className="h-3.5 w-3.5" />
                             </button>
                           </Badge>
                         ))}

@@ -303,9 +303,9 @@ const StudentReferences = () => {
               <Button variant="outline" size="sm" onClick={handleExportReferencesPdf}>
                 <DownloadSimpleIcon className="w-4 h-4 mr-2" /> Export All
               </Button>
-              <Button size="sm">
+              {/* <Button size="sm">
                 <ShareIcon className="w-4 h-4 mr-2" /> Share Profile
-              </Button>
+              </Button> */}
             </div>
           )}
         </div>

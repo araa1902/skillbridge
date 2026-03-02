@@ -473,15 +473,17 @@ export function Sidebar({ userType }: SidebarProps) {
                   </Link>
                 </DropdownMenuItem>
 
-                <DropdownMenuItem asChild>
-                  <Link
-                    to={detectedType === 'student' && profile?.id ? `/student-profile/${profile.id}` : `/${detectedType}/profile`}
-                    className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer"
-                  >
-                    <UserAvatar className="h-4 w-4 text-muted-foreground" />
-                    View Profile
-                  </Link>
-                </DropdownMenuItem>
+                {detectedType === 'student' && (
+                  <DropdownMenuItem asChild>
+                    <Link
+                      to={profile?.id ? `/student-profile/${profile.id}` : `/student/profile`}
+                      className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer"
+                    >
+                      <UserAvatar className="h-4 w-4 text-muted-foreground" />
+                      View Profile
+                    </Link>
+                  </DropdownMenuItem>
+                )}
               </div>
 
               <DropdownMenuSeparator />

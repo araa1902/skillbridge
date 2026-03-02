@@ -8,6 +8,7 @@ import { motion } from "framer-motion"
 import { useAuth } from "@/contexts/AuthContext"
 import { useMyProjects, useEmployerStats } from "@/hooks/useProjects"
 import { cn } from "@/lib/utils"
+import { DashboardGreeting } from "@/components/DashboardGreeting"
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -150,38 +151,23 @@ const EmployerDashboard = () => {
     <div className="min-h-screen bg-background">
       <div className="page-container py-8 space-y-8">
 
-        {/* ── Greeting ── */}
-        <motion.div
-          variants={fadeUp}
-          initial="initial"
-          animate="animate"
-          transition={{ duration: 0.3 }}
-          className="flex items-start justify-between gap-4"
-        >
-          <div>
-            <h1
-              className="text-display"
-              style={{
-                fontFamily: "var(--font-display)",
-                fontWeight: 800,
-                fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
-                letterSpacing: "-0.04em",
-                lineHeight: 1.1,
-              }}
-            >
-              Welcome Back, {firstName}
-            </h1>
-            <p className="text-sm text-muted-foreground mt-1">
-              Here's what's happening with your projects today.
-            </p>
-          </div>
-          <Button size="sm" className="shrink-0 gap-1.5" asChild>
-            <Link to="/employer/projects/new">
-              <Plus className="h-3.5 w-3.5" />
-              Post Project
-            </Link>
-          </Button>
-        </motion.div>
+        <DashboardGreeting
+          firstName={firstName}
+          companyName={profile?.company_name}
+          subtext={
+            stats.activeProjects > 0
+              ? `You have ${stats.activeProjects} active project${stats.activeProjects > 1 ? "s" : ""} and ${stats.totalApplicants} applicant${stats.totalApplicants !== 1 ? "s" : ""} to manage today.`
+              : "Manage your projects, review applicants, and find your next contributor."
+          }
+          action={
+            <Button size="sm" className="gap-1.5" asChild>
+              <Link to="/employer/projects/new">
+                <Plus className="h-3.5 w-3.5" />
+                Post Project
+              </Link>
+            </Button>
+          }
+        />
 
         {/* ── Pending references banner ── */}
         {pendingReferences.length > 0 && (
