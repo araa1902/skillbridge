@@ -2,7 +2,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { AuthProvider } from "@/contexts/AuthContext";
 
@@ -79,7 +79,7 @@ const App = () => (
               <AnimatePresence mode="wait">
                 <Routes location={location} key={location.pathname}>
                   {/* ---------- Public routes ---------- */}
-                  <Route path="/" element={<Index />} />
+                  <Route path="/" element={<Navigate to="/auth" replace />} />
                   <Route path="/all-pages" element={<AllPages />} />
                   <Route path="/auth" element={<Auth />} />
                   <Route
