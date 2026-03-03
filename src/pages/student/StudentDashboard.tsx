@@ -233,7 +233,7 @@ const StudentDashboard = () => {
           firstName={firstName}
           subtext={
             activeProjects.length > 0
-              ? `You're making great progress on ${activeProjects.length} active project${activeProjects.length > 1 ? "s" : ""}. Keep it up!`
+              ? `You have ${activeProjects.length} active project${activeProjects.length > 1 ? "s" : ""} ongoing. Keep it up!`
               : "Here's what's happening with your projects today."
           }
         />

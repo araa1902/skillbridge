@@ -8,7 +8,6 @@ const fadeUp = {
 
 interface DashboardGreetingProps {
     firstName: string
-    companyName?: string
     subtext: string
     action?: React.ReactNode
     className?: string
@@ -16,7 +15,6 @@ interface DashboardGreetingProps {
 
 export const DashboardGreeting = ({
     firstName,
-    companyName,
     subtext,
     action,
     className,
@@ -24,9 +22,9 @@ export const DashboardGreeting = ({
     const hour = new Date().getHours()
     let timeGreeting = "Welcome Back"
 
-    if (hour >= 5 && hour < 12) timeGreeting = "Good Morning"
+    if (hour >= 0 && hour < 12) timeGreeting = "Good Morning"
     else if (hour >= 12 && hour < 17) timeGreeting = "Good Afternoon"
-    else if (hour >= 17 && hour < 22) timeGreeting = "Good Evening"
+    else timeGreeting = "Good Evening"
 
     return (
         <motion.div

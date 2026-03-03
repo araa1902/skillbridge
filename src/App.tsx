@@ -66,6 +66,249 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
+const AppContent = () => {
+  const location = useLocation();
+  return (
+    <SidebarLayout>
+      <AnimatePresence mode="wait">
+        <Routes location={location} key={location.pathname}>
+          {/* ---------- Public routes ---------- */}
+          <Route path="/" element={<Navigate to="/auth" replace />} />
+          <Route path="/all-pages" element={<AllPages />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route
+            path="/onboarding"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business", "university"]}>
+                <Onboarding />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ---------- Shared (any authenticated user) ---------- */}
+          <Route
+            path="/browse-projects"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business", "university"]}>
+                <BrowseProjects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/project/:id"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business", "university"]}>
+                <ProjectDetails />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ---------- Student-only routes ---------- */}
+          <Route
+            path="/project/:id/apply"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <ApplicationForm />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/project/:id/application-status"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <ApplicationStatus />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/references"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <ReferencesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/credentials"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <CredentialsPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/applications"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentApplications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/messages"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentMessages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/settings"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <Settings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/project/:projectId/messages"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business", "university"]}>
+                <MessagesPage />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student-profile/:id"
+            element={
+              <ProtectedRoute allowedRoles={["student", "business", "university"]}>
+                <StudentProfileView />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ---------- Business/Employer-only routes ---------- */}
+          <Route
+            path="/employer/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <EmployerDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/references"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <EmployerReferences />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/messages"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <EmployerMessages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/settings"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <EmployerSettings />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/projects/new"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <NewProject />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/projects/:id/edit"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <NewProject />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/projects/manage"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <ManageProjects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/projects/:projectId/applications"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <EmployerApplications />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/employer/applications"
+            element={
+              <ProtectedRoute allowedRoles={["business"]}>
+                <EmployerApplications />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ---------- University-only routes ---------- */}
+          <Route
+            path="/university/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["university"]}>
+                <UniversityDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/university/students"
+            element={
+              <ProtectedRoute allowedRoles={["university"]}>
+                <UniversityStudents />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/university/projects"
+            element={
+              <ProtectedRoute allowedRoles={["university"]}>
+                <UniversityProjects />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/university/analytics"
+            element={
+              <ProtectedRoute allowedRoles={["university"]}>
+                <UniversityAnalytics />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/university/settings"
+            element={
+              <ProtectedRoute allowedRoles={["university"]}>
+                <UniversitySettings />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ---------- Catch-all ---------- */}
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </AnimatePresence>
+    </SidebarLayout>
+  );
+};
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -73,245 +316,8 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          {/* AuthProvider must live inside BrowserRouter so it can use navigate */}
           <AuthProvider>
-            <SidebarLayout>
-              <AnimatePresence mode="wait">
-                <Routes location={location} key={location.pathname}>
-                  {/* ---------- Public routes ---------- */}
-                  <Route path="/" element={<Navigate to="/auth" replace />} />
-                  <Route path="/all-pages" element={<AllPages />} />
-                  <Route path="/auth" element={<Auth />} />
-                  <Route
-                    path="/onboarding"
-                    element={
-                      <ProtectedRoute allowedRoles={["student", "business", "university"]}>
-                        <Onboarding />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* ---------- Shared (any authenticated user) ---------- */}
-                  <Route
-                    path="/browse-projects"
-                    element={
-                      <ProtectedRoute allowedRoles={["student", "business", "university"]}>
-                        <BrowseProjects />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/project/:id"
-                    element={
-                      <ProtectedRoute allowedRoles={["student", "business", "university"]}>
-                        <ProjectDetails />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* ---------- Student-only routes ---------- */}
-                  <Route
-                    path="/project/:id/apply"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <ApplicationForm />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/project/:id/application-status"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <ApplicationStatus />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/student/dashboard"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <StudentDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/student/references"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <ReferencesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/student/credentials"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <CredentialsPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/student/applications"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <StudentApplications />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/student/messages"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <StudentMessages />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/student/settings"
-                    element={
-                      <ProtectedRoute allowedRoles={["student"]}>
-                        <Settings />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/project/:projectId/messages"
-                    element={
-                      <ProtectedRoute allowedRoles={["student", "business", "university"]}>
-                        <MessagesPage />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/student-profile/:id"
-                    element={
-                      <ProtectedRoute allowedRoles={["student", "business", "university"]}>
-                        <StudentProfileView />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* ---------- Business/Employer-only routes ---------- */}
-                  <Route
-                    path="/employer/dashboard"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <EmployerDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/references"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <EmployerReferences />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/messages"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <EmployerMessages />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/settings"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <EmployerSettings />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/projects/new"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <NewProject />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/projects/:id/edit"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <NewProject />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/projects/manage"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <ManageProjects />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/projects/:projectId/applications"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <EmployerApplications />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/employer/applications"
-                    element={
-                      <ProtectedRoute allowedRoles={["business"]}>
-                        <EmployerApplications />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* ---------- University-only routes ---------- */}
-                  <Route
-                    path="/university/dashboard"
-                    element={
-                      <ProtectedRoute allowedRoles={["university"]}>
-                        <UniversityDashboard />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/university/students"
-                    element={
-                      <ProtectedRoute allowedRoles={["university"]}>
-                        <UniversityStudents />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/university/projects"
-                    element={
-                      <ProtectedRoute allowedRoles={["university"]}>
-                        <UniversityProjects />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/university/analytics"
-                    element={
-                      <ProtectedRoute allowedRoles={["university"]}>
-                        <UniversityAnalytics />
-                      </ProtectedRoute>
-                    }
-                  />
-                  <Route
-                    path="/university/settings"
-                    element={
-                      <ProtectedRoute allowedRoles={["university"]}>
-                        <UniversitySettings />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* ---------- Catch-all ---------- */}
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AnimatePresence>
-            </SidebarLayout>
+            <AppContent />
           </AuthProvider>
         </BrowserRouter>
       </TooltipProvider>

@@ -224,7 +224,7 @@ const Settings = () => {
                                   onClick={() => handleAddSkill()}
                                   className="h-8"
                                 >
-                                  Add "{newSkill}" as custom skill
+                                  Add "{newSkill}" as a skill
                                 </Button>
                               )}
                             </div>
