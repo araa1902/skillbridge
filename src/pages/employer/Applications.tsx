@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, ChatCircle as MessageCircle, CheckCircle, XCircle, Eye, User, WarningCircle } from "@phosphor-icons/react";
+import { ArrowLeft, ChatCircle as MessageCircle, CheckCircle, XCircle, Eye, User, WarningCircle, FileText } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -31,11 +31,12 @@ import {
   useFetchProjectApplications,
   updateApplicationStatus,
   approveApplicationAndIssueCredential,
+  cancelAcceptedApplication,
   type ApplicationWithDetails,
   type ApplicationStatus,
 } from "@/hooks/useApplications";
 import { useFetchProject } from "@/hooks/useProjects";
-import { Star, Link as LinkIcon } from "@phosphor-icons/react";
+import { Star, Link as LinkIcon, AlertTriangle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -106,6 +107,7 @@ export default function Applications() {
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"recent" | "status">("recent");
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
   const [coverLetterDialogOpen, setCoverLetterDialogOpen] = useState(false);
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationWithDetails | null>(null);
@@ -153,6 +155,25 @@ export default function Applications() {
     }
     setRejectDialogOpen(false);
     setIsEscrowModalOpen(false);
+    setSelectedApp(null);
+  };
+
+  const handleCancelAccepted = async () => {
+    if (!selectedApp) return;
+    setActionLoading(true);
+    const { error: cancelError } = await cancelAcceptedApplication(selectedApp.id, selectedApp.project_id);
+    setActionLoading(false);
+
+    if (cancelError) {
+      toast({ title: "Cancellation failed", description: cancelError, variant: "destructive" });
+    } else {
+      toast({
+        title: "Project Cancelled",
+        description: `Escrow has been refunded and the project is open again.`,
+      });
+      refetch();
+    }
+    setCancelDialogOpen(false);
     setSelectedApp(null);
   };
 
@@ -365,6 +386,24 @@ export default function Applications() {
                       </div>
                     )}
 
+                    {app.cv_url && (
+                      <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center">
+                          <FileText className="h-4 w-4 text-slate-500 mr-2" />
+                          <span className="text-sm font-medium text-slate-700">Student CV / Portfolio</span>
+                        </div>
+                        <a
+                          href={app.cv_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="text-xs font-semibold text-blue-600 hover:text-blue-800 flex items-center bg-white border border-slate-200 py-1.5 px-3 rounded-md shadow-sm transition-all hover:shadow"
+                        >
+                          <LinkIcon className="h-3.5 w-3.5 mr-1.5" />
+                          View Attachment
+                        </a>
+                      </div>
+                    )}
+
                     {app.deliverable_link && (
                       <div className="bg-blue-50 p-3 rounded-lg border border-blue-100 flex items-center justify-between">
                         <div className="flex items-center">
@@ -400,6 +439,16 @@ export default function Applications() {
                     {/* ACCEPTED STATE */}
                     {app.status === "accepted" && (
                       <>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          className="bg-red-50 text-red-600 hover:bg-red-100 border-none shadow-none"
+                          onClick={() => { setSelectedApp(app); setCancelDialogOpen(true); }}
+                        >
+                          <XCircle className="h-4 w-4 mr-1.5" />
+                          Cancel Project
+                        </Button>
+
                         <Button
                           size="sm"
                           variant="outline"
@@ -485,6 +534,32 @@ export default function Applications() {
               onClick={() => selectedApp && handleStatusChange("rejected", selectedApp)}
             >
               Reject Application
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Accepted App Dialog */}
+      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-red-600" /> Cancel Accepted Project?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to cancel the project with <strong>{selectedApp?.student_name ?? "this student"}</strong>?
+              <br /><br />
+              This will <strong>refund the escrowed payment</strong> and make the project open for other applications again.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={actionLoading}>Go Back</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={actionLoading}
+              className="bg-red-600 hover:bg-red-700"
+              onClick={handleCancelAccepted}
+            >
+              Cancel Project
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

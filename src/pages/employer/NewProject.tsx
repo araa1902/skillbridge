@@ -410,12 +410,13 @@ function PricingPanel({ selectedDuration }: { selectedDuration: string }) {
 type FormState = {
   title: string; category: string; description: string
   deliverables: string; budget: string; duration: string
-  deadline: string; mentor: boolean
+  deadline: string; mentor: boolean; project_documents_url: string
 }
 
 const INIT_FORM: FormState = {
   title: "", category: "", description: "", deliverables: "",
   budget: "", duration: "10", deadline: "", mentor: false,
+  project_documents_url: "",
 }
 
 export default function NewProject() {
@@ -460,6 +461,7 @@ export default function NewProject() {
           duration: data.duration_hours === 0 ? "ongoing" : data.duration_hours?.toString() ?? "10",
           deadline: data.created_at ? new Date(data.created_at).toISOString().split('T')[0] : "", // Placeholder
           mentor: false,
+          project_documents_url: data.project_documents_url ?? "",
         })
         setSelectedSkills(data.required_skills ?? [])
       }
@@ -480,7 +482,7 @@ export default function NewProject() {
       ...f,
       title: t.title, category: t.category,
       description: t.description, deliverables: t.deliverables,
-      duration: t.duration, budget: t.budget,
+      duration: t.duration, budget: t.budget, project_documents_url: f.project_documents_url,
     }))
     setSelectedSkills(t.skills)
     toast({ title: `Template applied: ${name}`, description: "Form pre-filled — customise as needed." })
@@ -547,6 +549,7 @@ export default function NewProject() {
       budget: isNaN(budgetNum) ? 0 : budgetNum,
       duration_hours: form.duration === "ongoing" ? 0 : parseInt(form.duration, 10),
       status: (asDraft ? "draft" : "open") as ProjectStatus,
+      project_documents_url: form.project_documents_url.trim() || null,
     }
 
     const { error } = isEditing
@@ -695,6 +698,20 @@ export default function NewProject() {
               />
             </div>
             <p className="form-hint mt-1.5">Allow enough time for quality work — students are part-time</p>
+          </div>
+
+          <div className="form-group">
+            <Label htmlFor="project_documents_url" className="form-label flex items-center gap-1">
+              Project resources link <span className="badge badge--default ml-1 font-normal uppercase scale-90">Optional</span>
+            </Label>
+            <p className="form-hint mt-0.5 mb-1.5">A secure link (e.g., Google Drive, Notion) containing files and instructions. This is only visible to the assigned student.</p>
+            <Input
+              id="project_documents_url"
+              className="input"
+              placeholder="https://docs.google.com/..."
+              value={form.project_documents_url}
+              onChange={(e) => set("project_documents_url", e.target.value)}
+            />
           </div>
         </div>
       </>

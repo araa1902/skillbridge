@@ -427,10 +427,41 @@ const ApplicationForm = () => {
       return
     }
     setIsSubmitting(true)
+
+    let cv_url: string | undefined = undefined;
+    let cv_name: string | undefined = undefined;
+
+    if (uploadedFiles.length > 0) {
+      const file = uploadedFiles[0];
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${Math.random()}.${fileExt}`
+      const filePath = `${user.id}/${id}/${fileName}`
+
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('applications')
+        .upload(filePath, file)
+
+      if (uploadError) {
+        toast({ title: "File upload failed", description: uploadError.message, variant: "destructive" })
+        setIsSubmitting(false)
+        return
+      }
+
+      if (uploadData) {
+        const { data: publicUrlData } = supabase.storage
+          .from('applications')
+          .getPublicUrl(filePath)
+        cv_url = publicUrlData.publicUrl
+        cv_name = file.name
+      }
+    }
+
     const { error } = await insertApplication({
       project_id: id,
       student_id: user.id,
       cover_letter: coverLetter.trim(),
+      cv_url,
+      cv_name,
     })
     setIsSubmitting(false)
     if (error) {

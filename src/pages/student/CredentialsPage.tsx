@@ -215,24 +215,6 @@ function CredentialCard({ credential, studentName }: { credential: Credential; i
           )}
         </div>
 
-        {/* ── Skills Tags ── */}
-        <div className="mt-auto pt-2">
-          {hasSkills ? (
-            <div className="flex flex-wrap gap-2">
-              {credential.skills_verified!.map((skill, idx) => (
-                <span
-                  key={idx}
-                  className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 text-xs font-medium hover:bg-slate-200 hover:text-slate-900 transition-colors cursor-default"
-                >
-                  {skill}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="text-xs text-slate-400 italic">No specific skills tagged</p>
-          )}
-        </div>
-
         {/* ── Footer: Date & CTA ── */}
         <div className="flex items-center justify-between pt-4 mt-2 border-t border-slate-100">
           <div className="flex items-center gap-1.5 text-xs text-slate-500 font-medium">

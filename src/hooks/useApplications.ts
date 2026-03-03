@@ -17,6 +17,9 @@ export interface ApplicationWithDetails extends ApplicationRow {
   company_name: string | null   // for student-side display
   business_name: string | null  // fallback
   business_id: string | null    // for messaging
+  project_documents_url: string | null // resources linked for the project
+  cv_url: string | null
+  cv_name: string | null
 }
 
 // ─── Insert a new application (student "Apply" button) ───────────────────────
@@ -25,7 +28,21 @@ export async function insertApplication(payload: {
   project_id: string
   student_id: string
   cover_letter: string
+  cv_url?: string
+  cv_name?: string
 }): Promise<{ data: ApplicationRow | null; error: string | null }> {
+  // Check if an application already exists for this student and project
+  const { data: existingApp, error: checkError } = await supabase
+    .from('applications')
+    .select('id')
+    .eq('project_id', payload.project_id)
+    .eq('student_id', payload.student_id)
+    .single()
+
+  if (existingApp) {
+    return { data: null, error: 'You have already applied for this project.' }
+  }
+
   const { data, error } = await supabase
     .from('applications')
     .insert(payload)
@@ -43,6 +60,20 @@ export async function updateApplicationStatus(
   status: ApplicationStatus,
   projectId?: string
 ): Promise<{ error: string | null }> {
+  // If we are accepting an application, verify the project is still open
+  if (status === 'accepted' && projectId) {
+    const { data: projectData, error: projCheckErr } = await supabase
+      .from('projects')
+      .select('status')
+      .eq('id', projectId)
+      .single()
+
+    if (projCheckErr) return { error: 'Failed to verify project status' }
+    if (projectData.status !== 'open') {
+      return { error: 'This project is already in progress or closed.' }
+    }
+  }
+
   const { error } = await supabase
     .from('applications')
     .update({ status })
@@ -65,6 +96,39 @@ export async function updateApplicationStatus(
       .neq('id', applicationId)
       .in('status', ['pending', 'reviewing'])
   }
+
+  // If a student withdraws an accepted application, we should act as if employer cancelled
+  if (status === 'withdrawn' && projectId) {
+    await supabase
+      .from('projects')
+      .update({ status: 'open', payment_status: 'refunded' })
+      .eq('id', projectId)
+  }
+
+  return { error: null }
+}
+
+// ─── Cancel Accepted Application (Employer side) ──────────────────────────────
+
+export async function cancelAcceptedApplication(
+  applicationId: string,
+  projectId: string
+): Promise<{ error: string | null }> {
+  // 1. Mark application as rejected
+  const { error: appErr } = await supabase
+    .from('applications')
+    .update({ status: 'rejected' })
+    .eq('id', applicationId)
+
+  if (appErr) return { error: appErr.message }
+
+  // 2. Mark project as open and payment as refunded
+  const { error: projErr } = await supabase
+    .from('projects')
+    .update({ status: 'open', payment_status: 'refunded' })
+    .eq('id', projectId)
+
+  if (projErr) return { error: projErr.message }
 
   return { error: null }
 }
@@ -148,6 +212,7 @@ export function useFetchMyApplications(studentId: string | null) {
         projects!applications_project_id_fkey (
           title,
           business_id,
+          project_documents_url,
           profiles!projects_business_id_fkey (
             full_name,
             company_name
@@ -169,6 +234,7 @@ export function useFetchMyApplications(studentId: string | null) {
           company_name: row.projects?.profiles?.company_name ?? null,
           business_name: row.projects?.profiles?.full_name ?? null,
           business_id: row.projects?.business_id ?? null,
+          project_documents_url: row.projects?.project_documents_url ?? null,
           student_name: null,
           student_avatar: null,
           projects: undefined,

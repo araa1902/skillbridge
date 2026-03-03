@@ -72,6 +72,7 @@ export type Database = {
                     stripe_payment_intent_id: string | null
                     duration_hours: number
                     status: ProjectStatus
+                    project_documents_url: string | null
                     created_at: string // timestamptz
                     updated_at: string // timestamptz
                 }
@@ -87,6 +88,7 @@ export type Database = {
                     stripe_payment_intent_id?: string | null
                     duration_hours?: number
                     status?: ProjectStatus
+                    project_documents_url?: string | null
                     created_at?: string
                     updated_at?: string
                 }
@@ -102,6 +104,7 @@ export type Database = {
                     stripe_payment_intent_id?: string | null
                     duration_hours?: number
                     status?: ProjectStatus
+                    project_documents_url?: string | null
                     created_at?: string
                     updated_at?: string
                 }

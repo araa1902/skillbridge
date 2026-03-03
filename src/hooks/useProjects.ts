@@ -11,6 +11,7 @@ export type ProjectInsert = Database['public']['Tables']['projects']['Insert']
 export interface ProjectWithBusiness extends ProjectRow {
   business_name: string | null
   company_name: string | null
+  project_documents_url: string | null
 }
 
 // ─── Fetch all OPEN projects (Browse Projects page) ─────────────────────────
