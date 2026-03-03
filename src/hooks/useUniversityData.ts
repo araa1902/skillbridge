@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export function useUniversities() {
@@ -28,64 +28,84 @@ export function useFetchMyStudents(universityId: string | undefined) {
     const [students, setStudents] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
+    const load = useCallback(async () => {
         if (!universityId) {
             setLoading(false)
             return
         }
 
-        async function fetchStudents() {
-            setLoading(true)
-            const { data: studentList, error: studentListError } = await supabase
-                .from('profiles')
-                .select(`
+        setLoading(true)
+        const { data: studentList, error: studentListError } = await supabase
+            .from('profiles')
+            .select(`
           id,
           full_name,
           email,
           created_at
         `)
-                .eq('role', 'student')
-                .eq('university_id', universityId)
-                .order('created_at', { ascending: false })
-                .limit(20)
+            .eq('role', 'student')
+            .eq('university_id', universityId)
+            .order('created_at', { ascending: false })
+            .limit(20)
 
-            if (studentListError || !studentList) {
-                setStudents([])
-                setLoading(false)
-                return
-            }
-
-            // Fetch applications and credentials for each student
-            const studentsWithStats = await Promise.all(
-                studentList.map(async (student: any) => {
-                    const [appData, credData] = await Promise.all([
-                        supabase
-                            .from('applications')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('student_id', student.id),
-                        supabase
-                            .from('credentials')
-                            .select('*', { count: 'exact', head: true })
-                            .eq('student_id', student.id),
-                    ])
-
-                    return {
-                        id: student.id,
-                        full_name: student.full_name,
-                        email: student.email,
-                        applications_count: appData.count ?? 0,
-                        credentials_earned: credData.count ?? 0,
-                        joined_at: student.created_at,
-                    }
-                })
-            )
-
-            setStudents(studentsWithStats)
+        if (studentListError || !studentList) {
+            setStudents([])
             setLoading(false)
+            return
         }
 
-        fetchStudents()
+        // Fetch applications and credentials for each student
+        const studentsWithStats = await Promise.all(
+            studentList.map(async (student: any) => {
+                const [appData, credData] = await Promise.all([
+                    supabase
+                        .from('applications')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('student_id', student.id),
+                    supabase
+                        .from('credentials')
+                        .select('*', { count: 'exact', head: true })
+                        .eq('student_id', student.id),
+                ])
+
+                return {
+                    id: student.id,
+                    full_name: student.full_name,
+                    email: student.email,
+                    applications_count: appData.count ?? 0,
+                    credentials_earned: credData.count ?? 0,
+                    joined_at: student.created_at,
+                }
+            })
+        )
+
+        setStudents(studentsWithStats)
+        setLoading(false)
     }, [universityId])
+
+    useEffect(() => {
+        load()
+
+        if (!universityId) return
+
+        const channel = supabase
+            .channel(`univ_students_${universityId}`)
+            .on(
+                'postgres_changes',
+                {
+                    event: '*',
+                    schema: 'public',
+                    table: 'profiles',
+                    filter: `university_id=eq.${universityId}`,
+                },
+                () => load()
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
+    }, [load, universityId])
 
     return { students, loading }
 }
@@ -99,72 +119,96 @@ export function useUniversityStats(universityId: string | undefined) {
     })
     const [loading, setLoading] = useState(true)
 
-    useEffect(() => {
+    const load = useCallback(async () => {
         if (!universityId) {
             setLoading(false)
             return
         }
 
-        async function fetchStats() {
-            setLoading(true)
+        setLoading(true)
 
-            const { data: allUnivStudents, error: univStudentsError } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('role', 'student')
-                .eq('university_id', universityId)
+        const { data: allUnivStudents, error: univStudentsError } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'student')
+            .eq('university_id', universityId)
 
-            if (univStudentsError) {
-                setLoading(false)
-                return
-            }
-
-            const studentIds = allUnivStudents?.map((s: any) => s.id) || []
-            const studentCount = studentIds.length
-
-            let projectCount = 0
-            let credentialCount = 0
-            let activeConnections = 0
-
-            if (studentIds.length > 0) {
-                // Get total credentials issued to these students
-                const { count: cCount } = await supabase
-                    .from('credentials')
-                    .select('*', { count: 'exact', head: true })
-                    .in('student_id', studentIds)
-
-                credentialCount = cCount ?? 0
-
-                // Get projects students have applied to
-                const { data: appsData } = await supabase
-                    .from('applications')
-                    .select('project_id, status')
-                    .in('student_id', studentIds)
-
-                projectCount = new Set((appsData ?? []).map((a: any) => a.project_id)).size
-
-                // Get active connections
-                const { data: messageData } = await supabase
-                    .from('messages')
-                    .select('project_id, sender_id, receiver_id')
-
-                const relevantMessages = (messageData ?? []).filter((m: any) =>
-                    studentIds.includes(m.sender_id) || studentIds.includes(m.receiver_id)
-                )
-                activeConnections = new Set(relevantMessages.map((m: any) => m.project_id)).size
-            }
-
-            setStats({
-                totalStudents: studentCount,
-                totalProjects: projectCount,
-                totalCredentialsIssued: credentialCount,
-                activeConnections: activeConnections,
-            })
+        if (univStudentsError) {
             setLoading(false)
+            return
         }
 
-        fetchStats()
+        const studentIds = allUnivStudents?.map((s: any) => s.id) || []
+        const studentCount = studentIds.length
+
+        let projectCount = 0
+        let credentialCount = 0
+        let activeConnections = 0
+
+        if (studentIds.length > 0) {
+            // Get total credentials issued to these students
+            const { count: cCount } = await supabase
+                .from('credentials')
+                .select('*', { count: 'exact', head: true })
+                .in('student_id', studentIds)
+
+            credentialCount = cCount ?? 0
+
+            // Get projects students have applied to
+            const { data: appsData } = await supabase
+                .from('applications')
+                .select('project_id, status')
+                .in('student_id', studentIds)
+
+            projectCount = new Set((appsData ?? []).map((a: any) => a.project_id)).size
+
+            // Get active connections
+            const { data: messageData } = await supabase
+                .from('messages')
+                .select('project_id, sender_id, receiver_id')
+
+            const relevantMessages = (messageData ?? []).filter((m: any) =>
+                studentIds.includes(m.sender_id) || studentIds.includes(m.receiver_id)
+            )
+            activeConnections = new Set(relevantMessages.map((m: any) => m.project_id)).size
+        }
+
+        setStats({
+            totalStudents: studentCount,
+            totalProjects: projectCount,
+            totalCredentialsIssued: credentialCount,
+            activeConnections: activeConnections,
+        })
+        setLoading(false)
     }, [universityId])
+
+    useEffect(() => {
+        load()
+
+        if (!universityId) return
+
+        // This is complex - we'll listen for any relevant changes
+        const profileChannel = supabase
+            .channel(`univ_stats_profiles_${universityId}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'profiles', filter: `university_id=eq.${universityId}` }, () => load())
+            .subscribe()
+
+        const credentialsChannel = supabase
+            .channel(`univ_stats_credentials_${universityId}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'credentials' }, () => load())
+            .subscribe()
+
+        const applicationChannel = supabase
+            .channel(`univ_stats_apps_${universityId}`)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'applications' }, () => load())
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(profileChannel)
+            supabase.removeChannel(credentialsChannel)
+            supabase.removeChannel(applicationChannel)
+        }
+    }, [load, universityId])
 
     return { stats, loading }
 }

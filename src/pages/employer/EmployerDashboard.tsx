@@ -153,7 +153,6 @@ const EmployerDashboard = () => {
 
         <DashboardGreeting
           firstName={firstName}
-          companyName={profile?.company_name}
           subtext={
             stats.activeProjects > 0
               ? `You have ${stats.activeProjects} active project${stats.activeProjects > 1 ? "s" : ""} and ${stats.totalApplicants} applicant${stats.totalApplicants !== 1 ? "s" : ""} to manage today.`

@@ -217,7 +217,44 @@ export function useFetchMessageThreads(userId: string | null) {
 
   useEffect(() => {
     load()
-  }, [load])
+
+    if (!userId) return
+
+    // We need to listen for any new messages where this user is either sender or receiver
+    // to update the thread list/last message/unread count.
+    const channelSent = supabase
+      .channel(`user_messages_sent_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `sender_id=eq.${userId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    const channelReceived = supabase
+      .channel(`user_messages_received_${userId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'messages',
+          filter: `receiver_id=eq.${userId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channelSent)
+      supabase.removeChannel(channelReceived)
+    }
+  }, [load, userId])
 
   return { threads, loading, error, refetch: load }
 }

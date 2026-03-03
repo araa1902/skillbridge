@@ -6,7 +6,6 @@ export type CredentialRow = Database['public']['Tables']['credentials']['Row']
 
 export interface CredentialWithDetails extends CredentialRow {
   skills: any[]
-  skills: any[]
   company_name: any
   employer_name: any
   student_name?: string
@@ -63,7 +62,27 @@ export function useFetchStudentCredentials(studentId: string | null) {
 
   useEffect(() => {
     load()
-  }, [load])
+
+    if (!studentId) return
+
+    const channel = supabase
+      .channel(`student_credentials_${studentId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'credentials',
+          filter: `student_id=eq.${studentId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, studentId])
 
   return { credentials, loading, error, refetch: load }
 }
@@ -114,7 +133,27 @@ export function useFetchIssuedCredentials(businessId: string | null) {
 
   useEffect(() => {
     load()
-  }, [load])
+
+    if (!businessId) return
+
+    const channel = supabase
+      .channel(`employer_credentials_${businessId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'credentials',
+          filter: `business_id=eq.${businessId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, businessId])
 
   return { credentials, loading, error, refetch: load }
 }

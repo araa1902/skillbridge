@@ -230,8 +230,8 @@ const ProjectDetails = () => {
   const deliverableLines =
     typeof project.deliverables === "string"
       ? project.deliverables
-        .split("\n")
-        .map((l) => l.trim())
+        .split(/\r?\n|\\n/)
+        .map((l) => l.trim().replace(/^\d+\.\s*|^[-•*]\s*/, ""))
         .filter(Boolean)
       : Array.isArray(project.deliverables)
         ? project.deliverables

@@ -11,6 +11,7 @@ export type ApplicationStatus = Database['public']['Tables']['applications']['Ro
 
 export interface ApplicationWithDetails extends ApplicationRow {
   project_title: string | null
+  project_budget: number | null
   student_name: string | null
   student_avatar: string | null
   company_name: string | null   // for student-side display
@@ -50,10 +51,10 @@ export async function updateApplicationStatus(
   if (error) return { error: (error as any).message ?? String(error) }
 
   if (status === 'accepted' && projectId) {
-    // 1. Mark project as in_progress
+    // 1. Mark project as in_progress and payment as held
     await supabase
       .from('projects')
-      .update({ status: 'in_progress' })
+      .update({ status: 'in_progress', payment_status: 'held_in_escrow' })
       .eq('id', projectId)
 
     // 2. Reject all other pending and reviewing applications for this project
@@ -177,7 +178,31 @@ export function useFetchMyApplications(studentId: string | null) {
     setLoading(false)
   }, [studentId])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+
+    if (!studentId) return
+
+    const channel = supabase
+      .channel(`my_applications_${studentId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'applications',
+          filter: `student_id=eq.${studentId}`,
+        },
+        () => {
+          load()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, studentId])
 
   return { applications, loading, error, refetch: load }
 }
@@ -224,7 +249,7 @@ export function useFetchProjectApplications(businessId: string | null, projectId
       .from('applications')
       .select(`
         *,
-        projects!applications_project_id_fkey ( title ),
+        projects!applications_project_id_fkey ( title, budget ),
         profiles!applications_student_id_fkey (
           full_name
         )
@@ -239,8 +264,9 @@ export function useFetchProjectApplications(businessId: string | null, projectId
       const rows = (data ?? []).map((row: any) => ({
         ...row,
         project_title: row.projects?.title ?? null,
+        project_budget: row.projects?.budget ?? null,
         student_name: row.profiles?.full_name ?? null,
-        business_id: businessId, // Add business_id here since the employer is viewing it
+        business_id: businessId,
         company_name: null,
         business_name: null,
         projects: undefined,
@@ -251,7 +277,30 @@ export function useFetchProjectApplications(businessId: string | null, projectId
     setLoading(false)
   }, [businessId, projectId])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+
+    if (!businessId) return
+
+    const channel = supabase
+      .channel(`employer_applications_${businessId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'applications',
+        },
+        () => {
+          load()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, businessId])
 
   return { applications, loading, error, refetch: load }
 }

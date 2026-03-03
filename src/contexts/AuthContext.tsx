@@ -81,13 +81,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // Profile doesn't exist — create default one from user metadata if possible
-          console.warn('[AuthContext] Profile missing for user', userId)
-          const { data: { user } } = await supabase.auth.getUser()
+          // Profile doesn't exist — attempt to create default one from user metadata
+          const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
+
+          if (userError || !authUser) {
+            console.error('[AuthContext] User deleted or session invalid:', userError?.message)
+            setSession(null)
+            setProfile(null)
+            return
+          }
+
+          console.warn('[AuthContext] Profile missing for user, using metadata default', userId)
           setProfile({
             id: userId,
-            full_name: user?.user_metadata?.full_name || 'User',
-            role: user?.user_metadata?.role || 'student',
+            full_name: authUser?.user_metadata?.full_name || 'User',
+            role: authUser?.user_metadata?.role || 'student',
             company_name: null,
             university_id: null,
             bio: null,

@@ -53,7 +53,29 @@ export function useFetchOpenProjects() {
     setLoading(false)
   }, [])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+
+    const channel = supabase
+      .channel('public_open_projects')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects',
+          filter: 'status=eq.open',
+        },
+        () => {
+          load()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load])
 
   return { projects, loading, error, refetch: load }
 }
@@ -100,7 +122,52 @@ export function useMyProjects(businessId: string | null) {
     setLoading(false)
   }, [businessId])
 
-  useEffect(() => { load() }, [load])
+  useEffect(() => {
+    load()
+
+    if (!businessId) return
+
+    // Listen for changes to projects owned by this business
+    const projectChannel = supabase
+      .channel(`my_projects_${businessId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects',
+          filter: `business_id=eq.${businessId}`,
+        },
+        () => {
+          load()
+        }
+      )
+      .subscribe()
+
+    // Also listen for new applications to update the count
+    const applicationChannel = supabase
+      .channel(`my_projects_apps_${businessId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'applications',
+        },
+        () => {
+          // We can't easily filter applications by business_id in postgres_changes 
+          // (since business_id is in the projects table). 
+          // So we'll refetch on any application change if it's an employer.
+          load()
+        }
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(projectChannel)
+      supabase.removeChannel(applicationChannel)
+    }
+  }, [load, businessId])
 
   return { projects, loading, error, refetch: load }
 }
@@ -124,72 +191,97 @@ export function useEmployerStats(businessId: string | null): EmployerStats {
     loading: true,
   })
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!businessId) {
       setStats(s => ({ ...s, loading: false }))
       return
     }
 
-    const run = async () => {
-      // 1. Fetch project IDs + status for this employer
-      const { data: projData, error: projError } = await supabase
-        .from('projects')
-        .select('id, status')
-        .eq('business_id', businessId) as unknown as {
-          data: { id: string; status: string }[] | null
-          error: { message: string } | null
-        }
-
-      if (projError || !projData) {
-        setStats(s => ({ ...s, loading: false }))
-        return
+    // 1. Fetch project IDs + status for this employer
+    const { data: projData, error: projError } = await supabase
+      .from('projects')
+      .select('id, status')
+      .eq('business_id', businessId) as unknown as {
+        data: { id: string; status: string }[] | null
+        error: { message: string } | null
       }
 
-      const active = projData.filter(p =>
-        p.status === 'open' || p.status === 'in_progress'
-      ).length
-      const completed = projData.filter(p => p.status === 'completed').length
-      const projectIds = projData.map(p => p.id)
-
-      // 2. Count all applications for these projects & compute turnaround
-      let totalApplicants = 0
-      let avgTurnaround: number | null = null
-
-      if (projectIds.length > 0) {
-        const { data: apps, error: appErr } = await supabase
-          .from('applications')
-          .select('status, created_at, updated_at')
-          .in('project_id', projectIds)
-
-        if (!appErr && apps) {
-          totalApplicants = apps.length
-
-          const reviewedApps = apps.filter(a =>
-            a.status !== 'pending' && a.status !== 'withdrawn' &&
-            new Date(a.updated_at).getTime() > new Date(a.created_at).getTime()
-          )
-
-          if (reviewedApps.length > 0) {
-            const totalHours = reviewedApps.reduce((sum, a) => {
-              const diffMs = new Date(a.updated_at).getTime() - new Date(a.created_at).getTime()
-              return sum + (diffMs / (1000 * 60 * 60))
-            }, 0)
-            avgTurnaround = Math.round(totalHours / reviewedApps.length)
-          }
-        }
-      }
-
-      setStats({
-        activeProjects: active,
-        completedProjects: completed,
-        totalApplicants,
-        averageTurnaroundHours: avgTurnaround,
-        loading: false,
-      })
+    if (projError || !projData) {
+      setStats(s => ({ ...s, loading: false }))
+      return
     }
 
-    run()
+    const active = projData.filter(p =>
+      p.status === 'open' || p.status === 'in_progress'
+    ).length
+    const completed = projData.filter(p => p.status === 'completed').length
+    const projectIds = projData.map(p => p.id)
+
+    // 2. Count all applications for these projects & compute turnaround
+    let totalApplicants = 0
+    let avgTurnaround: number | null = null
+
+    if (projectIds.length > 0) {
+      const { data: apps, error: appErr } = await supabase
+        .from('applications')
+        .select('status, created_at, updated_at')
+        .in('project_id', projectIds)
+
+      if (!appErr && apps) {
+        totalApplicants = apps.length
+
+        const reviewedApps = apps.filter(a =>
+          a.status !== 'pending' && a.status !== 'withdrawn' &&
+          new Date(a.updated_at).getTime() > new Date(a.created_at).getTime()
+        )
+
+        if (reviewedApps.length > 0) {
+          const totalHours = reviewedApps.reduce((sum, a) => {
+            const diffMs = new Date(a.updated_at).getTime() - new Date(a.created_at).getTime()
+            return sum + (diffMs / (1000 * 60 * 60))
+          }, 0)
+          avgTurnaround = Math.round(totalHours / reviewedApps.length)
+        }
+      }
+    }
+
+    setStats({
+      activeProjects: active,
+      completedProjects: completed,
+      totalApplicants,
+      averageTurnaroundHours: avgTurnaround,
+      loading: false,
+    })
   }, [businessId])
+
+  useEffect(() => {
+    load()
+
+    if (!businessId) return
+
+    const projectsChannel = supabase
+      .channel(`employer_stats_projects_${businessId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'projects', filter: `business_id=eq.${businessId}` },
+        () => load()
+      )
+      .subscribe()
+
+    const appsChannel = supabase
+      .channel(`employer_stats_apps_${businessId}`)
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'applications' },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(projectsChannel)
+      supabase.removeChannel(appsChannel)
+    }
+  }, [load, businessId])
 
   return stats
 }
@@ -238,47 +330,126 @@ export function useStudentStats(studentId: string | null): StudentStats {
     loading: true,
   })
 
-  useEffect(() => {
+  const load = useCallback(async () => {
     if (!studentId) {
       setStats(s => ({ ...s, loading: false }))
       return
     }
 
-    const run = async () => {
-      // Fetch all completed applications for this student with project budgets
-      const { data, error } = await supabase
-        .from('applications')
-        .select(`
-          status,
-          updated_at,
-          projects!applications_project_id_fkey ( budget )
-        `)
-        .eq('student_id', studentId)
-        .eq('status', 'completed')
+    // Fetch all completed applications for this student with project budgets
+    const { data, error } = await supabase
+      .from('applications')
+      .select(`
+        status,
+        updated_at,
+        projects!applications_project_id_fkey ( budget )
+      `)
+      .eq('student_id', studentId)
+      .eq('status', 'completed')
 
-      if (error || !data) {
-        setStats(s => ({ ...s, loading: false }))
-        return
-      }
-
-      const total = data.reduce((sum, app: any) => sum + (Number(app.projects?.budget) || 0), 0)
-
-      const now = new Date()
-      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
-      const thisMonth = data
-        .filter((app: any) => new Date(app.updated_at) >= startOfMonth)
-        .reduce((sum, app: any) => sum + (Number(app.projects?.budget) || 0), 0)
-
-      setStats({
-        totalEarnings: total,
-        thisMonthEarnings: thisMonth,
-        loading: false,
-      })
+    if (error || !data) {
+      setStats(s => ({ ...s, loading: false }))
+      return
     }
 
-    run()
+    const total = data.reduce((sum, app: any) => sum + (Number(app.projects?.budget) || 0), 0)
+
+    const now = new Date()
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const thisMonth = data
+      .filter((app: any) => new Date(app.updated_at) >= startOfMonth)
+      .reduce((sum, app: any) => sum + (Number(app.projects?.budget) || 0), 0)
+
+    setStats({
+      totalEarnings: total,
+      thisMonthEarnings: thisMonth,
+      loading: false,
+    })
   }, [studentId])
 
+  useEffect(() => {
+    load()
+
+    if (!studentId) return
+
+    const channel = supabase
+      .channel(`student_stats_${studentId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'applications',
+          filter: `student_id=eq.${studentId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, studentId])
+
   return stats
+}
+
+// ─── Fetch a single project by ID ──────────────────────────────────────────
+export function useFetchProject(projectId: string | null) {
+  const [project, setProject] = useState<ProjectRow | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  const load = useCallback(async () => {
+    if (!projectId) {
+      setProject(null)
+      setLoading(false)
+      return
+    }
+
+    setLoading(true)
+    setError(null)
+
+    const { data, error: dbError } = await supabase
+      .from('projects')
+      .select('*')
+      .eq('id', projectId)
+      .single()
+
+    if (dbError) {
+      setError(dbError.message)
+      setProject(null)
+    } else {
+      setProject(data as ProjectRow)
+    }
+
+    setLoading(false)
+  }, [projectId])
+
+  useEffect(() => {
+    load()
+
+    if (!projectId) return
+
+    const channel = supabase
+      .channel(`project_details_${projectId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'projects',
+          filter: `id=eq.${projectId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, projectId])
+
+  return { project, loading, error, refetch: load }
 }
 

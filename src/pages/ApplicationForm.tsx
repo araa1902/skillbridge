@@ -23,6 +23,14 @@ import { supabase } from "@/lib/supabase"
 import { cn } from "@/lib/utils"
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@radix-ui/react-alert-dialog"
 import { AlertDialogHeader } from "@/components/ui/alert-dialog"
+import { format } from "date-fns"
+import { Calendar as CalendarIcon } from "lucide-react"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
+import { Calendar as DatePickerCalendar } from "@/components/ui/calendar"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    TYPES
@@ -339,7 +347,7 @@ const ApplicationForm = () => {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState("")
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
-  const [availability, setAvailability] = useState("")
+  const [availability, setAvailability] = useState<Date | undefined>(undefined)
   const [confirmed, setConfirmed] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
@@ -389,7 +397,7 @@ const ApplicationForm = () => {
     if (step === 1) return coverLetter.trim().length > 0
     if (step === 2) return selectedSkills.length > 0
     if (step === 3) return true // files optional
-    if (step === 4) return availability !== ""
+    if (step === 4) return availability !== undefined
     if (step === 5) return confirmed
     return false
   }
@@ -690,17 +698,33 @@ const ApplicationForm = () => {
             Earliest start date
             <span className="text-destructive">*</span>
           </Label>
-          <div className="relative mt-1.5">
-            <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-            <Input
-              id="availability"
-              type="date"
-              className="input pl-10"
-              value={availability}
-              min={new Date().toISOString().split("T")[0]}
-              onChange={(e) => setAvailability(e.target.value)}
-              required
-            />
+          <div className="mt-1.5">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  data-empty={!availability}
+                  className={cn(
+                    "w-full justify-start text-left font-normal h-11 px-3 rounded-xl border-border",
+                    !availability && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {availability ? format(availability, "PPP") : <span>Select a date</span>}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <DatePickerCalendar
+                  mode="single"
+                  selected={availability}
+                  onSelect={setAvailability}
+                  disabled={(date) =>
+                    date < new Date(new Date().setHours(0, 0, 0, 0))
+                  }
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
           </div>
           <p className="form-hint mt-1.5">
             You can always negotiate the exact start date with the employer.
@@ -762,7 +786,7 @@ const ApplicationForm = () => {
           <ReviewSection label="Availability" step={4} onEdit={setStep}>
             <p className="text-sm text-muted-foreground mt-1">
               {availability
-                ? new Date(availability).toLocaleDateString("en-GB", { day: "numeric", month: "long", year: "numeric" })
+                ? format(availability, "PPP")
                 : <span className="italic opacity-60">Not set</span>}
             </p>
           </ReviewSection>

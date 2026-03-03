@@ -301,7 +301,27 @@ export function useFetchPendingRequests(employerId: string | null) {
 
   useEffect(() => {
     load()
-  }, [load])
+
+    if (!employerId) return
+
+    const channel = supabase
+      .channel(`pending_requests_${employerId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reference_requests',
+          filter: `employer_id=eq.${employerId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, employerId])
 
   return { requests, loading, error, refetch: load }
 }
@@ -341,7 +361,27 @@ export function useFetchMyReferenceRequests(studentId: string | null) {
 
   useEffect(() => {
     load()
-  }, [load])
+
+    if (!studentId) return
+
+    const channel = supabase
+      .channel(`my_reference_requests_${studentId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'reference_requests',
+          filter: `student_id=eq.${studentId}`,
+        },
+        () => load()
+      )
+      .subscribe()
+
+    return () => {
+      supabase.removeChannel(channel)
+    }
+  }, [load, studentId])
 
   return { requests, loading, error, refetch: load }
 }

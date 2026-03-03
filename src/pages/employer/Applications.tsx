@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, ChatCircle as MessageCircle, CheckCircle, XCircle, Eye, User, EyeIcon, XCircleIcon } from "@phosphor-icons/react";
+import { ArrowLeft, ChatCircle as MessageCircle, CheckCircle, XCircle, Eye, User, WarningCircle } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -21,6 +21,7 @@ import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
@@ -33,11 +34,14 @@ import {
   type ApplicationWithDetails,
   type ApplicationStatus,
 } from "@/hooks/useApplications";
+import { useFetchProject } from "@/hooks/useProjects";
 import { Star, Link as LinkIcon } from "@phosphor-icons/react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { EscrowPaymentModal } from "@/components/EscrowPaymentModal";
+import { AlertCircle } from "lucide-react";
 
 // ─── Status badge helper ──────────────────────────────────────────────────────
 
@@ -97,14 +101,15 @@ export default function Applications() {
   const { user } = useAuth();
 
   const { applications, loading, error, refetch } = useFetchProjectApplications(user?.id ?? null, projectId);
+  const { project, loading: projectLoading } = useFetchProject(projectId ?? null);
 
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"recent" | "status">("recent");
-  const [acceptDialogOpen, setAcceptDialogOpen] = useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = useState(false);
   const [coverLetterDialogOpen, setCoverLetterDialogOpen] = useState(false);
   const [completeDialogOpen, setCompleteDialogOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationWithDetails | null>(null);
+  const [isEscrowModalOpen, setIsEscrowModalOpen] = useState(false);
   const [actionLoading, setActionLoading] = useState(false);
 
   const [rating, setRating] = useState<number>(5);
@@ -127,20 +132,27 @@ export default function Applications() {
     if (updateError) {
       toast({ title: "Action failed", description: updateError, variant: "destructive" });
     } else {
-      const labels: Record<string, string> = {
-        accepted: "Accepted",
-        rejected: "Rejected",
-        reviewing: "Marked as reviewing",
-      };
-      toast({
-        title: `Application ${labels[newStatus] ?? newStatus}`,
-        description: `${app.student_name ?? "Student"}'s application has been updated.`,
-        variant: newStatus === "rejected" ? "destructive" : "default",
-      });
+      if (newStatus === "accepted") {
+        toast({
+          title: "Funds securely held in Escrow",
+          description: "Project started!",
+          variant: "default",
+        });
+      } else {
+        const labels: Record<string, string> = {
+          rejected: "Rejected",
+          reviewing: "Marked as reviewing",
+        };
+        toast({
+          title: `Application ${labels[newStatus] ?? newStatus}`,
+          description: `${app.student_name ?? "Student"}'s application has been updated.`,
+          variant: newStatus === "rejected" ? "destructive" : "default",
+        });
+      }
       refetch();
     }
-    setAcceptDialogOpen(false);
     setRejectDialogOpen(false);
+    setIsEscrowModalOpen(false);
     setSelectedApp(null);
   };
 
@@ -197,6 +209,15 @@ export default function Applications() {
     completed: "bg-green-200 text-green-700",
     rejected: "bg-red-200 text-red-700",
   };
+  const [confirmText, setConfirmText] = useState("");
+  const isConfirmed = confirmText.trim().toLowerCase() === "confirm";
+
+  // Reset when dialog closes
+  const handleDialogClose = (open: boolean) => {
+    if (!open) setConfirmText("");
+    setCompleteDialogOpen(open);
+  };
+
 
   // ── Filter & sort ─────────────────────────────────────────────────────────
 
@@ -221,8 +242,8 @@ export default function Applications() {
       <div className="page-container py-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            {projectId && applications.length > 0
-              ? `Applications for ${applications[0].project_title}`
+            {projectId
+              ? (project?.title ? `Applications for ${project.title}` : "Applications")
               : "Applications Received"}
           </h1>
           <p className="text-muted-foreground">
@@ -372,7 +393,7 @@ export default function Applications() {
                       variant="outline"
                       onClick={() => navigate(`/student-profile/${app.student_id}`)}
                     >
-                      <EyeIcon className="h-4 w-4 mr-1.5" />
+                      <Eye className="h-4 w-4 mr-1.5" />
                       View Profile
                     </Button>
 
@@ -409,13 +430,13 @@ export default function Applications() {
                           variant="destructive"
                           onClick={() => { setSelectedApp(app); setRejectDialogOpen(true); }}
                         >
-                          <XCircleIcon className="h-4 w-4 mr-1.5" />
+                          <XCircle className="h-4 w-4 mr-1.5" />
                           Reject
                         </Button>
                         <Button
                           size="sm"
                           className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                          onClick={() => { setSelectedApp(app); setAcceptDialogOpen(true); }}
+                          onClick={() => { setSelectedApp(app); setIsEscrowModalOpen(true); }}
                         >
                           <CheckCircle className="h-4 w-4 mr-1.5" />
                           Accept
@@ -430,28 +451,22 @@ export default function Applications() {
         </div>
       </div>
 
-      {/* Accept Dialog */}
-      <AlertDialog open={acceptDialogOpen} onOpenChange={setAcceptDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Accept Application?</AlertDialogTitle>
-            <AlertDialogDescription>
-              Accept <strong>{selectedApp?.student_name ?? "this student"}</strong>'s application for{" "}
-              <strong>{selectedApp?.project_title}</strong>? The student will be notified.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel disabled={actionLoading}>Cancel</AlertDialogCancel>
-            <AlertDialogAction
-              disabled={actionLoading}
-              className="bg-green-600 hover:bg-green-700"
-              onClick={() => selectedApp && handleStatusChange("accepted", selectedApp)}
-            >
-              Accept Application
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      {/* Escrow Modal replacing old Accept AlertDialog */}
+      {selectedApp && (
+        <EscrowPaymentModal
+          isOpen={isEscrowModalOpen}
+          onClose={() => { setIsEscrowModalOpen(false); setSelectedApp(null); }}
+          project={{
+            title: selectedApp.project_title ?? "Project",
+            budget: selectedApp.project_budget ?? 0
+          }}
+          application={{
+            student_name: selectedApp.student_name ?? "Student",
+            student_id: selectedApp.student_id
+          }}
+          onSuccess={() => handleStatusChange("accepted", selectedApp)}
+        />
+      )}
 
       {/* Reject Dialog */}
       <AlertDialog open={rejectDialogOpen} onOpenChange={setRejectDialogOpen}>
@@ -489,25 +504,129 @@ export default function Applications() {
       </Dialog>
 
       {/* Complete Project Dialog */}
-      <Dialog open={completeDialogOpen} onOpenChange={setCompleteDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Approve & Complete Project</DialogTitle>
-            <DialogDescription>
-              Review the submitted deliverable and validate the project has been completed
-            </DialogDescription>
-            <DialogDescription className="text-red-600 font-bold justify-center">
-              Approving this project will release payment to the student.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="flex justify-end gap-2 mt-2">
-            <Button variant="outline" onClick={() => setCompleteDialogOpen(false)} disabled={actionLoading}>Cancel</Button>
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white" onClick={handleApproveAndComplete} disabled={actionLoading}>
-              Complete Project
-            </Button>
+      <Dialog open={completeDialogOpen} onOpenChange={handleDialogClose}>
+        <DialogContent className="max-w-md p-0 overflow-hidden rounded-2xl border border-slate-200 shadow-2xl bg-white">
+
+          {/* Header */}
+          <div className="px-6 pt-6 pb-5">
+            <div className="flex items-start gap-4">
+              <div className="pt-0.5">
+                <DialogTitle className="text-base font-semibold text-slate-900 leading-snug">
+                  Release Payment & Complete Project
+                </DialogTitle>
+                <DialogDescription className="text-sm text-slate-500 mt-0.5 leading-snug">
+                  Review the details below before finalizing.
+                </DialogDescription>
+              </div>
+            </div>
+          </div>
+
+          <div className="px-6 pb-6 space-y-4">
+            <div className="border-t border-slate-100" />
+
+            {/* Project Info */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Project</span>
+                <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-medium px-2 py-0.5 rounded-full">
+                  Verified Work
+                </Badge>
+              </div>
+              <p className="text-sm font-semibold text-slate-900 -mt-1">
+                {selectedApp?.project_title}
+              </p>
+            </div>
+
+            {/* Student + Amount Row */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-slate-50 rounded-xl px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">Student</p>
+                <p className="text-sm font-medium text-slate-800 truncate">{selectedApp?.student_name}</p>
+              </div>
+              <div className="bg-slate-50 rounded-xl px-4 py-3">
+                <p className="text-[10px] font-semibold uppercase tracking-widest text-slate-400 mb-1">Escrow Release</p>
+                <p className="text-sm font-bold text-slate-900">£{selectedApp?.project_budget || "0.00"}</p>
+              </div>
+            </div>
+
+            {/* Warning Box */}
+            <div className="flex gap-3 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
+              <WarningCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-amber-800 leading-relaxed">
+                By completing this project, you confirm the deliverables meet your requirements.{" "}
+                <span className="font-semibold">This action cannot be undone.</span>
+              </p>
+            </div>
+
+            {/* ── Confirmation Input ── */}
+            <div className="space-y-2">
+              <label className="text-xs font-medium text-slate-600">
+                Type{" "}
+                <kbd className="px-1.5 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px]">
+                  confirm
+                </kbd>{" "}
+                to enable payment release
+              </label>
+              <div className="relative">
+                <input
+                  type="text"
+                  value={confirmText}
+                  onChange={(e) => setConfirmText(e.target.value)}
+                  placeholder="Type confirm..."
+                  className={`w-full h-9 px-3 rounded-lg border text-sm transition-all outline-none
+              ${isConfirmed
+                      ? "border-emerald-400 bg-emerald-50 text-emerald-800 placeholder:text-emerald-300"
+                      : "border-slate-200 bg-white text-slate-800 placeholder:text-slate-300 focus:border-blue-400 focus:ring-2 focus:ring-blue-50"
+                    }`}
+                />
+                {isConfirmed && (
+                  <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                    <CheckCircle className="h-4 w-4 text-emerald-500" />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            <div className="border-t border-slate-100" />
+
+            {/* Actions */}
+            <div className="flex items-center justify-between pt-1 gap-3">
+              <Button
+                variant="destructive"
+                onClick={() => handleDialogClose(false)}
+                disabled={actionLoading}
+                className="text-white hover:text-white hover:bg-red-700 text-sm font-medium h-9 px-4 rounded-lg"
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleApproveAndComplete}
+                disabled={actionLoading || !isConfirmed}
+                className={`text-sm font-semibold h-9 px-5 rounded-lg shadow-sm transition-all
+            ${isConfirmed
+                    ? "bg-blue-600 hover:bg-blue-700 active:scale-[0.98] text-white"
+                    : "bg-slate-100 text-slate-400 cursor-not-allowed shadow-none"
+                  }`}
+              >
+                {actionLoading ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-3.5 w-3.5 text-white" viewBox="0 0 24 24" fill="none">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Processing...
+                  </span>
+                ) : (
+                  "Release Payment"
+                )}
+              </Button>
+            </div>
+
           </div>
         </DialogContent>
       </Dialog>
+
+
     </div>
   );
 }
