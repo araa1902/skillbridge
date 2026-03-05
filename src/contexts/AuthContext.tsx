@@ -27,7 +27,7 @@ interface Profile {
 // Context value
 // --------------------------------------------------------------------------
 interface AuthContextValue {
-  usermetadata: User['user_metadata'] | null
+  userMetadata: User['user_metadata'] | null
   id: string | null
   /** Raw Supabase session – null when logged-out */
   session: Session | null
@@ -81,26 +81,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       if (error) {
         if (error.code === 'PGRST116') {
-          // Profile doesn't exist — attempt to create default one from user metadata
-          const { data: { user: authUser }, error: userError } = await supabase.auth.getUser()
-
-          if (userError || !authUser) {
-            console.error('[AuthContext] User deleted or session invalid:', userError?.message)
-            setSession(null)
-            setProfile(null)
-            return
-          }
-
-          console.warn('[AuthContext] Profile missing for user, using metadata default', userId)
-          setProfile({
-            id: userId,
-            full_name: authUser?.user_metadata?.full_name || 'User',
-            role: authUser?.user_metadata?.role || 'student',
-            company_name: null,
-            university_id: null,
-            bio: null,
-            skills: null,
-          })
+          console.error('[AuthContext] Profile missing for user in database:', userId)
+          setProfile(null)
           return
         }
         console.error('[AuthContext] Failed to fetch profile:', error.message)
@@ -156,11 +138,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
             console.error('[AuthContext] Profile fetch error:', err)
           )
         }
-
-        authInitialized = true
-        setLoading(false)
       } catch (err) {
         console.error('[AuthContext] Session restore error:', err)
+      } finally {
         if (mounted) {
           authInitialized = true
           setLoading(false)
@@ -195,16 +175,8 @@ export function AuthProvider({ children }: AuthProviderProps) {
       setLoading(false)
     })
 
-    // Fallback: ensure loading is set to false after 2 seconds max
-    const timeoutId = setTimeout(() => {
-      if (mounted) {
-        setLoading(false)
-      }
-    }, 2000)
-
     return () => {
       mounted = false
-      clearTimeout(timeoutId)
       subscription.unsubscribe()
     }
   }, [fetchProfile])
@@ -217,7 +189,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     loading,
     signOut,
     refreshProfile,
-    usermetadata: session?.user?.user_metadata ?? null,
+    userMetadata: session?.user?.user_metadata ?? null,
     id: session?.user?.id ?? null,
   }
 

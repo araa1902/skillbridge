@@ -48,6 +48,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
+import { FeedbackDialog } from "./feedback-dialog"
 
 
 /* ─────────────────────────────────────────────────────────────────────────────
@@ -390,9 +391,10 @@ export function Sidebar({ userType }: SidebarProps) {
 
       {/* ─── User profile / footer ────────────────────────────────────── */}
       <div className={cn(
-        "relative z-10 shrink-0 border-t border-border/70",
-        isCollapsed ? "p-2 flex justify-center" : "p-3"
+        "relative z-10 shrink-0 border-t border-border/70 flex flex-col",
+        isCollapsed ? "p-2 items-center gap-2" : "p-3 gap-2"
       )}>
+        <FeedbackDialog isCollapsed={isCollapsed} />
         {loading ? (
           <UserSkeleton />
         ) : (

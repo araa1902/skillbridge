@@ -9,6 +9,10 @@ import { useToast } from "@/hooks/use-toast";
 import type { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
 
+// ─── Constants ───────────────────────────────────────────────────────────────
+
+const ALLOWED_STUDENT_DOMAINS = [".ac.uk"];
+
 // ─── Role Maps ───────────────────────────────────────────────────────────────
 
 const ROLE_MAP: Record<"student" | "employer", UserRole> = {
@@ -127,6 +131,7 @@ const Auth = () => {
   const [userType, setUserType] = useState<UserTypeKey>("student");
   const [isLogin, setIsLogin] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
@@ -140,8 +145,11 @@ const Auth = () => {
 
     if (!email.includes("@")) {
       newErrors.email = "Please enter a valid email address";
-    } else if (!isLogin && userType === "student" && !email.toLowerCase().endsWith(".ac.uk")) {
-      newErrors.email = "Students must register with a university email (.ac.uk)";
+    } else if (!isLogin && userType === "student") {
+      const emailLower = email.toLowerCase();
+      if (!ALLOWED_STUDENT_DOMAINS.some(domain => emailLower.endsWith(domain))) {
+        newErrors.email = "Students must register with a valid university email";
+      }
     }
 
     if (password.length < 6) {
@@ -152,6 +160,9 @@ const Auth = () => {
       const confirmPassword = (form.elements.namedItem("confirm-password") as HTMLInputElement)?.value;
       if (password !== confirmPassword) {
         newErrors["confirm-password"] = "Passwords do not match";
+      }
+      if (!termsAccepted) {
+        newErrors.terms = "You must agree to the Terms of Service and Privacy Policy";
       }
     }
 
@@ -225,29 +236,6 @@ const Auth = () => {
         }
 
         if (data.user) {
-          let profileCreated = false;
-          for (let i = 0; i < 3; i++) {
-            try {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const { error: insertError } = await (supabase.from("profiles") as any).insert({
-                id: data.user.id,
-                full_name: fullName,
-                role,
-              });
-
-              if (!insertError || insertError.code === "23505") {
-                profileCreated = true;
-                break;
-              }
-
-              if (i < 2) await new Promise((r) => setTimeout(r, 200 * (i + 1)));
-            } catch (err) {
-              if (i < 2) await new Promise((r) => setTimeout(r, 200 * (i + 1)));
-            }
-          }
-
-          if (!profileCreated) console.warn("[Auth] Profile insert failed after 3 attempts");
-
           toast({ title: "Welcome to SkillBridge!", description: "Your account has been created." });
           navigate("/onboarding");
         }
@@ -395,18 +383,24 @@ const Auth = () => {
             )}
 
             {!isLogin && (
-              <div className="flex items-start gap-2 pt-0.5">
-                <Checkbox id="terms" required className="mt-0.5 h-4 w-4" />
-                <Label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-                  I agree to the{" "}
-                  <Link to="/terms" className="text-blue-600 hover:underline">
-                    Terms of Service
-                  </Link>{" "}
-                  and{" "}
-                  <Link to="/privacy" className="text-blue-600 hover:underline">
-                    Privacy Policy
-                  </Link>
-                </Label>
+              <div className="flex flex-col gap-1 pt-0.5">
+                <div className="flex items-start gap-2">
+                  <Checkbox
+                    id="terms"
+                    checked={termsAccepted}
+                    onCheckedChange={(checked) => setTermsAccepted(checked as boolean)}
+                    className="mt-0.5 h-4 w-4"
+                  />
+                  <Label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
+                    I agree to the Terms of Service and Privacy Policy
+                  </Label>
+                </div>
+                {errors.terms && (
+                  <p className="flex items-center gap-1 text-xs text-red-500">
+                    <AlertCircle className="h-3.5 w-3.5 shrink-0" />
+                    {errors.terms}
+                  </p>
+                )}
               </div>
             )}
 

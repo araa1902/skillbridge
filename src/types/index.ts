@@ -443,7 +443,43 @@ export type Database = {
                     }
                 ]
             }
+            user_feedback: {
+                Row: {
+                    id: string
+                    user_id: string
+                    category: string
+                    content: string
+                    status: string
+                    created_at: string
+                }
+                Insert: {
+                    id?: string
+                    user_id: string
+                    category: string
+                    content: string
+                    status?: string
+                    created_at?: string
+                }
+                Update: {
+                    id?: string
+                    user_id?: string
+                    category?: string
+                    content?: string
+                    status?: string
+                    created_at?: string
+                }
+                Relationships: [
+                    {
+                        foreignKeyName: "user_feedback_user_id_fkey"
+                        columns: ["user_id"]
+                        isOneToOne: false
+                        referencedRelation: "profiles"
+                        referencedColumns: ["id"]
+                    }
+                ]
+            }
         }
+
         Views: {
             [_ in never]: never
         }
