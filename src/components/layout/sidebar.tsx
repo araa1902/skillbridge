@@ -42,14 +42,15 @@ import {
   UsersIcon,
   CirclePlusIcon,
   SendIcon,
-  ClipboardPlusIcon
+  ClipboardPlusIcon,
+  LucideCompass
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { FeedbackDialog } from "./feedback-dialog"
-
+import { CompassIcon } from "@phosphor-icons/react"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    NAV CONFIG
@@ -73,8 +74,8 @@ const studentNav: NavGroup[] = [
   {
     items: [
       { name: "Dashboard", href: "/student/dashboard", icon: LayoutDashboard },
-      { name: "Browse Projects", href: "/browse-projects", icon: Search },
-      { name: "My Applications", href: "/student/applications", icon: SendIcon },
+      { name: "Discover", href: "/browse-projects", icon: LucideCompass },
+      { name: "Applications", href: "/student/applications", icon: SendIcon },
       { name: "Inbox", href: "/student/messages", icon: InboxIcon },
     ],
   },
@@ -468,7 +469,7 @@ export function Sidebar({ userType }: SidebarProps) {
                 <DropdownMenuItem asChild>
                   <Link
                     to={`/${detectedType}/settings`}
-                    className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer"
+                    className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer text-black"
                   >
                     <Settings className="h-4 w-4 text-muted-foreground" />
                     Settings
@@ -479,7 +480,7 @@ export function Sidebar({ userType }: SidebarProps) {
                   <DropdownMenuItem asChild>
                     <Link
                       to={profile?.id ? `/student-profile/${profile.id}` : `/student/profile`}
-                      className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer"
+                      className="flex items-center gap-2.5 px-2 py-2 text-sm font-500 rounded-lg cursor-pointer text-black"
                     >
                       <UserAvatar className="h-4 w-4 text-muted-foreground" />
                       View Profile

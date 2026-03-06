@@ -859,7 +859,6 @@ const ApplicationForm = () => {
 
         {/* Page title */}
         <div>
-          <p className="eyebrow mb-1.5">New Application</p>
           <h1
             style={{
               fontFamily: "var(--font-display)",

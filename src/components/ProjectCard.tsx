@@ -1,9 +1,6 @@
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Medal as Award, Sparkle as Sparkles, MoneyIcon, ClockIcon } from "@phosphor-icons/react";
+import { Building2, Clock, Banknote } from "lucide-react";
 import { Link } from "react-router-dom";
-import { Building2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface ProjectCardProps {
   id: string;
@@ -15,8 +12,6 @@ interface ProjectCardProps {
   /** Skill tags array */
   tags: string[];
   description?: string;
-  credential?: boolean;
-  matchScore?: number;
   /** Budget in GBP */
   budget?: number;
 }
@@ -38,60 +33,67 @@ export const ProjectCard = ({
       : duration;
 
   return (
-    <Card className="group hover:shadow-lg transition-all duration-300 h-full flex flex-col border border-gray-200/50 hover:border-gray-300">
-      <CardHeader className="space-y-3 pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="font-semibold text-lg leading-tight transition-colors">
-            {title}
-          </h3>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-600">
-          <Building2 className="h-4 w-4 text-gray-400" />
+    <div className="group relative bg-card border border-border rounded-2xl p-6 flex flex-col h-full hover:shadow-md transition-all duration-200">
+
+      {/* Title & Company */}
+      <div className="mb-3 pt-1">
+        <h3 className="font-bold text-foreground text-lg leading-snug mb-2 line-clamp-2">
+          {title}
+        </h3>
+        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+          <Building2 className="w-4 h-4 shrink-0" />
           <span className="font-medium">{company}</span>
         </div>
-      </CardHeader>
+      </div>
 
-      <CardContent className="flex-1 space-y-3">
+      {/* Description - FIXED TEXT OVERFLOW */}
+      {/* Wrapper handles the flex stretching so line-clamp renders perfectly */}
+      <div className="flex-1 mb-5">
         {description && (
-          <p className="text-sm text-gray-600 line-clamp-2">{description}</p>
+          <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">
+            {description}
+          </p>
         )}
+      </div>
 
-        <div className="flex flex-wrap items-center gap-3 text-sm text-gray-600">
-          <div className="flex items-center gap-1">
-            <ClockIcon className="h-4 w-4 text-gray-400" />
-            <span>{durationLabel}</span>
-          </div>
-          {budget !== undefined && budget > 0 && (
-            <div className="flex items-center gap-1">
-              <MoneyIcon className="h-4 w-4 text-gray-400" />
-              <span>£{budget.toLocaleString()}</span>
-            </div>
-          )}
-        </div>
+      {/* Meta (Hours & Budget) */}
+      <div className="flex items-center gap-5 text-sm text-foreground font-medium mb-4">
+        <span className="flex items-center gap-1.5">
+          <Clock className="w-4 h-4 text-muted-foreground" />
+          {durationLabel}
+        </span>
+        {budget !== undefined && budget > 0 && (
+          <span className="flex items-center gap-1.5">
+            <Banknote className="w-4 h-4 text-muted-foreground" />
+            £{budget.toLocaleString()}
+          </span>
+        )}
+      </div>
 
-        <div className="flex flex-wrap gap-2">
-          {tags.slice(0, 3).map((tag) => (
-            <Badge
-              key={tag}
-              variant="outline"
-              className="text-xs bg-gray-50 text-gray-700 border-gray-200 hover:bg-gray-100 transition-colors"
-            >
-              {tag}
-            </Badge>
-          ))}
-          {tags.length > 3 && (
-            <Badge variant="outline" className="text-xs bg-gray-50 text-gray-600 border-gray-200">
-              +{tags.length - 3} more
-            </Badge>
-          )}
-        </div>
-      </CardContent>
+      {/* Skills Tags */}
+      <div className="flex flex-wrap gap-2 mb-6">
+        {tags.slice(0, 3).map((tag) => (
+          <span
+            key={tag}
+            className="inline-flex items-center justify-center px-3 py-1 rounded-full border border-border bg-muted/50 text-xs font-medium text-muted-foreground"
+          >
+            {tag}
+          </span>
+        ))}
+        {tags.length > 3 && (
+          <span className="inline-flex items-center justify-center px-3 py-1 rounded-full border border-border bg-muted/50 text-xs font-medium text-muted-foreground">
+            +{tags.length - 3} more
+          </span>
+        )}
+      </div>
 
-      <CardFooter className="pt-3">
-        <Button asChild className="w-full hover:text-white text-white transition-colors">
-          <Link to={`/project/${id}`}>View Details</Link>
-        </Button>
-      </CardFooter>
-    </Card>
+      {/* Action Button */}
+      <Button
+        asChild
+        className="w-full mt-auto bg-primary hover:bg-primary/90 text-primary-foreground h-11 rounded-xl font-semibold shadow-sm transition-colors"
+      >
+        <Link to={`/project/${id}`}>View Details</Link>
+      </Button>
+    </div>
   );
 };

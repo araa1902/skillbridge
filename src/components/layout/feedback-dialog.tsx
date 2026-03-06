@@ -79,18 +79,24 @@ export function FeedbackDialog({ isCollapsed }: FeedbackDialogProps) {
     </button>
   )
 
+  const content = (
+    <DialogTrigger asChild>
+      {triggerButton}
+    </DialogTrigger>
+  )
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {isCollapsed ? (
-          <Tooltip delayDuration={0}>
-            <TooltipTrigger asChild>{triggerButton}</TooltipTrigger>
-            <TooltipContent side="right" sideOffset={14}>Send feedback</TooltipContent>
-          </Tooltip>
-        ) : (
-          triggerButton
-        )}
-      </DialogTrigger>
+      {isCollapsed ? (
+        <Tooltip delayDuration={0}>
+          <TooltipTrigger asChild>
+            {content}
+          </TooltipTrigger>
+          <TooltipContent side="right" sideOffset={14}>Send feedback</TooltipContent>
+        </Tooltip>
+      ) : (
+        content
+      )}
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="text-xl font-bold">Send feedback</DialogTitle>

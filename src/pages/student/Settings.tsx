@@ -111,7 +111,15 @@ const Settings = () => {
                 <CardContent className="space-y-6">
                   <div className="flex items-center gap-6 pb-6 border-b border-border/50">
                     <div className="h-16 w-16 flex items-center justify-center rounded-full bg-muted text-xl font-semibold uppercase">
-                      {fullName.split(" ")[0][0] + fullName.split(" ")[1][0]}
+                      {fullName
+                        ? fullName
+                          .split(/\s+/)
+                          .filter(Boolean)
+                          .map((n) => n[0])
+                          .join("")
+                          .slice(0, 2)
+                          .toUpperCase()
+                        : "U"}
                     </div>
                     <div>
                       <p className="font-semibold text-lg">{fullName}</p>
