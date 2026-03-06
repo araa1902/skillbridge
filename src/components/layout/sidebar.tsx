@@ -461,7 +461,7 @@ export function Sidebar({ userType }: SidebarProps) {
                 <p className="text-sm font-600 text-foreground truncate" style={{ fontFamily: "var(--font-display)" }}>
                   {profile?.full_name ?? "User"}
                 </p>
-                <p className="text-xs text-muted-foreground mt-0.5 capitalize">{meta.label} account</p>
+                <p className="text-xs text-muted-foreground mt-0.5 capitalize">{meta.label}</p>
               </div>
 
               {/* Settings */}

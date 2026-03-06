@@ -14,8 +14,26 @@ import {
   DialogDescription,
   DialogFooter,
 } from "@/components/ui/dialog"
-import { useParams, useNavigate } from "react-router-dom"
-import { UploadSimple as Upload, X, FileText, CheckCircle as CheckCircle2, Calendar, SpinnerGap as Loader2, Briefcase, Buildings as Building2, Clock, CurrencyGbp as PoundSterling, Sparkle as Sparkles, Plus as Plus, CaretRight as ChevronRight, WarningCircle as AlertCircle, ArrowLeft, MagnifyingGlass as Search } from "@phosphor-icons/react"
+import { useParams, useNavigate, Link } from "react-router-dom"
+import {
+  UploadSimple as Upload,
+  X,
+  FileText,
+  CheckCircle as CheckCircle2,
+  Calendar,
+  SpinnerGap as Loader2,
+  Briefcase,
+  Buildings as Building2,
+  Clock,
+  CurrencyGbp as PoundSterling,
+  Sparkle as Sparkles,
+  Plus,
+  CaretRight as ChevronRight,
+  WarningCircle as AlertCircle,
+  ArrowLeft,
+  MagnifyingGlass as Search
+} from "@phosphor-icons/react"
+import { ALL_SKILLS } from "@/data/skills"
 import { useToast } from "@/hooks/use-toast"
 import { useAuth } from "@/contexts/AuthContext"
 import { insertApplication } from "@/hooks/useApplications"
@@ -290,7 +308,7 @@ const ApplicationForm = () => {
   const { id } = useParams<{ id: string }>()
   const navigate = useNavigate()
   const { toast } = useToast()
-  const { user } = useAuth()
+  const { user, profile } = useAuth()
 
   /* ── Project fetch ── */
   const [project, setProject] = useState<ProjectPreview | null>(null)
@@ -346,6 +364,8 @@ const ApplicationForm = () => {
   const [coverLetter, setCoverLetter] = useState("")
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
   const [newSkill, setNewSkill] = useState("")
+  const [filteredSkills, setFilteredSkills] = useState<string[]>([])
+  const [showSuggestions, setShowSuggestions] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
   const [availability, setAvailability] = useState<Date | undefined>(undefined)
   const [confirmed, setConfirmed] = useState(false)
@@ -353,27 +373,87 @@ const ApplicationForm = () => {
   const [showSuccess, setShowSuccess] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  /* Pre-populate skills when project loads */
+  /* ── State Persistence (Session Storage) ── */
+  const STORAGE_KEY = id ? `application_draft_${id}` : null
+
+  // Load state on mount
   useEffect(() => {
-    if (project?.required_skills) setSelectedSkills(project.required_skills)
-  }, [project])
+    if (!STORAGE_KEY) return
+    const saved = sessionStorage.getItem(STORAGE_KEY)
+    if (saved) {
+      try {
+        const data = JSON.parse(saved)
+        if (data.coverLetter) setCoverLetter(data.coverLetter)
+        if (data.selectedSkills && data.selectedSkills.length > 0) setSelectedSkills(data.selectedSkills)
+        if (data.availability) setAvailability(new Date(data.availability))
+        if (data.confirmed) setConfirmed(data.confirmed)
+        if (data.step) setStep(data.step)
+      } catch (e) {
+        console.error("Failed to load draft application", e)
+      }
+    }
+  }, [STORAGE_KEY])
+
+  // Save state on changes
+  useEffect(() => {
+    if (!STORAGE_KEY) return
+    const draft = {
+      coverLetter,
+      selectedSkills,
+      availability,
+      confirmed,
+      step,
+    }
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
+  }, [STORAGE_KEY, coverLetter, selectedSkills, availability, confirmed, step])
+
+  /* Pre-populate skills from profile on load if empty */
+  useEffect(() => {
+    if (profile?.skills && selectedSkills.length === 0) {
+      setSelectedSkills(profile.skills)
+    }
+  }, [profile, selectedSkills.length])
+
+  /* Clear draft on success */
+  useEffect(() => {
+    if (showSuccess && STORAGE_KEY) {
+      sessionStorage.removeItem(STORAGE_KEY)
+    }
+  }, [showSuccess, STORAGE_KEY])
 
   /* ── Skill helpers ── */
-  const addSkill = () => {
-    const t = newSkill.trim()
-    if (t && !selectedSkills.includes(t)) {
-      setSelectedSkills((p) => [...p, t])
-      setNewSkill("")
+  const addSkill = (skillToAdd?: string) => {
+    const skill = (skillToAdd || newSkill).trim()
+    if (skill && !selectedSkills.includes(skill)) {
+      setSelectedSkills([...selectedSkills, skill])
     }
+    setNewSkill("")
+    setFilteredSkills([])
+    setShowSuggestions(false)
   }
-  const removeSkill = (s: string) => setSelectedSkills((p) => p.filter((x) => x !== s))
 
-  /* ── File helpers ── */
+  const removeSkill = (skillToRemove: string) => {
+    setSelectedSkills(selectedSkills.filter(s => s !== skillToRemove))
+  }
+
+  // Handle skill input change
+  useEffect(() => {
+    if (newSkill.trim().length > 0) {
+      const filtered = ALL_SKILLS.filter(s =>
+        s.toLowerCase().includes(newSkill.toLowerCase()) &&
+        !selectedSkills.includes(s)
+      ).slice(0, 10) // Limit to 10 suggestions
+      setFilteredSkills(filtered)
+      setShowSuggestions(true)
+    } else {
+      setFilteredSkills([])
+      setShowSuggestions(false)
+    }
+  }, [newSkill, selectedSkills]) /* ── File helpers ── */
   const processFiles = (files: File[]) => {
     const VALID_TYPES = [
       "application/pdf",
       "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-      "image/jpeg",
       "image/png",
     ]
     const MAX = 10 * 1024 * 1024
@@ -620,19 +700,64 @@ const ApplicationForm = () => {
         <div className="form-group">
           <Label className="form-label">Add a skill</Label>
           <div className="flex gap-2 mt-1.5">
-            <div className="search-wrap flex-1">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
               <Input
-                className="input"
+                className="input pl-10 h-11"
                 placeholder="e.g. React, Data Analysis, Figma…"
                 value={newSkill}
                 onChange={(e) => setNewSkill(e.target.value)}
-                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addSkill() } }}
+                onBlur={() => {
+                  // Small delay to allow clicking suggestions
+                  setTimeout(() => setShowSuggestions(false), 200)
+                }}
+                onFocus={() => {
+                  if (newSkill.trim().length > 0) setShowSuggestions(true)
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault()
+                    addSkill()
+                  }
+                }}
               />
+
+              {/* Autocomplete Suggestions */}
+              {showSuggestions && filteredSkills.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-background border border-border rounded-xl shadow-xl max-h-64 overflow-y-auto overflow-x-hidden py-1 animate-in fade-in slide-in-from-top-2 duration-200">
+                  {filteredSkills.map((skill) => (
+                    <button
+                      key={skill}
+                      type="button"
+                      onClick={() => addSkill(skill)}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-muted transition-colors border-b border-border/50 last:border-0"
+                    >
+                      <Plus className="w-3 h-3 text-muted-foreground" />
+                      <span className="font-medium">{skill}</span>
+                    </button>
+                  ))}
+                  {newSkill && !ALL_SKILLS.includes(newSkill) && (
+                    <button
+                      type="button"
+                      onClick={() => addSkill()}
+                      className="w-full flex items-center gap-3 px-4 py-3 text-sm text-left hover:bg-primary/5 transition-colors border-t border-border"
+                    >
+                      <div className="w-4 h-4 rounded-full bg-primary/20 flex items-center justify-center">
+                        <Plus className="w-3 h-3 text-primary" />
+                      </div>
+                      <div>
+                        <span className="font-medium text-primary">Add custom: </span>
+                        <span className="italic">"{newSkill}"</span>
+                      </div>
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
             <button
               type="button"
-              onClick={addSkill}
-              className="btn btn-secondary"
+              onClick={() => addSkill()}
+              className="btn btn-secondary h-11"
             >
               <Plus className="w-4 h-4" /> Add
             </button>
@@ -833,7 +958,8 @@ const ApplicationForm = () => {
           />
           <Label htmlFor="confirm" className="text-sm text-foreground leading-relaxed cursor-pointer">
             I confirm that all information provided is accurate and complete, and I agree to the platform's{" "}
-            <a href="/terms" className="text-primary hover:underline">terms of service</a>.
+            <Link to="/terms-of-service" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and{" "}
+            <Link to="/privacy-policy" className="text-primary hover:underline" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>.
           </Label>
         </div>
       </div>

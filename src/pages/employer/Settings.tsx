@@ -118,36 +118,13 @@ export default function EmployerSettings() {
         </div>
       </Card>
 
-      {/* Preferences */}
-      <Card className="p-6">
-        <h2 className="mb-4 text-xl font-semibold">Preferences</h2>
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <Label>Email Notifications</Label>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="h-4 w-4"
-            />
-          </div>
-          <div className="flex items-center justify-between">
-            <Label>Application Updates</Label>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="h-4 w-4"
-            />
-          </div>
-        </div>
-      </Card>
-
       {/* Actions */}
       <div className="flex gap-3">
         <Button onClick={handleSave} disabled={loading}>
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           Save Changes
         </Button>
-        <Button variant="outline" onClick={() => refreshProfile()}>Cancel</Button>
+        <Button variant="outline" onClick={() => refreshProfile()}>Reset</Button>
       </div>
     </div>
   )

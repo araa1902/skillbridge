@@ -308,7 +308,7 @@ const Auth = () => {
               <Field
                 id="name"
                 label="Full Name"
-                placeholder="Jane Doe"
+                placeholder="Enter your full name..."
                 autoComplete="name"
                 required
                 error={errors.name}
@@ -323,10 +323,10 @@ const Auth = () => {
               type="email"
               placeholder={
                 userType === "student"
-                  ? "you@university.ac.uk"
+                  ? "Enter your university email..."
                   : userType === "employer"
-                    ? "you@company.com"
-                    : "admin@university.ac.uk"
+                    ? "Enter your company email..."
+                    : "Enter your admin email..."
               }
               autoComplete="email"
               required
@@ -337,7 +337,7 @@ const Auth = () => {
               id="password"
               label="Password"
               type={showPassword ? "text" : "password"}
-              placeholder="••••••••"
+              placeholder="Enter your password..."
               autoComplete={isLogin ? "current-password" : "new-password"}
               required
               error={errors.password}
@@ -358,7 +358,7 @@ const Auth = () => {
                 id="confirm-password"
                 label="Confirm Password"
                 type={showPassword ? "text" : "password"}
-                placeholder="••••••••"
+                placeholder="Enter your password again..."
                 autoComplete="new-password"
                 required
                 error={errors["confirm-password"]}
@@ -392,7 +392,7 @@ const Auth = () => {
                     className="mt-0.5 h-4 w-4"
                   />
                   <Label htmlFor="terms" className="text-sm text-gray-600 leading-relaxed cursor-pointer">
-                    I agree to the Terms of Service and Privacy Policy
+                    I agree to the <Link to="/terms-of-service" className="text-blue-600 hover:underline hover:text-blue-700" onClick={(e) => e.stopPropagation()}>Terms of Service</Link> and <Link to="/privacy-policy" className="text-blue-600 hover:underline hover:text-blue-700" onClick={(e) => e.stopPropagation()}>Privacy Policy</Link>
                   </Label>
                 </div>
                 {errors.terms && (

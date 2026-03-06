@@ -37,6 +37,8 @@ import NotFound from "./pages/NotFound";
 import { Sidebar } from "@/components/layout/sidebar";
 import StudentMessages from "./pages/student/Messages";
 import EmployerMessages from "./pages/employer/Messages";
+import TermsOfService from "./pages/TermsOfService";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PageTransition from "@/components/layout/PageTransition";
 import { AnimatePresence } from "framer-motion";
 
@@ -47,6 +49,8 @@ const SidebarLayout = ({ children }: { children: React.ReactNode }) => {
   const isAuthPage =
     location.pathname === "/" ||
     location.pathname === "/auth" ||
+    location.pathname === "/terms-of-service" ||
+    location.pathname === "/privacy-policy" ||
     location.pathname === "/all-pages" ||
     location.pathname === "/onboarding";
 
@@ -74,6 +78,8 @@ const AppContent = () => {
         <Routes location={location} key={location.pathname}>
           {/* ---------- Public routes ---------- */}
           <Route path="/" element={<Navigate to="/auth" replace />} />
+          <Route path="/terms-of-service" element={<TermsOfService />} />
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
           <Route path="/all-pages" element={<AllPages />} />
           <Route path="/auth" element={<Auth />} />
           <Route

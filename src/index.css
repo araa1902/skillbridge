@@ -87,6 +87,7 @@
        NOT for primary CTAs — use --primary.                       */
     --accent-amber: 38 94% 46%;
     /* #F59200 — WCAG AA on white   */
+    --accent-amber-hover: 38 94% 52%;
     --accent-amber-subtle: 38 90% 94%;
     /* pale amber chip/badge bg     */
 
@@ -102,6 +103,7 @@
     /* ── Semantic ────────────────────────────────────────────────  */
     --destructive: 4 80% 44%;
     /* WCAG AA on white             */
+    --destructive-hover: 4 80% 50%;
     --destructive-foreground: 0 0% 100%;
     --success: 156 65% 30%;
     --success-subtle: 156 52% 92%;
@@ -316,6 +318,7 @@
 
     --accent-amber: 38 86% 58%;
     /* lightened for dark bg readability */
+    --accent-amber-hover: 38 86% 64%;
     --accent-amber-subtle: 38 60% 18%;
 
     --muted: 222 18% 18%;
@@ -324,6 +327,7 @@
     --accent-foreground: 210 16% 86%;
 
     --destructive: 4 74% 58%;
+    --destructive-hover: 4 74% 64%;
     --destructive-foreground: 222 22% 10%;
     --success: 156 56% 46%;
     --success-subtle: 156 40% 16%;
@@ -398,6 +402,7 @@
 
   --primary: 174 76% 48%;
   /* lightened teal for dark bg       */
+  --primary-hover: 174 76% 54%;
   --primary-light: 174 70% 58%;
   --primary-subtle: 174 40% 18%;
   /* dark tinted surface              */
@@ -408,6 +413,7 @@
 
   --accent-amber: 38 96% 56%;
   /* slightly lighter on dark bg      */
+  --accent-amber-hover: 38 96% 62%;
   --accent-amber-subtle: 38 60% 16%;
 
   --muted: 222 18% 18%;
@@ -416,6 +422,7 @@
   --accent-foreground: 220 16% 82%;
 
   --destructive: 4 72% 58%;
+  --destructive-hover: 4 72% 64%;
   --destructive-foreground: 0 0% 100%;
   --success: 158 60% 48%;
   --success-subtle: 158 40% 14%;
@@ -1029,8 +1036,9 @@
   }
 
   .btn-primary:hover {
-    background: hsl(var(--primary) / 0.92);
-    border-color: hsl(var(--primary) / 0.92);
+    background: hsl(var(--primary-hover));
+    border-color: hsl(var(--primary-hover));
+    color: hsl(var(--primary-foreground));
     box-shadow: var(--shadow-teal);
   }
 
@@ -1049,6 +1057,7 @@
   .btn-secondary:hover {
     background: hsl(var(--muted));
     border-color: hsl(var(--border-strong));
+    color: hsl(var(--foreground));
   }
 
   /* Ghost */
@@ -1073,7 +1082,8 @@
   }
 
   .btn-amber:hover {
-    background: hsl(var(--accent-amber) / 0.92);
+    background: hsl(var(--accent-amber-hover));
+    color: hsl(220 30% 10%);
     box-shadow: 0 4px 12px hsl(var(--accent-amber) / 0.32);
   }
 
