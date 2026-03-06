@@ -110,7 +110,17 @@ const BrowseProjects = () => {
         <div className="page-container py-4">
           <div className="flex items-center gap-3">
             <div>
-              <h1 className="text-3xl font-bold text-foreground mb-2">Browse Projects</h1>
+              <h1
+                style={{
+                  fontFamily: "var(--font-display)",
+                  fontWeight: 800,
+                  fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                  letterSpacing: "-0.04em",
+                  lineHeight: 1.1,
+                }}
+              >
+                Browse Projects
+              </h1>
               <p className="text-muted-foreground">Discover opportunities matched to your skills and career goals</p>
             </div>
           </div>

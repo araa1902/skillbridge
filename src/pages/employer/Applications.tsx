@@ -262,7 +262,15 @@ export default function Applications() {
     <div className="min-h-screen bg-background">
       <div className="page-container py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 800,
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              letterSpacing: "-0.04em",
+              lineHeight: 1.1,
+            }}
+          >
             {projectId
               ? (project?.title ? `Applications for ${project.title}` : "Applications")
               : "Applications Received"}

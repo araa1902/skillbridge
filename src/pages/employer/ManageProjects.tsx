@@ -187,7 +187,17 @@ export default function ManageProjects() {
       <div className="page-container py-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-10">
           <div className="space-y-2">
-            <h1 className="text-3xl font-bold text-foreground">Manage Projects</h1>
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 800,
+                fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                letterSpacing: "-0.04em",
+                lineHeight: 1.1,
+              }}
+            >
+              Manage Projects
+            </h1>
             <p className="text-muted-foreground">Track live briefs, respond to candidates, and keep hiring momentum.</p>
           </div>
           <div className="flex flex-wrap gap-2">

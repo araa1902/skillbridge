@@ -125,7 +125,6 @@ export function FeedbackDialog({ isCollapsed }: FeedbackDialogProps) {
               <SelectContent>
                 <SelectItem value="project_search">Project Search & Discovery</SelectItem>
                 <SelectItem value="project_applications">Project Applications</SelectItem>
-                <SelectItem value="mentorship_sessions">Mentorship Sessions</SelectItem>
                 <SelectItem value="messaging_inbox">Messaging & Inbox</SelectItem>
                 <SelectItem value="profiles_references">Profiles & References</SelectItem>
                 <SelectItem value="account_security">Account & Security</SelectItem>

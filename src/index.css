@@ -31,299 +31,438 @@
 
 @layer base {
   :root {
-    /* ── Canvas ───────────────────────────────────────────
-       Warm off-white base keeps the UI approachable for
-       anxious students — not clinical white, not cold grey.  */
-    --background: 34 20% 97%;
-    /* #F8F6F3 warm off-white  */
-    --foreground: 220 30% 10%;
-    /* #131A27 deep ink navy   */
+    /* ═══════════════════════════════════════════════════════════
+       SKILLBRIDGE — University-Integrated Micro-Credential Platform
+       Design Language : Purposeful · Trust-first · Human-warm
+       v4 — "Porcelain" refresh
+       Font  : Plus Jakarta Sans (display + body)
+               Space Grotesk retained for .eyebrow utility only
+    ═══════════════════════════════════════════════════════════ */
+
+    /* ── Canvas ─────────────────────────────────────────────────
+       Shifted from warm parchment (34 20% 97%) to a cleaner
+       porcelain white (220 14% 97%) — still not clinical pure white,
+       but the slight cool undertone pairs better with the teal
+       primary and prevents the amber credentials from looking muddy. */
+    --background: 220 14% 97%;
+    /* #F4F5F8 cool porcelain      */
+    --background-subtle: 220 18% 94%;
+    /* #ECEEF3 inset section wash  */
+    --foreground: 222 35% 9%;
+    /* #0E1420 deeper ink — better pop */
     --card: 0 0% 100%;
-    --card-foreground: 220 30% 10%;
+    /* pure white card face        */
+    --card-foreground: 222 35% 9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 220 30% 10%;
+    --popover-foreground: 222 35% 9%;
 
 
-    /* ── Brand: Electric Teal ────────────────────────────
-       Primary teal is used ONLY for interactive affordances
-       (buttons, links, active states, focus rings).
-       Do NOT use for decorative fills — reserve that for
-       role-student token below.                            */
-    --primary: 174 82% 34%;
-    /* #0FA878 rich teal-green */
-    --primary-light: 174 72% 44%;
-    /* hover / lighter teal    */
-    --primary-subtle: 174 60% 94%;
-    /* tinted surface / chip bg */
+    /* ── Brand: Teal ─────────────────────────────────────────────
+       Nudged hue 174→171 and lightness 34%→36% for a slightly
+       richer, less grey-green teal that reads more confidently
+       on the porcelain canvas.                                    */
+    --primary: 171 78% 36%;
+    /* #0DB882 confident teal-green */
+    --primary-hover: 171 74% 42%;
+    /* lighter — hover/active state */
+    --primary-light: 171 68% 48%;
+    /* icon tints, border accents   */
+    --primary-subtle: 171 55% 93%;
+    /* chip bg / tinted surface     */
     --primary-foreground: 0 0% 100%;
 
 
-    /* ── Secondary: Warm Slate ───────────────────────────  */
-    --secondary: 220 16% 94%;
-    --secondary-foreground: 220 20% 28%;
+    /* ── Secondary: Stone Slate ──────────────────────────────────
+       Slightly warmer than v3 — 220→215 for a "stone" quality
+       that pairs with the porcelain canvas without looking icy.   */
+    --secondary: 215 18% 93%;
+    --secondary-foreground: 215 22% 26%;
 
 
-    /* ── Accent: Amber Credential ────────────────────────
-       Amber is RESERVED for trust & credential signals only:
-         • Micro-credential badges / stars / ratings
-         • "Verified" labels and co-brand chips
+    /* ── Accent: Amber Credential ───────────────────────────────
+       Unchanged — amber is RESERVED for trust/credential signals:
+         • Micro-credential badges / ratings
+         • Verified labels & co-brand chips
          • Match score highlights
-       Do NOT use amber for primary CTAs — use --primary.  */
-    --accent-amber: 38 96% 48%;
-    /* Darkened: #F59B00 — WCAG AA on white */
-    --accent-amber-subtle: 38 96% 95%;
-    /* Pale amber chip / badge bg           */
+       NOT for primary CTAs — use --primary.                       */
+    --accent-amber: 38 94% 46%;
+    /* #F59200 — WCAG AA on white   */
+    --accent-amber-subtle: 38 90% 94%;
+    /* pale amber chip/badge bg     */
 
 
-    /* ── Muted surfaces ──────────────────────────────────  */
-    --muted: 220 16% 95%;
-    --muted-foreground: 220 12% 40%;
-    /* ↑ Darkened 50%→40% for WCAG AA on #F8F6F3 */
-    --accent: 220 16% 93%;
-    --accent-foreground: 220 20% 16%;
+    /* ── Muted ───────────────────────────────────────────────────  */
+    --muted: 215 16% 94%;
+    --muted-foreground: 215 14% 38%;
+    /* WCAG AA on --background      */
+    --accent: 215 16% 92%;
+    --accent-foreground: 215 22% 14%;
 
 
-    /* ── Semantic ────────────────────────────────────────  */
-    --destructive: 4 82% 45%;
-    /* ↓ Darkened 56%→45% for WCAG AA on white  */
+    /* ── Semantic ────────────────────────────────────────────────  */
+    --destructive: 4 80% 44%;
+    /* WCAG AA on white             */
     --destructive-foreground: 0 0% 100%;
-    --success: 158 68% 32%;
-    /* ↓ Darkened slightly for text legibility  */
-    --success-subtle: 158 55% 93%;
-    --warning: 38 92% 44%;
-    /* ↓ Darkened for WCAG AA on light surfaces */
-    --warning-subtle: 38 96% 94%;
-    --info: 210 85% 48%;
-    /* ↓ Darkened 55%→48% for WCAG AA          */
-    --info-subtle: 210 80% 94%;
+    --success: 156 65% 30%;
+    --success-subtle: 156 52% 92%;
+    --warning: 38 90% 42%;
+    --warning-subtle: 38 90% 93%;
+    --info: 212 82% 46%;
+    --info-subtle: 212 76% 93%;
 
 
-    /* ── Chrome ──────────────────────────────────────────  */
-    --border: 220 16% 88%;
-    --border-strong: 220 16% 76%;
-    /* ↑ Strengthened for input borders         */
-    --input: 220 16% 88%;
-    --ring: 174 82% 34%;
-    /* Matches --primary                        */
+    /* ── Chrome ──────────────────────────────────────────────────
+       Border lightness nudged — 88%→86% base, 76%→72% strong —
+       so hairlines remain visible on the porcelain canvas.        */
+    --border: 215 16% 86%;
+    --border-strong: 215 16% 72%;
+    --input: 215 16% 86%;
+    --ring: 171 78% 36%;
+    /* matches --primary            */
 
 
-    /* ── Shape ───────────────────────────────────────────
-       Consistent 12px base radius — confident but friendly.
-       Inputs use --radius-md, modals --radius-xl,
-       pills / tags / buttons --radius-full.               */
-    --radius: 0.75rem;
-    /* 12px  */
-    --radius-xs: 0.375rem;
-    /*  6px  */
+    /* ── Shape ───────────────────────────────────────────────────
+       Base radius bumped 12px→14px for a rounder, friendlier
+       feel on the lighter canvas.
+       --radius-xs corrected: 4px (distinct step below SM/8px).   */
+    --radius: 0.875rem;
+    /* 14px — default component radius    */
+    --radius-xs: 0.25rem;
+    /*  4px                               */
     --radius-sm: 0.5rem;
-    /*  8px  */
-    --radius-md: 0.75rem;
-    /* 12px  */
-    --radius-lg: 1rem;
-    /* 16px  */
-    --radius-xl: 1.25rem;
-    /* 20px  */
-    --radius-2xl: 1.75rem;
-    /* 28px  */
+    /*  8px                               */
+    --radius-md: 0.875rem;
+    /* 14px — inputs, selects             */
+    --radius-lg: 1.125rem;
+    /* 18px                               */
+    --radius-xl: 1.375rem;
+    /* 22px — modals, sheets              */
+    --radius-2xl: 1.875rem;
+    /* 30px — onboarding cards            */
+    --radius-3xl: 2.5rem;
+    /* 40px — hero panels                 */
     --radius-full: 9999px;
 
 
-    /* ── Elevation ───────────────────────────────────────
-       Shadow colours use the foreground ink RGB directly
-       for perceptually neutral shadows (avoids blue cast). */
-    --shadow-xs: 0 1px 2px 0 rgba(13, 20, 38, 0.04);
-    --shadow-sm: 0 1px 3px 0 rgba(13, 20, 38, 0.07),
-      0 1px 2px -1px rgba(13, 20, 38, 0.05);
-    --shadow-md: 0 4px 10px -2px rgba(13, 20, 38, 0.08),
-      0 2px 4px -2px rgba(13, 20, 38, 0.05);
-    --shadow-lg: 0 12px 28px -4px rgba(13, 20, 38, 0.10),
-      0 4px 8px -2px rgba(13, 20, 38, 0.06);
-    --shadow-xl: 0 24px 48px -12px rgba(13, 20, 38, 0.14);
-    --shadow-2xl: 0 40px 72px -16px rgba(13, 20, 38, 0.18);
-    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.22);
-    --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.22);
-    /* Amber glow — use on credential cards / badge highlights */
-    --shadow-amber: 0 6px 20px -4px hsl(var(--accent-amber) / 0.28);
+    /* ── Elevation ───────────────────────────────────────────────
+       Switched shadow RGB base from (13,20,38) → (10,17,32) —
+       slightly deeper ink prevents the blue-cast that appeared
+       on the cooler porcelain canvas.
+       --shadow-xl / 2xl opacity trimmed: cleaner on light surfaces. */
+    --shadow-xs: 0 1px 2px 0 rgba(10, 17, 32, 0.04);
+    --shadow-sm: 0 1px 3px 0 rgba(10, 17, 32, 0.07),
+      0 1px 2px -1px rgba(10, 17, 32, 0.04);
+    --shadow-md: 0 4px 12px -2px rgba(10, 17, 32, 0.08),
+      0 2px 4px -2px rgba(10, 17, 32, 0.05);
+    --shadow-lg: 0 10px 24px -4px rgba(10, 17, 32, 0.09),
+      0 4px 8px -2px rgba(10, 17, 32, 0.05);
+    --shadow-xl: 0 20px 44px -10px rgba(10, 17, 32, 0.12);
+    --shadow-2xl: 0 36px 64px -14px rgba(10, 17, 32, 0.16);
+    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.20);
+    --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.20);
+    /* Amber glow — credential cards / badge highlights only       */
+    --shadow-amber: 0 6px 20px -4px hsl(var(--accent-amber) / 0.26);
+    /* Inset shadow for pressed/active states on buttons           */
+    --shadow-inset: inset 0 1px 2px rgba(10, 17, 32, 0.06);
 
 
-    /* ── Typography ──────────────────────────────────────
-       Both display and sans intentionally share Space Grotesk
-       — a single humanist face signals focus & clarity.   */
-    /* Option A */
+    /* ── Typography ──────────────────────────────────────────────
+       Plus Jakarta Sans for all body/display.
+       Space Grotesk kept ONLY as --font-eyebrow for .eyebrow util. */
     --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
     --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, monospace;
+    --font-eyebrow: 'Space Grotesk', system-ui, sans-serif;
+
+    /* Type scale */
+    --text-xs: 0.75rem;
+    /* 12px */
+    --text-sm: 0.875rem;
+    /* 14px */
+    --text-base: 1rem;
+    /* 16px */
+    --text-lg: 1.125rem;
+    /* 18px */
+    --text-xl: 1.25rem;
+    /* 20px */
+    --text-2xl: 1.5rem;
+    /* 24px */
+    --text-3xl: 1.875rem;
+    /* 30px */
+    --text-4xl: 2.25rem;
+    /* 36px */
+
+    /* Leading */
+    --leading-tight: 1.25;
+    --leading-snug: 1.375;
+    --leading-normal: 1.5;
+    --leading-relaxed: 1.625;
+
+    /* Tracking */
+    --tracking-tight: -0.02em;
+    --tracking-snug: -0.01em;
+    --tracking-normal: 0em;
+    --tracking-wide: 0.04em;
+    --tracking-wider: 0.08em;
+    /* eyebrow labels */
 
 
-    /* ── Layout ──────────────────────────────────────────  */
+    /* ── Layout ──────────────────────────────────────────────────  */
     --page-gutter: clamp(1rem, 4vw, 2.5rem);
     --content-max: 96rem;
     --sidebar-w: 15rem;
     --topbar-h: 3.75rem;
 
 
-    /* ── Motion ──────────────────────────────────────────
-       --ease-spring is used only for micro-interactions
-       (button press, avatar hover) — never for page transitions
-       where it may feel jarring.                          */
+    /* ── Motion ──────────────────────────────────────────────────
+       --ease-spring: micro-interactions only (button press, avatar).
+       Never for page transitions — too jarring at large scale.    */
     --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
     --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
     --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
     --ease-smooth: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-    --duration-fast: 110ms;
-    --duration-base: 190ms;
-    --duration-slow: 340ms;
-    --duration-page: 480ms;
+    --duration-fast: 100ms;
+    --duration-base: 180ms;
+    --duration-slow: 320ms;
+    --duration-page: 460ms;
 
 
-    /* ── Persona Role Tokens ─────────────────────────────
-       Three stakeholders; each has a distinct hue so role-
-       specific UI zones (dashboards, badges, nav accents)
-       are instantly distinguishable.
-
-       Student   → Teal   (talent supply — mirrors brand)
+    /* ── Persona Role Tokens ─────────────────────────────────────
+       Student   → Teal   (talent supply — mirrors --primary)
        SME       → Purple (employer / project poster)
        University → Blue  (admin / institutional oversight)
 
-       NOTE: --role-freelancer has been removed.
-       SkillBridge is student-only (verified .ac.uk SSO).  */
-    --role-student: 174 82% 34%;
-    /* teal  — matches --primary        */
-    --role-sme: 266 68% 54%;
-    /* purple — SME / employer persona  */
-    --role-university: 217 85% 52%;
-    /* blue   — university admin persona */
+       Purple nudged 266→262 and slightly desaturated 68%→62%
+       for a less "neon" feel on the cooler canvas.
+       Blue also desaturated 85%→78% for consistency.             */
+    --role-student: 171 78% 36%;
+    /* teal  — matches --primary     */
+    --role-sme: 262 62% 52%;
+    /* muted purple — SME persona    */
+    --role-university: 217 78% 50%;
+    /* trustworthy blue — admin      */
 
 
-    /* ── SkillBridge Platform Tokens ────────────────────
-       Purpose-built tokens for marketplace-specific UI.
-       These should be used by their semantic name — not
-       substituted with generic --primary / --accent-amber. */
+    /* ── SkillBridge Platform Tokens ────────────────────────────  */
 
-    /* AI match confidence: teal→green gradient signal */
-    --match-high: 158 72% 36%;
-    /* strong match  ≥ 80%  */
-    --match-mid: 38 92% 44%;
-    /* good match    50–79% */
-    --match-low: 220 12% 60%;
-    /* weak match    < 50%  */
+    /* AI match confidence */
+    --match-high: 156 68% 34%;
+    /* strong  ≥ 80% — deep green      */
+    --match-mid: 38 90% 42%;
+    /* good    50–79% — amber           */
+    --match-low: 215 12% 58%;
+    /* weak    < 50% — muted slate      */
 
     /* Credential / badge surface */
-    --credential-bg: 38 96% 95%;
-    /* amber-subtle wash behind badge   */
-    --credential-border: 38 80% 76%;
-    /* warm amber ring on credential    */
-    --credential-text: 38 90% 30%;
-    /* dark amber label text            */
+    --credential-bg: 38 90% 94%;
+    --credential-border: 38 76% 74%;
+    --credential-text: 38 88% 28%;
 
     /* Application timeline state colours */
-    --status-applied: 217 85% 52%;
-    /* blue  — submitted                */
-    --status-reviewing: 266 68% 54%;
-    /* purple — under review            */
-    --status-shortlisted: 174 72% 36%;
-    /* teal  — shortlisted              */
-    --status-complete: 158 68% 32%;
-    /* green — completed / paid         */
-    --status-rejected: 4 82% 45%;
-    /* red   — not progressed           */
+    --status-applied: 217 78% 50%;
+    /* blue  — submitted           */
+    --status-reviewing: 262 62% 52%;
+    /* purple — under review       */
+    --status-shortlisted: 171 72% 34%;
+    /* teal  — shortlisted         */
+    --status-complete: 156 65% 30%;
+    /* green — completed / paid    */
+    --status-rejected: 4 80% 44%;
+    /* red   — not progressed      */
 
     /* Escrow payment states */
-    --escrow-held: 38 92% 44%;
-    /* amber — funds in escrow          */
-    --escrow-released: 158 68% 32%;
-    /* green — payment released         */
+    --escrow-held: 38 90% 42%;
+    /* amber — funds in escrow        */
+    --escrow-released: 156 65% 30%;
+    /* green — payment released       */
 
 
-    /* ── Animation Shorthand Vars ────────────────────────  */
+    /* ── Animation Shorthand Vars ───────────────────────────────  */
     --animate-blob: blob 7s infinite;
     --animate-shimmer: shimmer 2s infinite linear;
     --animate-float: float 6s ease-in-out infinite;
   }
 
 
-  /* ── Dark Mode ─────────────────────────────────────────
-     Full token inversion that preserves all contrast ratios.
-     Shadow RGB values shift to a lighter ink to stay visible
-     on dark surfaces.                                     */
+  /* ═══════════════════════════════════════════════════════════
+     DARK MODE
+     "Slate Ink" — lifted dark background (not near-black),
+     desaturated accents, softer borders, neutral elevation.
+  ═══════════════════════════════════════════════════════════ */
   .dark {
-    --background: 222 24% 10%;
-    /* #0F1420 deep navy canvas         */
-    --foreground: 34 18% 94%;
-    /* #EEE9E2 warm off-white text      */
-    --card: 222 22% 14%;
-    /* elevated surface                 */
-    --card-foreground: 34 18% 94%;
-    --popover: 222 22% 14%;
-    --popover-foreground: 34 18% 94%;
+    --background: 222 22% 11%;
+    /* #161C28 lifted dark — not black */
+    --background-subtle: 222 22% 9%;
+    /* deeper inset wash               */
+    --foreground: 210 20% 94%;
+    /* #EDF0F5 soft near-white          */
+    --card: 222 20% 14%;
+    /* #1C2333 card face               */
+    --card-foreground: 210 20% 94%;
+    --popover: 222 20% 13%;
+    --popover-foreground: 210 20% 94%;
 
-    --primary: 174 76% 48%;
-    /* lightened teal for dark bg       */
-    --primary-light: 174 70% 58%;
-    --primary-subtle: 174 40% 18%;
-    /* dark tinted surface              */
-    --primary-foreground: 0 0% 100%;
+    --primary: 171 64% 46%;
+    /* lightened teal — readable on dark */
+    --primary-hover: 171 60% 52%;
+    --primary-light: 171 56% 58%;
+    --primary-subtle: 171 40% 18%;
+    /* dark tinted chip bg             */
+    --primary-foreground: 222 22% 10%;
+    /* dark text on teal buttons       */
 
     --secondary: 222 18% 20%;
-    --secondary-foreground: 220 16% 72%;
+    --secondary-foreground: 210 16% 72%;
 
-    --accent-amber: 38 96% 56%;
-    /* slightly lighter on dark bg      */
-    --accent-amber-subtle: 38 60% 16%;
+    --accent-amber: 38 86% 58%;
+    /* lightened for dark bg readability */
+    --accent-amber-subtle: 38 60% 18%;
 
     --muted: 222 18% 18%;
-    --muted-foreground: 220 12% 60%;
-    --accent: 222 18% 20%;
-    --accent-foreground: 220 16% 82%;
+    --muted-foreground: 215 14% 56%;
+    --accent: 222 18% 22%;
+    --accent-foreground: 210 16% 86%;
 
-    --destructive: 4 72% 58%;
-    --destructive-foreground: 0 0% 100%;
-    --success: 158 60% 48%;
-    --success-subtle: 158 40% 14%;
-    --warning: 38 88% 56%;
-    --warning-subtle: 38 50% 14%;
-    --info: 210 80% 62%;
-    --info-subtle: 210 50% 14%;
+    --destructive: 4 74% 58%;
+    --destructive-foreground: 222 22% 10%;
+    --success: 156 56% 46%;
+    --success-subtle: 156 40% 16%;
+    --warning: 38 84% 54%;
+    --warning-subtle: 38 60% 17%;
+    --info: 212 72% 58%;
+    --info-subtle: 212 56% 18%;
 
     --border: 222 18% 22%;
     --border-strong: 222 16% 30%;
     --input: 222 18% 22%;
-    --ring: 174 76% 48%;
+    --ring: 171 64% 46%;
 
-    /* Shadows lighten in dark mode to stay perceptible */
     --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.20);
     --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.28),
       0 1px 2px -1px rgba(0, 0, 0, 0.20);
-    --shadow-md: 0 4px 10px -2px rgba(0, 0, 0, 0.32),
-      0 2px 4px -2px rgba(0, 0, 0, 0.22);
-    --shadow-lg: 0 12px 28px -4px rgba(0, 0, 0, 0.38),
-      0 4px 8px -2px rgba(0, 0, 0, 0.26);
-    --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.44);
-    --shadow-2xl: 0 40px 72px -16px rgba(0, 0, 0, 0.52);
-    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.30);
-    --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.32);
-    --shadow-amber: 0 6px 20px -4px hsl(var(--accent-amber) / 0.36);
+    --shadow-md: 0 4px 12px -2px rgba(0, 0, 0, 0.32),
+      0 2px 4px -2px rgba(0, 0, 0, 0.20);
+    --shadow-lg: 0 10px 24px -4px rgba(0, 0, 0, 0.36),
+      0 4px 8px -2px rgba(0, 0, 0, 0.22);
+    --shadow-xl: 0 20px 44px -10px rgba(0, 0, 0, 0.44);
+    --shadow-2xl: 0 36px 64px -14px rgba(0, 0, 0, 0.52);
+    --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.28);
+    --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.28);
+    --shadow-amber: 0 6px 20px -4px hsl(var(--accent-amber) / 0.30);
+    --shadow-inset: inset 0 1px 2px rgba(0, 0, 0, 0.24);
 
-    --role-student: 174 76% 52%;
-    --role-sme: 266 62% 66%;
-    --role-university: 217 80% 66%;
+    /* Persona role tokens — lightened for dark bg */
+    --role-student: 171 64% 46%;
+    --role-sme: 262 56% 66%;
+    --role-university: 217 72% 62%;
 
-    --match-high: 158 60% 52%;
-    --match-mid: 38 88% 56%;
-    --match-low: 220 10% 48%;
+    /* Match tokens */
+    --match-high: 156 56% 46%;
+    --match-mid: 38 84% 54%;
+    --match-low: 215 12% 48%;
 
-    --credential-bg: 38 50% 14%;
-    --credential-border: 38 70% 36%;
-    --credential-text: 38 90% 72%;
+    /* Credential */
+    --credential-bg: 38 50% 18%;
+    --credential-border: 38 60% 38%;
+    --credential-text: 38 84% 66%;
 
-    --status-applied: 217 80% 66%;
-    --status-reviewing: 266 62% 66%;
-    --status-shortlisted: 174 72% 52%;
-    --status-complete: 158 60% 48%;
-    --status-rejected: 4 72% 58%;
+    /* Status tokens */
+    --status-applied: 217 72% 62%;
+    --status-reviewing: 262 56% 66%;
+    --status-shortlisted: 171 64% 44%;
+    --status-complete: 156 56% 46%;
+    --status-rejected: 4 74% 58%;
 
-    --escrow-held: 38 88% 56%;
-    --escrow-released: 158 60% 48%;
+    /* Escrow */
+    --escrow-held: 38 84% 54%;
+    --escrow-released: 156 56% 46%;
   }
+}
+
+
+
+/* ── Dark Mode ─────────────────────────────────────────
+     Full token inversion that preserves all contrast ratios.
+     Shadow RGB values shift to a lighter ink to stay visible
+     on dark surfaces.                                     */
+.dark {
+  --background: 222 24% 10%;
+  /* #0F1420 deep navy canvas         */
+  --foreground: 34 18% 94%;
+  /* #EEE9E2 warm off-white text      */
+  --card: 222 22% 14%;
+  /* elevated surface                 */
+  --card-foreground: 34 18% 94%;
+  --popover: 222 22% 14%;
+  --popover-foreground: 34 18% 94%;
+
+  --primary: 174 76% 48%;
+  /* lightened teal for dark bg       */
+  --primary-light: 174 70% 58%;
+  --primary-subtle: 174 40% 18%;
+  /* dark tinted surface              */
+  --primary-foreground: 0 0% 100%;
+
+  --secondary: 222 18% 20%;
+  --secondary-foreground: 220 16% 72%;
+
+  --accent-amber: 38 96% 56%;
+  /* slightly lighter on dark bg      */
+  --accent-amber-subtle: 38 60% 16%;
+
+  --muted: 222 18% 18%;
+  --muted-foreground: 220 12% 60%;
+  --accent: 222 18% 20%;
+  --accent-foreground: 220 16% 82%;
+
+  --destructive: 4 72% 58%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 158 60% 48%;
+  --success-subtle: 158 40% 14%;
+  --warning: 38 88% 56%;
+  --warning-subtle: 38 50% 14%;
+  --info: 210 80% 62%;
+  --info-subtle: 210 50% 14%;
+
+  --border: 222 18% 22%;
+  --border-strong: 222 16% 30%;
+  --input: 222 18% 22%;
+  --ring: 174 76% 48%;
+
+  /* Shadows lighten in dark mode to stay perceptible */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.20);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.28),
+    0 1px 2px -1px rgba(0, 0, 0, 0.20);
+  --shadow-md: 0 4px 10px -2px rgba(0, 0, 0, 0.32),
+    0 2px 4px -2px rgba(0, 0, 0, 0.22);
+  --shadow-lg: 0 12px 28px -4px rgba(0, 0, 0, 0.38),
+    0 4px 8px -2px rgba(0, 0, 0, 0.26);
+  --shadow-xl: 0 24px 48px -12px rgba(0, 0, 0, 0.44);
+  --shadow-2xl: 0 40px 72px -16px rgba(0, 0, 0, 0.52);
+  --shadow-focus: 0 0 0 3px hsl(var(--ring) / 0.30);
+  --shadow-teal: 0 8px 24px -4px hsl(var(--primary) / 0.32);
+  --shadow-amber: 0 6px 20px -4px hsl(var(--accent-amber) / 0.36);
+
+  --role-student: 174 76% 52%;
+  --role-sme: 266 62% 66%;
+  --role-university: 217 80% 66%;
+
+  --match-high: 158 60% 52%;
+  --match-mid: 38 88% 56%;
+  --match-low: 220 10% 48%;
+
+  --credential-bg: 38 50% 14%;
+  --credential-border: 38 70% 36%;
+  --credential-text: 38 90% 72%;
+
+  --status-applied: 217 80% 66%;
+  --status-reviewing: 266 62% 66%;
+  --status-shortlisted: 174 72% 52%;
+  --status-complete: 158 60% 48%;
+  --status-rejected: 4 72% 58%;
+
+  --escrow-held: 38 88% 56%;
+  --escrow-released: 158 60% 48%;
 }
 
 

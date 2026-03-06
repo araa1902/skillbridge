@@ -231,7 +231,17 @@ export default function StudentApplications() {
     <div className="min-h-screen bg-background text-foreground">
       <div className="page-container py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">My Applications</h1>
+          <h1
+            style={{
+              fontFamily: "var(--font-display)",
+              fontWeight: 800,
+              fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+              letterSpacing: "-0.04em",
+              lineHeight: 1.1,
+            }}
+          >
+            My Applications
+          </h1>
           <p className="text-muted-foreground">Track the status of your project applications</p>
         </div>
 

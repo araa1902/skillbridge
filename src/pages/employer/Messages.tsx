@@ -46,7 +46,17 @@ export default function EmployerMessagesHub() {
             {/* Header Section */}
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
                 <div>
-                    <h1 className="text-2xl font-bold tracking-tight text-foreground mb-1">Inbox</h1>
+                    <h1
+                        style={{
+                            fontFamily: "var(--font-display)",
+                            fontWeight: 800,
+                            fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                            letterSpacing: "-0.04em",
+                            lineHeight: 1.1,
+                        }}
+                    >
+                        Inbox
+                    </h1>
                     <p className="text-muted-foreground text-sm">
                         Manage your communications with accepted students.
                     </p>

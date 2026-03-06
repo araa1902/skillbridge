@@ -209,7 +209,17 @@ const EmployerReferences = () => {
         {/* ── Page Header ── */}
         <div className="mb-8 flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Student References</h1>
+            <h1
+              style={{
+                fontFamily: "var(--font-display)",
+                fontWeight: 800,
+                fontSize: "clamp(1.75rem, 4vw, 2.5rem)",
+                letterSpacing: "-0.04em",
+                lineHeight: 1.1,
+              }}
+            >
+              Student References
+            </h1>
             <p className="text-slate-500 mt-1">Review pending requests and manage the feedback you've provided.</p>
           </div>
           {requests.length > 0 && (
