@@ -367,6 +367,8 @@ const ApplicationForm = () => {
   const [filteredSkills, setFilteredSkills] = useState<string[]>([])
   const [showSuggestions, setShowSuggestions] = useState(false)
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([])
+  const [preloadedCvUrl, setPreloadedCvUrl] = useState<string | null>(null)
+  const [preloadedCvName, setPreloadedCvName] = useState<string | null>(null)
   const [availability, setAvailability] = useState<Date | undefined>(undefined)
   const [confirmed, setConfirmed] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -407,12 +409,16 @@ const ApplicationForm = () => {
     sessionStorage.setItem(STORAGE_KEY, JSON.stringify(draft))
   }, [STORAGE_KEY, coverLetter, selectedSkills, availability, confirmed, step])
 
-  /* Pre-populate skills from profile on load if empty */
+  /* Pre-populate skills and CV from profile on load */
   useEffect(() => {
     if (profile?.skills && selectedSkills.length === 0) {
       setSelectedSkills(profile.skills)
     }
-  }, [profile, selectedSkills.length])
+    if (profile?.cv_url && !preloadedCvUrl) {
+      setPreloadedCvUrl(profile.cv_url)
+      setPreloadedCvName(profile.cv_name || 'My CV')
+    }
+  }, [profile, selectedSkills.length, preloadedCvUrl])
 
   /* Clear draft on success */
   useEffect(() => {
@@ -508,8 +514,8 @@ const ApplicationForm = () => {
     }
     setIsSubmitting(true)
 
-    let cv_url: string | undefined = undefined;
-    let cv_name: string | undefined = undefined;
+    let cv_url = preloadedCvUrl || undefined;
+    let cv_name = preloadedCvName || undefined;
 
     if (uploadedFiles.length > 0) {
       const file = uploadedFiles[0];
@@ -818,10 +824,10 @@ const ApplicationForm = () => {
             className="text-lg font-700 text-foreground"
             style={{ fontFamily: "var(--font-display)", letterSpacing: "-0.022em" }}
           >
-            Portfolio &amp; CV
+            Upload CV
           </p>
           <p className="text-sm text-muted-foreground mt-1">
-            Attach relevant work samples or your CV. <span className="badge badge--default ml-0.5">Optional</span>
+            Attach relevant your CV/resume. <span className="badge badge--default ml-0.5">Optional</span>
           </p>
         </div>
 
@@ -831,6 +837,29 @@ const ApplicationForm = () => {
           onRemove={(i) => setUploadedFiles((p) => p.filter((_, idx) => idx !== i))}
           inputRef={fileInputRef}
         />
+
+        {preloadedCvUrl && uploadedFiles.length === 0 && (
+          <div className="flex items-center gap-3 p-3 rounded-xl border border-primary/20 bg-primary/5">
+            <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+              <FileText className="w-4 h-4 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-500 text-foreground truncate">{preloadedCvName}</p>
+              <p className="text-xs text-primary/60">Preloaded from your profile</p>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                setPreloadedCvUrl(null)
+                setPreloadedCvName(null)
+              }}
+              className="icon-btn icon-btn--sm text-muted-foreground hover:text-destructive"
+              aria-label="Remove preloaded CV"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
       </div>
     ),
 
@@ -932,6 +961,11 @@ const ApplicationForm = () => {
                   </li>
                 ))}
               </ul>
+            ) : preloadedCvUrl ? (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground mt-1">
+                <CheckCircle2 className="w-3.5 h-3.5 text-success flex-shrink-0" />
+                {preloadedCvName} (Preloaded)
+              </div>
             ) : (
               <p className="text-sm text-muted-foreground italic mt-1">No attachments</p>
             )}

@@ -7,16 +7,14 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
-  MagnifyingGlassIcon,
-  FadersHorizontalIcon,
   SparkleIcon,
-  XIcon,
   BriefcaseIcon
 } from "@phosphor-icons/react";
 import { useFetchOpenProjects } from "@/hooks/useProjects";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { MarketplaceSearchBar } from "@/components/browseSearchBar";
 
 const BrowseProjects = () => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,8 +106,16 @@ const BrowseProjects = () => {
     setBudgetFilter("all");
   };
 
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (skillFilter !== "all") count++;
+    if (durationFilter !== "all") count++;
+    if (budgetFilter !== "all") count++;
+    return count;
+  }, [skillFilter, durationFilter, budgetFilter]);
+
   const hasActiveFilters =
-    searchQuery || skillFilter !== "all" || durationFilter !== "all" || budgetFilter !== "all";
+    searchQuery || activeFilterCount > 0;
 
   // Helper to style the match badge
   const getMatchStyles = (score: number) => {
@@ -133,94 +139,20 @@ const BrowseProjects = () => {
         </div>
       </section>
 
-      {/* ── Sticky Command Bar ────────────────────────────────────────── */}
-      <div className="sticky top-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-          <div className="flex flex-col lg:flex-row gap-3 items-center">
-
-            {/* Search Input */}
-            <div className="relative w-full lg:flex-1">
-              <MagnifyingGlassIcon className="absolute left-3.5 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                placeholder="Search projects, companies, or keywords..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-12 pl-11 pr-4 rounded-xl bg-card border-border text-base shadow-xs focus-visible:ring-primary transition-all w-full"
-              />
-            </div>
-
-            {/* Mobile Filter Toggle */}
-            <div className="flex w-full lg:hidden gap-2">
-              <Button
-                variant="outline"
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex-1 h-12 rounded-xl bg-card"
-              >
-                <FadersHorizontalIcon className="mr-2 h-4 w-4" />
-                {showFilters ? "Hide Filters" : "Show Filters"}
-              </Button>
-              {hasActiveFilters && (
-                <Button variant="ghost" onClick={clearFilters} className="h-12 px-4 rounded-xl text-muted-foreground">
-                  Clear
-                </Button>
-              )}
-            </div>
-
-            {/* Inline Filters (Desktop) / Dropdown (Mobile) */}
-            <div className={cn(
-              "w-full lg:w-auto flex-col lg:flex-row gap-3",
-              showFilters ? "flex" : "hidden lg:flex"
-            )}>
-              <Select value={skillFilter} onValueChange={setSkillFilter}>
-                <SelectTrigger className="h-12 w-full lg:w-[160px] rounded-xl bg-card border-border shadow-xs">
-                  <SelectValue placeholder="All Skills" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Skills</SelectItem>
-                  {allSkills.map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Select value={durationFilter} onValueChange={setDurationFilter}>
-                <SelectTrigger className="h-12 w-full lg:w-[160px] rounded-xl bg-card border-border shadow-xs">
-                  <SelectValue placeholder="Duration" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Durations</SelectItem>
-                  <SelectItem value="short">Sprint (≤10 hrs)</SelectItem>
-                  <SelectItem value="medium">Standard (11–20 hrs)</SelectItem>
-                  <SelectItem value="long">Extended (&gt;20 hrs)</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Select value={budgetFilter} onValueChange={setBudgetFilter}>
-                <SelectTrigger className="h-12 w-full lg:w-[160px] rounded-xl bg-card border-border shadow-xs">
-                  <SelectValue placeholder="Budget" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Budgets</SelectItem>
-                  <SelectItem value="0-500">Up to £500</SelectItem>
-                  <SelectItem value="500-1000">£500 – £1,000</SelectItem>
-                  <SelectItem value="1000+">£1,000+</SelectItem>
-                </SelectContent>
-              </Select>
-
-              {hasActiveFilters && (
-                <Button
-                  variant="ghost"
-                  onClick={clearFilters}
-                  className="hidden lg:flex h-12 w-12 p-0 rounded-xl text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
-                  aria-label="Clear filters"
-                >
-                  <XIcon className="h-5 w-5" />
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+      <MarketplaceSearchBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        skillFilter={skillFilter}
+        setSkillFilter={setSkillFilter}
+        durationFilter={durationFilter}
+        setDurationFilter={setDurationFilter}
+        budgetFilter={budgetFilter}
+        setBudgetFilter={setBudgetFilter}
+        allSkills={allSkills}
+        hasActiveFilters={!!hasActiveFilters}
+        clearFilters={clearFilters}
+        activeFilterCount={activeFilterCount}
+      />
 
       {/* ── Main Content ──────────────────────────────────────────────── */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 py-8">
@@ -264,7 +196,7 @@ const BrowseProjects = () => {
               const showBadge = isStudent && project.matchScore > 0;
 
               return (
-                <div key={project.id} className="relative group transition-all duration-200 hover:-translate-y-1">
+                <div key={project.id} className="relative group transition-all duration-200 hover:-translate-y-0.5">
 
                   {/* Integrated Match Badge */}
                   {showBadge && (

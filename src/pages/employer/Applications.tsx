@@ -36,7 +36,7 @@ import {
   type ApplicationStatus,
 } from "@/hooks/useApplications";
 import { useFetchProject } from "@/hooks/useProjects";
-import { Star, Link as LinkIcon, AlertTriangle } from "lucide-react";
+import { Star, Link as LinkIcon, AlertTriangle, TicketCheckIcon, XCircleIcon, MessageCircleIcon, CheckCircle2Icon } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -233,10 +233,18 @@ export default function Applications() {
   const [confirmText, setConfirmText] = useState("");
   const isConfirmed = confirmText.trim().toLowerCase() === "confirm";
 
+  const [cancelConfirmText, setCancelConfirmText] = useState("");
+  const isCancelConfirmed = cancelConfirmText.trim().toLowerCase() === "cancel";
+
   // Reset when dialog closes
   const handleDialogClose = (open: boolean) => {
     if (!open) setConfirmText("");
     setCompleteDialogOpen(open);
+  };
+
+  const handleCancelDialogClose = (open: boolean) => {
+    if (!open) setCancelConfirmText("");
+    setCancelDialogOpen(open);
   };
 
 
@@ -450,10 +458,9 @@ export default function Applications() {
                         <Button
                           size="sm"
                           variant="destructive"
-                          className="bg-red-50 text-red-600 hover:bg-red-100 border-none shadow-none"
-                          onClick={() => { setSelectedApp(app); setCancelDialogOpen(true); }}
+                          onClick={() => { setSelectedApp(app); handleCancelDialogClose(true); }}
                         >
-                          <XCircle className="h-4 w-4 mr-1.5" />
+                          <XCircleIcon className="h-4 w-4 mr-1.5" />
                           Cancel Project
                         </Button>
 
@@ -462,7 +469,7 @@ export default function Applications() {
                           variant="outline"
                           onClick={() => handleNavigateToMessages(app.project_id, app.student_id, app.student_name)}
                         >
-                          <MessageCircle className="h-4 w-4 mr-1.5" />
+                          <MessageCircleIcon className="h-4 w-4 mr-1.5" />
                           Message
                         </Button>
 
@@ -472,7 +479,7 @@ export default function Applications() {
                             className="bg-blue-600 hover:bg-blue-700 text-white"
                             onClick={() => { setSelectedApp(app); setCompleteDialogOpen(true); }}
                           >
-                            <CheckCircle className="h-4 w-4 mr-1.5" />
+                            <CheckCircle2Icon className="h-4 w-4 mr-1.5" />
                             Approve & Complete
                           </Button>
                         )}
@@ -548,7 +555,7 @@ export default function Applications() {
       </AlertDialog>
 
       {/* Cancel Accepted App Dialog */}
-      <AlertDialog open={cancelDialogOpen} onOpenChange={setCancelDialogOpen}>
+      <AlertDialog open={cancelDialogOpen} onOpenChange={handleCancelDialogClose}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -560,11 +567,44 @@ export default function Applications() {
               This will <strong>refund the escrowed payment</strong> and make the project open for other applications again.
             </AlertDialogDescription>
           </AlertDialogHeader>
+
+          {/* Type to confirm */}
+          <div className="space-y-2 py-4">
+            <label className="text-xs font-medium text-slate-600">
+              Type{" "}
+              <kbd className="px-1.5 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-slate-700 font-mono text-[11px]">
+                cancel
+              </kbd>{" "}
+              to enable cancellation
+            </label>
+            <div className="relative">
+              <input
+                type="text"
+                value={cancelConfirmText}
+                onChange={(e) => setCancelConfirmText(e.target.value)}
+                placeholder="Type cancel..."
+                className={`w-full h-9 px-3 rounded-lg border text-sm transition-all outline-none
+            ${isCancelConfirmed
+                    ? "border-red-400 bg-red-50 text-red-800 placeholder:text-red-300"
+                    : "border-slate-200 bg-white text-slate-800 placeholder:text-slate-300 focus:border-red-400 focus:ring-2 focus:ring-red-50"
+                  }`}
+              />
+              {isCancelConfirmed && (
+                <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
+                  <CheckCircle className="h-4 w-4 text-red-500" />
+                </div>
+              )}
+            </div>
+          </div>
+
           <AlertDialogFooter>
             <AlertDialogCancel disabled={actionLoading}>Go Back</AlertDialogCancel>
             <AlertDialogAction
-              disabled={actionLoading}
-              className="bg-red-600 hover:bg-red-700"
+              disabled={actionLoading || !isCancelConfirmed}
+              className={cn(
+                "transition-all",
+                isCancelConfirmed ? "bg-red-600 hover:bg-red-700" : "bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200 shadow-none hover:bg-slate-100"
+              )}
               onClick={handleCancelAccepted}
             >
               Cancel Project

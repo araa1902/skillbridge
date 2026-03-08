@@ -21,6 +21,8 @@ interface Profile {
   university_id: string | null
   bio: string | null
   skills: string[] | null
+  cv_url: string | null
+  cv_name: string | null
 }
 
 // --------------------------------------------------------------------------
@@ -75,7 +77,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, role, company_name, university_id, bio, skills')
+        .select('id, full_name, role, company_name, university_id, bio, skills, cv_url, cv_name')
         .eq('id', userId)
         .single()
 

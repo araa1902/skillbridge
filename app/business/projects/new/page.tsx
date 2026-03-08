@@ -11,7 +11,6 @@ import { Checkbox } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-
 import { RadioGroup, RadioGroupItem } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/radio-group";
 import { Badge } from "/Users/aravindkumar/Documents/skillbridge/skillbridge-connects/src/components/ui/badge";
 import { ArrowLeft, HelpCircle } from "lucide-react";
-import Link from "next/link";
 
 export default function NewProjectPage() {
   const [selectedSkills, setSelectedSkills] = useState<string[]>([]);

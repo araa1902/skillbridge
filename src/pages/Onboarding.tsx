@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { toast } from 'sonner'
-import { CaretRight as ChevronRight, ArrowLeft, Check, MagnifyingGlass as Search, X, Sparkle as Sparkles, Buildings as Building2 } from "@phosphor-icons/react"
+import { CaretRight as ChevronRight, ArrowLeft, Check, MagnifyingGlass as Search, X, Sparkle as Sparkles, Buildings as Building2, FileText } from "@phosphor-icons/react"
 import { cn } from '@/lib/utils'
 import { useUniversities } from '@/hooks/useUniversityData'
 import { Label } from '@/components/ui/label'
@@ -122,9 +122,21 @@ const SkillPicker = ({
 
             {/* Scrollable list */}
             <div className="h-52 overflow-y-auto rounded-lg border bg-muted/20 p-3">
-                {filtered.length === 0 ? (
+                {query.trim() && !filtered.some(s => s.toLowerCase() === query.toLowerCase().trim()) && (
+                    <button
+                        onClick={() => {
+                            onToggle(query.trim())
+                            setQuery('')
+                        }}
+                        className="w-full mb-3 flex items-center gap-2 p-2 rounded-md bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-sm font-medium border border-primary/20"
+                    >
+                        Add "{query.trim()}" as a custom skill
+                    </button>
+                )}
+
+                {filtered.length === 0 && !query.trim() ? (
                     <p className="text-sm text-muted-foreground text-center py-8">
-                        No skills match "{query}"
+                        No skills match. Try typing to add a custom one.
                     </p>
                 ) : (
                     <div className="flex flex-wrap gap-1.5">
@@ -266,7 +278,7 @@ export default function Onboarding() {
 
     const isStudent = role === 'student'
     const isUniversity = role === 'university'
-    const maxSteps = isUniversity ? 3 : 3
+    const maxSteps = isStudent ? 4 : (isUniversity ? 3 : 3)
 
     const go = (next: number) => {
         setDirection(next > step ? 1 : -1)
@@ -277,6 +289,38 @@ export default function Onboarding() {
         setSkills((prev) =>
             prev.includes(skill) ? prev.filter((s) => s !== skill) : [...prev, skill]
         )
+
+    const [uploadedCv, setUploadedCv] = useState<File | null>(null)
+    const [cvUrl, setCvUrl] = useState(profile?.cv_url || '')
+    const [cvName, setCvName] = useState(profile?.cv_name || '')
+
+    const handleCvUpload = async (file: File) => {
+        setLoading(true)
+        try {
+            const fileExt = file.name.split('.').pop()
+            const fileName = `${Math.random()}.${fileExt}`
+            const filePath = `profiles/${user?.id}/${fileName}`
+
+            const { data, error } = await supabase.storage
+                .from('applications')
+                .upload(filePath, file)
+
+            if (error) throw error
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('applications')
+                .getPublicUrl(filePath)
+
+            setCvUrl(publicUrl)
+            setCvName(file.name)
+            setUploadedCv(file)
+            toast.success('CV uploaded successfully')
+        } catch (err: any) {
+            toast.error(err.message || 'Failed to upload CV')
+        } finally {
+            setLoading(false)
+        }
+    }
 
     const handleSubmit = async () => {
         if (!user) return
@@ -290,7 +334,9 @@ export default function Onboarding() {
                     bio,
                     skills,
                     company_name: studentUniName,
-                    university_id: matchedDbUni ? matchedDbUni.id : null
+                    university_id: matchedDbUni ? matchedDbUni.id : null,
+                    cv_url: cvUrl,
+                    cv_name: cvName
                 }
             } else if (isUniversity) {
                 payload = { company_name: companyName, bio: mission, full_name: companyName, university_id: user.id } // Ensure full_name is also updated for DB lookup
@@ -305,7 +351,6 @@ export default function Onboarding() {
 
             if (error) throw error
             await refreshProfile()
-            toast.success('Profile saved!')
             navigate(
                 role === 'student' ? '/student/dashboard' : role === 'university' ? '/university/dashboard' : '/employer/dashboard',
                 { replace: true }
@@ -407,7 +452,7 @@ export default function Onboarding() {
             />
         </motion.div>,
 
-        // Step 3 — Confirm
+        // Step 3 — CV Upload
         <motion.div
             key="s3"
             custom={direction}
@@ -416,13 +461,76 @@ export default function Onboarding() {
             animate="animate"
             exit="exit"
             transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="space-y-5"
+        >
+            <div>
+                <h2 className="text-lg font-semibold tracking-tight">Upload your CV</h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                    Having your CV on file makes applying for projects much faster.
+                </p>
+            </div>
+
+            <div className="space-y-4">
+                <div
+                    className={cn(
+                        "group relative flex flex-col items-center justify-center gap-3 p-8 rounded-xl border-2 border-dashed transition-all duration-150 cursor-pointer bg-muted/20 hover:bg-muted/30",
+                        cvUrl ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/50"
+                    )}
+                    onClick={() => document.getElementById('cv-upload')?.click()}
+                >
+                    <div className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
+                        cvUrl ? "bg-primary text-white" : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                    )}>
+                        {cvUrl ? <Check className="h-6 w-6" /> : <FileText className="h-6 w-6" />}
+                    </div>
+                    <div className="text-center">
+                        <p className="text-sm font-semibold text-foreground">
+                            {cvName || "Click to upload CV"}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            PDF, DOCX · Max 10MB
+                        </p>
+                    </div>
+                    <input
+                        id="cv-upload"
+                        type="file"
+                        className="hidden"
+                        accept=".pdf,.docx"
+                        onChange={(e) => {
+                            const file = e.target.files?.[0]
+                            if (file) handleCvUpload(file)
+                        }}
+                    />
+                </div>
+
+                {cvUrl && (
+                    <p className="text-[11px] text-green-600 flex items-center gap-1 justify-center">
+                        <Check className="h-3 w-3" /> CV attached successfully
+                    </p>
+                )}
+            </div>
+
+            <NavRow
+                onBack={() => go(2)}
+                onNext={() => go(4)}
+                nextLabel={cvUrl ? "Continue" : "Skip for now"}
+            />
+        </motion.div>,
+
+        // Step 4 — Confirm
+        <motion.div
+            key="s4"
+            custom={direction}
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="space-y-6 text-center py-4"
         >
-            <div className="mx-auto h-14 w-14 rounded-2xl bg-foreground flex items-center justify-center">
-                <Sparkles className="h-6 w-6 text-background" />
-            </div>
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">You're all set</h2>
+                <h2 className="text-2xl font-semibold tracking-tight">You're all set</h2>
                 <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
                     Your profile is ready. Start browsing live projects and apply in minutes.
                 </p>
@@ -548,9 +656,6 @@ export default function Onboarding() {
             transition={{ duration: 0.2, ease: 'easeOut' }}
             className="space-y-6 text-center py-4"
         >
-            <div className="mx-auto h-14 w-14 rounded-2xl bg-foreground flex items-center justify-center">
-                <Building2 className="h-6 w-6 text-background" />
-            </div>
             <div>
                 <h2 className="text-lg font-semibold tracking-tight">You're all set</h2>
                 <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">

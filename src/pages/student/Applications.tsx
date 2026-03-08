@@ -39,9 +39,8 @@ import {
 } from "@/hooks/useReferences";
 import { ReferenceCard } from "@/components/ReferenceCard";
 import { Link as LinkIcon, UploadSimple as Upload } from "@phosphor-icons/react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { SubmitDeliverableDialog } from "@/components/SubmitDeliverableDialog";
 
 // ─── Status badge helper ──────────────────────────────────────────────────────
 
@@ -141,9 +140,6 @@ export default function StudentApplications() {
   const [coverLetterApp, setCoverLetterApp] = useState<ApplicationWithDetails | null>(null);
   const [viewReference, setViewReference] = useState<ReferenceFromDB | null>(null);
 
-  const [deliverableDialogOpen, setDeliverableDialogOpen] = useState(false);
-  const [deliverableLink, setDeliverableLink] = useState("");
-
   // Show error toast if data fetch fails
   useEffect(() => {
     if (error) {
@@ -169,22 +165,6 @@ export default function StudentApplications() {
     setSelectedApp(null);
   };
 
-  const handleSubmitDeliverable = async () => {
-    if (!selectedApp || !deliverableLink.trim()) return;
-    setActionLoading(true);
-    const { error: submitError } = await updateDeliverableLink(selectedApp.id, deliverableLink.trim());
-    setActionLoading(false);
-
-    if (submitError) {
-      toast({ title: "Failed to submit", description: submitError, variant: "destructive" });
-    } else {
-      toast({ title: "Deliverable Submitted", description: "The employer can now review your work." });
-      refetchAll();
-      setDeliverableDialogOpen(false);
-      setSelectedApp(null);
-      setDeliverableLink("");
-    }
-  };
 
   const FILTERS = ["all", "pending", "reviewing", "accepted", "completed", "rejected"] as const;
   type Filter = typeof FILTERS[number];
@@ -371,8 +351,6 @@ export default function StudentApplications() {
                             className={app.deliverable_link ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}
                             onClick={() => {
                               setSelectedApp(app);
-                              setDeliverableLink(app.deliverable_link || "");
-                              setDeliverableDialogOpen(true);
                             }}
                           >
                             {app.deliverable_link ? (
@@ -521,31 +499,12 @@ export default function StudentApplications() {
         </DialogContent>
       </Dialog>
 
-      {/* Deliverable Dialog */}
-      <Dialog open={deliverableDialogOpen} onOpenChange={setDeliverableDialogOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Submit Deliverable</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="link">Link to your work (Google Drive, GitHub, etc.)</Label>
-              <Input
-                id="link"
-                placeholder="https://..."
-                value={deliverableLink}
-                onChange={(e) => setDeliverableLink(e.target.value)}
-              />
-            </div>
-          </div>
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={() => setDeliverableDialogOpen(false)} disabled={actionLoading}>Cancel</Button>
-            <Button onClick={handleSubmitDeliverable} disabled={actionLoading || !deliverableLink.trim()}>
-              {selectedApp?.deliverable_link ? "Update Link" : "Submit"}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <SubmitDeliverableDialog
+        applicationId={selectedApp?.id ?? null}
+        initialLink={selectedApp?.deliverable_link || ""}
+        onClose={() => setSelectedApp(null)}
+        onSuccess={refetchAll}
+      />
 
     </div>
   );

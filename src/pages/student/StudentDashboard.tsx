@@ -2,11 +2,9 @@ import { useState } from "react"
 import { Link } from "react-router-dom"
 import { motion } from "framer-motion"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Dialog } from "@/components/ui/dialog"
 import { ProjectCard } from "@/components/ProjectCard"
 import { useAuth } from "@/contexts/AuthContext"
 import { useFetchMyApplications } from "@/hooks/useApplications"
@@ -18,6 +16,7 @@ import { useToast } from "@/hooks/use-toast"
 import { Briefcase, Medal as Award, TrendUp as TrendingUp, Star, ArrowUpRight as ArrowUpRight, CheckCircle as CheckCircle2, ChatCircle as MessageSquare, UploadSimple as Upload, CaretRight as ChevronRight, Sparkle as Sparkles, Target as CircleDot } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
 import { DashboardGreeting } from "@/components/DashboardGreeting"
+import { SubmitDeliverableDialog } from "@/components/SubmitDeliverableDialog"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -25,6 +24,8 @@ interface ProfileItem {
   label: string
   done: boolean
 }
+
+
 
 // ─── Constants ────────────────────────────────────────────────────────────────
 
@@ -196,8 +197,6 @@ const StudentDashboard = () => {
   const activeProjects = applications.filter((a) => a.status === "accepted")
 
   const [deliverableDialog, setDeliverableDialog] = useState<string | null>(null)
-  const [deliverableLink, setDeliverableLink] = useState("")
-  const [submitting, setSubmitting] = useState(false)
 
   const recommendedProjects: any[] = []
   const firstName = profile?.full_name?.split(" ")[0] ?? "there"
@@ -206,24 +205,6 @@ const StudentDashboard = () => {
     (PROFILE_ITEMS.filter((i) => i.done).length / PROFILE_ITEMS.length) * 100
   )
 
-  const handleSubmitDeliverable = async () => {
-    if (!deliverableDialog || !deliverableLink.trim()) return
-    setSubmitting(true)
-    const { error } = await supabase
-      .from("applications")
-      .update({ deliverable_link: deliverableLink.trim() })
-      .eq("id", deliverableDialog)
-
-    setSubmitting(false)
-    if (error) {
-      toast({ title: "Failed to submit", description: error.message, variant: "destructive" })
-    } else {
-      toast({ title: "Work submitted!" })
-      setDeliverableDialog(null)
-      setDeliverableLink("")
-      refetch()
-    }
-  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -474,55 +455,11 @@ const StudentDashboard = () => {
         </div>
       </div>
 
-      {/* ── Submit Deliverable Dialog ── */}
-      <Dialog
-        open={!!deliverableDialog}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDeliverableDialog(null)
-            setDeliverableLink("")
-          }
-        }}
-      >
-        <DialogContent className="max-w-sm">
-          <DialogHeader>
-            <DialogTitle>Submit Your Work</DialogTitle>
-            <DialogDescription className="text-sm">
-              Paste a link to your completed deliverable — GitHub, Figma, Google Drive, or any public URL.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-2">
-            <Input
-              placeholder="https://github.com/you/project"
-              value={deliverableLink}
-              onChange={(e) => setDeliverableLink(e.target.value)}
-              className="h-10 text-sm"
-              onKeyDown={(e) => e.key === "Enter" && handleSubmitDeliverable()}
-            />
-          </div>
-          <DialogFooter className="gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setDeliverableDialog(null)
-                setDeliverableLink("")
-              }}
-            >
-              Cancel
-            </Button>
-            <Button
-              size="sm"
-              onClick={handleSubmitDeliverable}
-              disabled={!deliverableLink.trim() || submitting}
-              className="gap-1.5"
-            >
-              <Upload className="h-3.5 w-3.5" />
-              {submitting ? "Submitting…" : "Submit Work"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <SubmitDeliverableDialog
+        applicationId={deliverableDialog}
+        onClose={() => setDeliverableDialog(null)}
+        onSuccess={refetch}
+      />
     </div>
   )
 }
