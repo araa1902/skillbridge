@@ -93,7 +93,7 @@ const employerNav: NavGroup[] = [
     items: [
       { name: "Dashboard", href: "/employer/dashboard", icon: LayoutDashboard },
       {
-        name: "Post a Project",
+        name: "New Project",
         href: "/employer/projects/new",
         icon: ClipboardPlusIcon,
         highlight: true,

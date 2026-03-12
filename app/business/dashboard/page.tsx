@@ -215,7 +215,7 @@ export default function BusinessDashboard() {
                 <Link href="/business/projects/new">
                   <Button className="w-full justify-start">
                     <Plus className="h-4 w-4 mr-2" />
-                    Post New Project
+                    New Project
                   </Button>
                 </Link>
                 <Button variant="outline" className="w-full justify-start">

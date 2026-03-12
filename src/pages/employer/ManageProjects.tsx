@@ -30,7 +30,7 @@ import {
 } from "@phosphor-icons/react";
 import { useAuth } from "@/contexts/AuthContext";
 import { useMyProjects, useEmployerStats, deleteProject, updateProject } from "@/hooks/useProjects";
-import { RotateCcwIcon, XCircleIcon } from "lucide-react";
+import { PlusIcon, RotateCcwIcon, XCircleIcon } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -450,7 +450,7 @@ function EmptyState({ onReset }: { onReset: () => void }) {
         </Button>
         <Link to="/employer/projects/new">
           <Button size="sm" variant="outline">
-            Post new project
+            New Project
           </Button>
         </Link>
       </div>
@@ -637,12 +637,8 @@ export default function ManageProjects() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" size="sm">
-              <Download className="h-4 w-4 mr-2" />
-              Export report
-            </Button>
             <Link to="/employer/projects/new">
-              <Button size="sm">Post new project</Button>
+              <Button size="sm"><PlusIcon /> New Project</Button>
             </Link>
           </div>
         </div>

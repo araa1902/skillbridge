@@ -431,7 +431,7 @@ const Index = () => {
                     Access a pool of motivated, pre-vetted students ready to tackle your business challenges.
                   </p>
                   <Button className="w-full" size="lg" asChild>
-                    <Link to="/employer/dashboard">Post a Project</Link>
+                    <Link to="/employer/dashboard">New Project</Link>
                   </Button>
                 </CardContent>
               </Card>

@@ -71,7 +71,7 @@ export default function AllPages() {
     {
       step: 10,
       path: "/employer/projects/new",
-      name: "Post New Project",
+      name: "New Project",
       scriptPointer: "Demonstrate how industry creates relevant learning opportunities",
       duration: "25s"
     },
@@ -330,7 +330,7 @@ export default function AllPages() {
           </div>
           <div className="p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
             <p className="text-sm text-yellow-800">
-              <strong>Note:</strong> If the "Post New Project" button isn't working, ensure the route <code>/employer/projects/new</code> is defined in your router configuration.
+              <strong>Note:</strong> If the "New Project" button isn't working, ensure the route <code>/employer/projects/new</code> is defined in your router configuration.
             </p>
           </div>
           <Button variant="outline" asChild>

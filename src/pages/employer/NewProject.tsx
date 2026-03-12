@@ -545,10 +545,10 @@ export default function NewProject() {
 
       if (data) {
         if (data.status !== 'draft' && data.status !== 'open') {
-          toast({ 
-            title: "Cannot edit project", 
-            description: `Projects that are ${data.status.replace('_', ' ')} cannot be edited.`, 
-            variant: "destructive" 
+          toast({
+            title: "Cannot edit project",
+            description: `Projects that are ${data.status.replace('_', ' ')} cannot be edited.`,
+            variant: "destructive"
           })
           navigate("/employer/projects/manage")
           return
@@ -719,7 +719,12 @@ export default function NewProject() {
               maxLength={100}
               onChange={(e) => set("title", e.target.value)}
             />
-            <p className="form-hint mt-1.5">Clear, specific titles attract 3× more applicants</p>
+            <div className="flex items-center justify-between mt-1.5">
+              <p className="form-hint">Clear, specific titles attract more applicants</p>
+              <span className="text-[12px] tabular-nums font-600 uppercase tracking-wider text-muted-foreground/80">
+                {form.title.length}/100
+              </span>
+            </div>
           </div>
 
           <div className="form-group">

@@ -289,7 +289,7 @@ const EmployerDashboard = () => {
                         <Button size="sm" asChild>
                           <Link to="/employer/projects/new">
                             <Plus className="h-3.5 w-3.5 mr-1.5" />
-                            Post a Project
+                            New Project
                           </Link>
                         </Button>
                       }
@@ -403,7 +403,7 @@ const EmployerDashboard = () => {
               <Card className="shadow-none border-border/60">
                 <CardContent className="pt-4 pb-3 space-y-1">
                   {[
-                    { label: "Post New Project", href: "/employer/projects/new", icon: Plus },
+                    { label: "New Project", href: "/employer/projects/new", icon: Plus },
                     { label: "Manage Projects", href: "/employer/projects/manage", icon: Briefcase },
                     { label: "All Applications", href: "/employer/applications", icon: FileText },
                     { label: "References", href: "/employer/references", icon: Star },
