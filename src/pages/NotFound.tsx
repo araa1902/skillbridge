@@ -1,5 +1,6 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { ArrowLeft, House as Home, WarningCircle as AlertCircle } from "@phosphor-icons/react";
@@ -7,10 +8,14 @@ import { ArrowLeft, House as Home, WarningCircle as AlertCircle } from "@phospho
 const NotFound = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { profile } = useAuth();
 
   useEffect(() => {
     console.error("404 Error: User attempted to access non-existent route:", location.pathname);
   }, [location.pathname]);
+
+  const projectsLink = profile?.role === 'business' ? "/employer/projects/manage" : "/browse-projects";
+  const projectsLabel = profile?.role === 'business' ? "Manage Projects" : "Browse Projects";
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-purple-50 flex items-center justify-center px-4">
@@ -73,10 +78,10 @@ const NotFound = () => {
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => navigate("/browse-projects")}
+                onClick={() => navigate(projectsLink)}
                 className="text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50"
               >
-                Browse Projects
+                {projectsLabel}
               </Button>
               <Button
                 variant="ghost"

@@ -95,7 +95,7 @@ const AppContent = () => {
           <Route
             path="/browse-projects"
             element={
-              <ProtectedRoute allowedRoles={["student", "business", "university"]}>
+              <ProtectedRoute allowedRoles={["student"]}>
                 <BrowseProjects />
               </ProtectedRoute>
             }

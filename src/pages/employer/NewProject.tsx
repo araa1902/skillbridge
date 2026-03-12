@@ -23,13 +23,24 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ArrowLeft, ArrowRight, SpinnerGap as Loader2, Plus as Plus, X, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Sparkle as Sparkles, Lightbulb, CurrencyGbp as PoundSterling, Clock, CalendarBlank as CalendarDays, Checks as ListChecks, Briefcase, Tag as Tag, FileText, Info as Info, Rocket as Rocket, BookmarkSimple as BookMarked, Layout as LayoutTemplate, TrendUp as TrendingUp, ShieldCheck as ShieldCheck, Users, BriefcaseIcon, BinocularsIcon, CaretUpDown, Check } from "@phosphor-icons/react"
+import { ArrowLeft, ArrowRight, SpinnerGap as Loader2, Plus as Plus, X, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Sparkle as Sparkles, Lightbulb, CurrencyGbp as PoundSterling, Clock, CalendarBlank as CalendarDays, Checks as ListChecks, Briefcase, Tag as Tag, FileText, Info as Info, Rocket as Rocket, BookmarkSimple as BookMarked, Layout as LayoutTemplate, TrendUp as TrendingUp, ShieldCheck as ShieldCheck, Users, BriefcaseIcon, BinocularsIcon, CaretUpDown, Check, Trash } from "@phosphor-icons/react"
 import { useAuth } from "@/contexts/AuthContext"
-import { insertProject, updateProject } from "@/hooks/useProjects"
+import { insertProject, updateProject, deleteProject } from "@/hooks/useProjects"
 import { useToast } from "@/hooks/use-toast"
 import { cn } from "@/lib/utils"
 import { supabase } from "@/lib/supabase"
 import { ProjectStatus } from "@/types"
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    CONSTANTS
@@ -533,14 +544,23 @@ export default function NewProject() {
       }
 
       if (data) {
+        if (data.status !== 'draft' && data.status !== 'open') {
+          toast({ 
+            title: "Cannot edit project", 
+            description: `Projects that are ${data.status.replace('_', ' ')} cannot be edited.`, 
+            variant: "destructive" 
+          })
+          navigate("/employer/projects/manage")
+          return
+        }
         setForm({
           title: data.title ?? "",
-          category: "General", // Placeholder as it is not in db yet
+          category: data.category ?? "General",
           description: data.description ?? "",
           deliverables: data.deliverables ?? "",
           budget: data.budget?.toString() ?? "",
           duration: data.duration_hours === 0 ? "ongoing" : data.duration_hours?.toString() ?? "10",
-          deadline: data.created_at ? new Date(data.created_at).toISOString().split('T')[0] : "", // Placeholder
+          deadline: data.deadline ? new Date(data.deadline).toISOString().split('T')[0] : "",
           mentor: false,
           project_documents_url: data.project_documents_url ?? "",
         })
@@ -624,11 +644,13 @@ export default function NewProject() {
     const payload = {
       business_id: user.id,
       title: form.title.trim(),
+      category: form.category,
       description: form.description.trim(),
       deliverables: form.deliverables.trim(),
       required_skills: selectedSkills,
       budget: isNaN(budgetNum) ? 0 : budgetNum,
       duration_hours: form.duration === "ongoing" ? 0 : parseInt(form.duration, 10),
+      deadline: form.deadline ? new Date(form.deadline).toISOString() : null,
       status: (asDraft ? "draft" : "open") as ProjectStatus,
       project_documents_url: form.project_documents_url.trim() || null,
     }
@@ -649,6 +671,21 @@ export default function NewProject() {
         ? "You can publish it any time from your project manager."
         : "Students can now discover and apply to your project.",
     })
+    navigate("/employer/projects/manage")
+  }
+
+  const handleDelete = async () => {
+    if (!id) return
+    setSubmitting(true)
+    const { error } = await deleteProject(id)
+    setSubmitting(false)
+
+    if (error) {
+      toast({ title: "Failed to delete draft", description: error, variant: "destructive" })
+      return
+    }
+
+    toast({ title: "Draft deleted", description: "The project draft has been permanently removed." })
     navigate("/employer/projects/manage")
   }
 
@@ -679,6 +716,7 @@ export default function NewProject() {
               className="input mt-1.5"
               placeholder="e.g. E-commerce Website Redesign"
               value={form.title}
+              maxLength={100}
               onChange={(e) => set("title", e.target.value)}
             />
             <p className="form-hint mt-1.5">Clear, specific titles attract 3× more applicants</p>
@@ -1129,6 +1167,36 @@ export default function NewProject() {
                 </button>
               ) : (
                 <div className="flex items-center gap-2">
+                  {isEditing && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <button
+                          type="button"
+                          disabled={submitting}
+                          className="btn btn-outline btn-lg text-destructive hover:text-destructive hover:bg-destructive/10"
+                        >
+                          <Trash className="w-4 h-4" /> Discard Draft
+                        </button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Discard Draft?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This will permanently delete this project. This action cannot be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={handleDelete}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
                   <button
                     type="button"
                     disabled={submitting}

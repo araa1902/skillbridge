@@ -212,9 +212,9 @@ const ProjectDetails = () => {
             {error || "This project doesn't exist or has been removed."}
           </p>
           <Button asChild variant="outline" size="sm">
-            <Link to="/browse-projects">
+            <Link to={profile?.role === 'business' ? "/employer/projects/manage" : "/browse-projects"}>
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to Projects
+              Back to {profile?.role === 'business' ? "Manage Projects" : "Projects"}
             </Link>
           </Button>
         </div>
@@ -252,8 +252,11 @@ const ProjectDetails = () => {
 
         {/* Breadcrumb */}
         <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-8">
-          <Link to="/browse-projects" className="hover:underline">
-            Projects
+          <Link 
+            to={profile?.role === 'business' ? "/employer/projects/manage" : "/browse-projects"} 
+            className="hover:underline"
+          >
+            {profile?.role === 'business' ? "Manage Projects" : "Projects"}
           </Link>
           <ChevronRight className="h-3.5 w-3.5" />
           <span className="text-foreground font-medium truncate max-w-xs">

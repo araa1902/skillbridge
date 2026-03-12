@@ -265,7 +265,7 @@ const TermsOfService = () => {
                 <SectionCard number="12" title="Contact Information">
                     <p>
                         If you have any questions about these Terms, please contact us at{" "}
-                        <strong>skillbridge@gmail.com</strong>.
+                        <strong>bathskillbridge@gmail.com</strong>.
                     </p>
                 </SectionCard>
 

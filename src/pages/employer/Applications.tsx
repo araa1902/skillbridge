@@ -210,7 +210,7 @@ export default function Applications() {
     navigate(`/project/${projectId}/messages?to=${studentId}`);
   };
 
-  const FILTERS = ["all", "pending", "reviewing", "accepted", "completed", "rejected"] as const;
+  const FILTERS = ["all", "pending", "reviewing", "accepted", "completed", "rejected", "withdrawn"] as const;
   type Filter = typeof FILTERS[number];
 
   const STATUS_STYLES: Record<Filter, string> = {
@@ -220,6 +220,7 @@ export default function Applications() {
     accepted: "bg-emerald-100 text-emerald-600",
     completed: "bg-green-100 text-green-600",
     rejected: "bg-red-100 text-red-600",
+    withdrawn: "bg-gray-100 text-gray-600",
   };
 
   const ACTIVE_BADGE_STYLES: Record<Filter, string> = {
@@ -229,6 +230,7 @@ export default function Applications() {
     accepted: "bg-emerald-200 text-emerald-700",
     completed: "bg-green-200 text-green-700",
     rejected: "bg-red-200 text-red-700",
+    withdrawn: "bg-gray-200 text-gray-700",
   };
   const [confirmText, setConfirmText] = useState("");
   const isConfirmed = confirmText.trim().toLowerCase() === "confirm";
@@ -264,6 +266,7 @@ export default function Applications() {
     accepted: applications.filter((a) => a.status === "accepted").length,
     rejected: applications.filter((a) => a.status === "rejected").length,
     completed: applications.filter((a) => a.status === "completed").length,
+    withdrawn: applications.filter((a) => a.status === "withdrawn").length,
   };
 
   return (
@@ -651,9 +654,6 @@ export default function Applications() {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-medium text-slate-400 uppercase tracking-wide">Project</span>
-                <Badge className="bg-emerald-50 text-emerald-700 border border-emerald-100 text-xs font-medium px-2 py-0.5 rounded-full">
-                  Verified Work
-                </Badge>
               </div>
               <p className="text-sm font-semibold text-slate-900 -mt-1">
                 {selectedApp?.project_title}

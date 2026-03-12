@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger, DropdownMenuSeparator } from "@/components/ui/dropdown-menu";
 import {
   Briefcase,
   CheckCircle as CheckCircle2,
@@ -23,22 +24,37 @@ import {
   CheckCircle,
   Circle,
   UsersIcon,
+  Trash,
+  DotsThreeVertical,
+  EyeIcon,
 } from "@phosphor-icons/react";
 import { useAuth } from "@/contexts/AuthContext";
-import { useMyProjects, useEmployerStats } from "@/hooks/useProjects";
-import { RotateCcwIcon } from "lucide-react";
+import { useMyProjects, useEmployerStats, deleteProject, updateProject } from "@/hooks/useProjects";
+import { RotateCcwIcon, XCircleIcon } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { useToast } from "@/hooks/use-toast";
 
 type Project = {
   id: string;
   title: string;
   description: string;
   postedDate: string;
+  deadline: string;
   category: string;
-  status: "Active" | "Draft" | "Completed" | "Closed";
+  status: "Active" | "In Progress" | "Draft" | "Completed" | "Closed";
   applications: number;
   budget: string;
   hours: string;
-  deadline: string;
   talentsNeeded: number;
   priority: "High" | "Medium" | "Low";
   progress: number;
@@ -46,14 +62,15 @@ type Project = {
   updatedAt: string;
 };
 
-type StatusFilter = "all" | "active" | "draft" | "completed" | "closed";
+type StatusFilter = "all" | "active" | "in progress" | "draft" | "completed" | "closed";
 type SortOption = "recent" | "applications" | "deadline";
 
 const statusBadgeClasses: Record<Project["status"], string> = {
   Active: "border-green-100 bg-green-50 text-green-700",
+  "In Progress": "border-blue-100 bg-blue-50 text-blue-700",
   Draft: "border-amber-100 bg-amber-50 text-amber-700",
-  Completed: "border-blue-100 bg-blue-50 text-blue-700",
-  Closed: "border-border bg-muted text-slate-700",
+  Completed: "border-emerald-100 bg-emerald-50 text-emerald-700",
+  Closed: "border-gray-100 bg-gray-50 text-gray-700",
 };
 
 const priorityBadgeClasses: Record<Project["priority"], string> = {
@@ -155,36 +172,36 @@ function ProjectListItem({
         {project.description.trim().slice(0, 90)}…
       </p>
 
-      <div className="flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2 min-w-0">
-          <span
-            className={`inline-block h-2 w-2 rounded-full shrink-0 ${priorityDotClasses[project.priority]}`}
-          />
-          <span className="text-xs text-muted-foreground truncate">{project.priority} priority</span>
-        </div>
+      <div className="flex items-center justify-end gap-3">
         <div className="flex items-center gap-3 shrink-0">
-          {project.applications > 0 && (
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Users className="h-3.5 w-3.5" />
-              {project.applications}
+          {project.applications === 0 && (
+            <span className="flex gap-1 text-xs text-muted-foreground">
+              <UsersIcon className="h-3.5 w-3.5" />
+              No Applications
             </span>
           )}
-          {(isOverdue || isUrgent) && (
-            <WarningCircle
-              className={`h-4 w-4 ${isOverdue ? "text-red-500" : "text-amber-500"}`}
-              weight="fill"
-            />
+          {project.applications > 0 && (
+            <span className="flex gap-1 text-xs text-muted-foreground">
+              <UsersIcon className="h-3.5 w-3.5" />
+              {project.applications} {project.applications === 1 ? "Application" : "Applications"}
+            </span>
           )}
         </div>
       </div>
-
-      <Progress value={project.progress} className="mt-3 h-1.5" />
     </button>
   );
 }
 
 // ─── Project Detail Panel ──────────────────────────────────────────────────────
-function ProjectDetail({ project }: { project: Project }) {
+function ProjectDetail({
+  project,
+  onDelete,
+  onClose
+}: {
+  project: Project;
+  onDelete: (id: string) => void;
+  onClose: (id: string) => void;
+}) {
   const deadlineDate = new Date(project.deadline);
   const daysUntil = Math.ceil((deadlineDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
   const deadlineLabel =
@@ -193,9 +210,11 @@ function ProjectDetail({ project }: { project: Project }) {
 
   const statusIcon =
     project.status === "Completed" ? (
-      <CheckCircle className="h-5 w-5 text-blue-500" weight="fill" />
+      <CheckCircle className="h-5 w-5 text-emerald-500" weight="fill" />
     ) : project.status === "Active" ? (
       <Circle className="h-5 w-5 text-green-500" weight="fill" />
+    ) : project.status === "In Progress" ? (
+      <Circle className="h-5 w-5 text-blue-500" weight="fill" />
     ) : (
       <Circle className="h-5 w-5 text-muted-foreground" />
     );
@@ -204,9 +223,10 @@ function ProjectDetail({ project }: { project: Project }) {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1.5">
+        <div className="space-y-1.5 flex-1 pr-4">
           <div className="flex items-center gap-2 flex-wrap">
             <h2
+              className="break-words"
               style={{
                 fontFamily: "var(--font-display)",
                 fontWeight: 700,
@@ -231,27 +251,95 @@ function ProjectDetail({ project }: { project: Project }) {
           <Link to={`/employer/projects/${project.id}/applications`}>
             <Button size="sm">
               <Users className="mr-1.5 h-4 w-4" />
-              Review applicants
+              {project.status === "Active" ? "Review applicants" : "Manage project"}
             </Button>
           </Link>
-          <Link to={`/employer/projects/${project.id}/edit`}>
-            <Button size="sm" variant="outline">
-              <Edit className="mr-1.5 h-4 w-4" />
-              Edit
-            </Button>
-          </Link>
-          <Link to={`/project/${project.id}`}>
-            <Button size="sm" variant="ghost">
-              <Eye className="mr-1.5 h-4 w-4" />
-              View brief
-            </Button>
-          </Link>
+
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button size="sm" variant="outline" className="px-2">
+                <DotsThreeVertical className="h-4 w-4 text-muted-foreground" weight="bold" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {(project.status === "Active" || project.status === "Draft") && (
+                <DropdownMenuItem asChild>
+                  <Link to={`/employer/projects/${project.id}/edit`} className="w-full cursor-pointer">
+                    <Edit className="mr-2 h-4 w-4 text-muted-foreground" />
+                    Edit
+                  </Link>
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuItem asChild>
+                <Link to={`/project/${project.id}`} className="w-full cursor-pointer">
+                  <EyeIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                  View Project
+                </Link>
+              </DropdownMenuItem>
+
+              {project.status === "Active" && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer mt-1">
+                      <XCircleIcon className="mr-2 h-4 w-4" />
+                      Close Project
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Close Project?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will close the project to new applications. You can still review existing candidates.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onClose(project.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Close Project
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+
+              {project.status === "Draft" && (
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <DropdownMenuItem onSelect={(e) => e.preventDefault()} className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer mt-1">
+                      <Trash className="mr-2 h-4 w-4" />
+                      Delete Draft
+                    </DropdownMenuItem>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Delete Draft?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This will permanently delete this draft. This action cannot be undone.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction
+                        onClick={() => onDelete(project.id)}
+                        className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                      >
+                        Delete
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
       {/* Description */}
       <div className="rounded-xl border border-border bg-muted/30 p-4">
-        <p className="text-sm text-muted-foreground leading-relaxed">{project.description.trim()}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed line-clamp-3">{project.description.trim()}</p>
       </div>
 
       {/* Key metrics */}
@@ -373,33 +461,87 @@ function EmptyState({ onReset }: { onReset: () => void }) {
 // ─── Main Page ─────────────────────────────────────────────────────────────────
 export default function ManageProjects() {
   const { user } = useAuth();
-  const { projects: dbProjects, loading: projectsLoading } = useMyProjects(user?.id ?? null);
+  const { projects: dbProjects, loading: projectsLoading, refetch } = useMyProjects(user?.id ?? null);
   const stats = useEmployerStats(user?.id ?? null);
+  const { toast } = useToast();
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState<SortOption>("recent");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
+  const handleDelete = async (id: string) => {
+    try {
+      const { error } = await deleteProject(id);
+      if (error) {
+        toast({
+          title: "Error deleting draft",
+          description: error,
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "Draft deleted",
+        description: "The project draft has been successfully removed.",
+      });
+      refetch();
+      if (selectedId === id) setSelectedId(null);
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleClose = async (id: string) => {
+    try {
+      const { error } = await updateProject(id, { status: 'cancelled' });
+      if (error) {
+        toast({
+          title: "Error closing project",
+          description: error,
+          variant: "destructive",
+        });
+        return;
+      }
+      toast({
+        title: "Project closed",
+        description: "The project is no longer accepting applications.",
+      });
+      refetch();
+    } catch (err) {
+      toast({
+        title: "Error",
+        description: "An unexpected error occurred.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const projects: Project[] = useMemo(() => {
     return dbProjects.map((p) => ({
       id: p.id,
       title: p.title,
       description: p.description,
-      postedDate: new Date(p.created_at).toLocaleDateString(),
-      category: "General",
+      postedDate: formatRelativeTime(p.created_at),
+      deadline: p.deadline ?? p.created_at,
+      category: p.category ?? "General",
       status:
         p.status === "open"
           ? "Active"
-          : p.status === "draft"
-            ? "Draft"
-            : p.status === "completed"
-              ? "Completed"
-              : "Closed",
+          : p.status === "in_progress"
+            ? "In Progress"
+            : p.status === "draft"
+              ? "Draft"
+              : p.status === "completed"
+                ? "Completed"
+                : "Closed",
       applications: p.application_count ?? 0,
       budget: `£${p.budget}`,
       hours: `${p.duration_hours} hrs`,
-      deadline: p.created_at,
       talentsNeeded: 1,
       priority: "Medium",
       progress:
@@ -466,8 +608,10 @@ export default function ManageProjects() {
 
   const statusFilters = [
     { value: "all", label: "All" },
-    { value: "active", label: "Active" },
+    { value: "active", label: "Hiring" },
+    { value: "in progress", label: "In Progress" },
     { value: "completed", label: "Completed" },
+    { value: "draft", label: "Drafts" },
     { value: "closed", label: "Closed" },
   ] as const;
 
@@ -609,7 +753,11 @@ export default function ManageProjects() {
             {/* Right: detail panel */}
             <div className="rounded-2xl border border-border bg-card shadow-sm p-6 lg:sticky lg:top-6">
               {selectedProject ? (
-                <ProjectDetail project={selectedProject} />
+                <ProjectDetail
+                  project={selectedProject}
+                  onDelete={handleDelete}
+                  onClose={handleClose}
+                />
               ) : (
                 <div className="flex flex-col items-center justify-center gap-3 py-16 text-center text-muted-foreground">
                   <Briefcase className="h-8 w-8" />

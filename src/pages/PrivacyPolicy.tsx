@@ -81,7 +81,7 @@ const PrivacyPolicy = () => {
                     </p>
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-700">
                         If you have any questions about this Privacy Policy or your data, please contact us
-                        at: <strong>skillbridge@gmail.com</strong>
+                        at: <strong>bathskillbridge@gmail.com</strong>
                     </div>
                 </div>
 
@@ -227,7 +227,7 @@ const PrivacyPolicy = () => {
                     />
                     <div className="bg-gray-50 border border-gray-200 rounded-xl p-4 text-sm text-gray-700">
                         To exercise these rights, please contact us at{" "}
-                        <strong>skillbridge@gmail.com</strong>.
+                        <strong>bathskillbridge@gmail.com</strong>.
                     </div>
                     <p>
                         You also have the right to lodge a complaint with the{" "}

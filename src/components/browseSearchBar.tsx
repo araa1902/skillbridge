@@ -4,13 +4,29 @@
 import { useState, useRef } from "react";
 import { cn } from "@/lib/utils";
 import {
+    Check,
+    CaretUpDown,
     MagnifyingGlassIcon,
     XIcon,
     SlidersHorizontalIcon,
     BriefcaseIcon,
     ClockIcon,
     CurrencyGbpIcon,
+    TagIcon,
 } from "@phosphor-icons/react";
+import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+} from "@/components/ui/popover";
+import {
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+} from "@/components/ui/command";
 import {
     Select,
     SelectContent,
@@ -39,6 +55,8 @@ interface MarketplaceSearchBarProps {
     setDurationFilter: (v: string) => void;
     budgetFilter: string;
     setBudgetFilter: (v: string) => void;
+    categoryFilter: string;
+    setCategoryFilter: (v: string) => void;
     allSkills: string[];
     hasActiveFilters: boolean;
     clearFilters: () => void;
@@ -57,6 +75,16 @@ const BUDGET_OPTIONS = [
     { value: "0-500", label: "Up to £500" },
     { value: "500-1000", label: "£500 – £1,000" },
     { value: "1000+", label: "£1,000+" },
+];
+
+const CATEGORY_OPTIONS = [
+    { value: "all", label: "Any category" },
+    { value: "Engineering & Dev", label: "Engineering & Dev" },
+    { value: "Creative & Design", label: "Creative & Design" },
+    { value: "Marketing & Sales", label: "Marketing & Sales" },
+    { value: "Business & Strategy", label: "Business & Strategy" },
+    { value: "Content & Copy", label: "Content & Copy" },
+    { value: "Data & AI", label: "Data & AI" },
 ];
 
 // ── Filter Pill ──────────────────────────────────────────────────────────────
@@ -113,6 +141,69 @@ function FilterPill({
     );
 }
 
+// ── Searchable Filter Pill (for Skills) ──────────────────────────────────────
+function SearchableFilterPill({
+    icon: Icon,
+    label,
+    value,
+    options,
+    onChange,
+    active,
+}: {
+    icon: React.ElementType;
+    label: string;
+    value: string;
+    options: { value: string; label: string }[];
+    onChange: (v: string) => void;
+    active: boolean;
+}) {
+    const [open, setOpen] = useState(false);
+    const displayLabel = value === "all" ? label : options.find((o) => o.value === value)?.label || label;
+
+    return (
+        <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger
+                className={cn(
+                    "h-11 px-4 rounded-full border text-sm font-medium transition-all duration-200",
+                    "bg-white hover:bg-gray-50 hover:border-gray-400 cursor-pointer flex items-center gap-2",
+                    "focus:ring-0 focus:outline-none focus-visible:ring-0 focus-visible:outline-none min-w-[140px]",
+                    active
+                        ? "border-gray-900 text-gray-900 shadow-sm"
+                        : "border-gray-300 text-gray-600"
+                )}
+            >
+                <Icon className="w-4 h-4 shrink-0 text-gray-500" weight="regular" />
+                <span className="text-gray-500 font-normal flex-1 text-left line-clamp-1">{displayLabel}</span>
+                <CaretUpDown className="w-4 h-4 shrink-0 text-gray-400 opacity-50" />
+            </PopoverTrigger>
+            <PopoverContent side="bottom" className="w-[220px] p-0 rounded-2xl shadow-xl border-gray-200" align="start">
+                <Command>
+                    <CommandInput placeholder={`Search ${label.toLowerCase()}s...`} className="h-10 text-sm" />
+                    <CommandList className="max-h-[300px]">
+                        <CommandEmpty>No {label.toLowerCase()} found.</CommandEmpty>
+                        <CommandGroup>
+                            {options.map((o) => (
+                                <CommandItem
+                                    key={o.value}
+                                    value={o.label}
+                                    onSelect={() => {
+                                        onChange(o.value);
+                                        setOpen(false);
+                                    }}
+                                    className="rounded-xl text-sm py-2 px-3 cursor-pointer flex items-center justify-between"
+                                >
+                                    {o.label}
+                                    <Check className={cn("ml-2 h-4 w-4", value === o.value ? "opacity-100" : "opacity-0")} />
+                                </CommandItem>
+                            ))}
+                        </CommandGroup>
+                    </CommandList>
+                </Command>
+            </PopoverContent>
+        </Popover>
+    );
+}
+
 // ── Main Component ───────────────────────────────────────────────────────────
 export function MarketplaceSearchBar({
     searchQuery,
@@ -123,6 +214,8 @@ export function MarketplaceSearchBar({
     setDurationFilter,
     budgetFilter,
     setBudgetFilter,
+    categoryFilter,
+    setCategoryFilter,
     allSkills,
     hasActiveFilters,
     clearFilters,
@@ -194,7 +287,7 @@ export function MarketplaceSearchBar({
 
                     {/* Filter pills */}
                     <div className="flex items-center gap-2">
-                        <FilterPill
+                        <SearchableFilterPill
                             icon={BriefcaseIcon}
                             label="Skill"
                             value={skillFilter}
@@ -202,6 +295,14 @@ export function MarketplaceSearchBar({
                             onChange={setSkillFilter}
                             active={skillFilter !== "all"}
                         />
+                        {/* <FilterPill
+                            icon={TagIcon}
+                            label="Category"
+                            value={categoryFilter}
+                            options={CATEGORY_OPTIONS}
+                            onChange={setCategoryFilter}
+                            active={categoryFilter !== "all"}
+                        /> */}
                         <FilterPill
                             icon={ClockIcon}
                             label="Duration"
@@ -262,6 +363,16 @@ export function MarketplaceSearchBar({
                             onClick={() => setBudgetFilter("all")}
                         >
                             Budget: {BUDGET_OPTIONS.find(o => o.value === budgetFilter)?.label}
+                            <XIcon className="w-3 h-3" weight="bold" />
+                        </Badge>
+                    )}
+                    {categoryFilter !== "all" && (
+                        <Badge
+                            variant="secondary"
+                            className="bg-gray-100 hover:bg-gray-200 text-gray-700 font-medium px-3 py-1 rounded-full flex items-center gap-1.5 cursor-pointer transition-colors"
+                            onClick={() => setCategoryFilter("all")}
+                        >
+                            Category: {categoryFilter}
                             <XIcon className="w-3 h-3" weight="bold" />
                         </Badge>
                     )}
@@ -333,12 +444,50 @@ export function MarketplaceSearchBar({
                                 <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 block">
                                     Skill
                                 </label>
-                                <Select value={skillFilter} onValueChange={setSkillFilter}>
+                                <Popover>
+                                    <PopoverTrigger
+                                        className="w-full flex items-center justify-between h-12 px-4 rounded-xl border border-gray-200 bg-gray-50 text-sm font-medium focus:outline-none"
+                                    >
+                                        <span className={skillFilter === "all" ? "text-gray-500" : "text-gray-900"}>
+                                            {skillFilter === "all" ? "All skills" : skillFilter}
+                                        </span>
+                                        <CaretUpDown className="w-4 h-4 text-gray-400 opacity-50" />
+                                    </PopoverTrigger>
+                                    <PopoverContent side="bottom" className="w-[var(--radix-popover-trigger-width)] p-0 rounded-2xl shadow-xl border-gray-200" align="start">
+                                        <Command>
+                                            <CommandInput placeholder="Search skills..." className="h-10 text-sm" />
+                                            <CommandList className="max-h-[250px]">
+                                                <CommandEmpty>No skill found.</CommandEmpty>
+                                                <CommandGroup>
+                                                    {skillOptions.map((o) => (
+                                                        <CommandItem
+                                                            key={o.value}
+                                                            value={o.label}
+                                                            onSelect={() => { setSkillFilter(o.value); document.body.click(); }}
+                                                            className="rounded-xl text-sm py-2 px-3 cursor-pointer flex items-center justify-between"
+                                                        >
+                                                            {o.label}
+                                                            <Check className={cn("ml-2 h-4 w-4", skillFilter === o.value ? "opacity-100" : "opacity-0")} />
+                                                        </CommandItem>
+                                                    ))}
+                                                </CommandGroup>
+                                            </CommandList>
+                                        </Command>
+                                    </PopoverContent>
+                                </Popover>
+                            </div>
+
+                            {/* Category */}
+                            <div className="hidden">
+                                <label className="text-xs font-semibold uppercase tracking-wider text-gray-400 mb-2 block">
+                                    Category
+                                </label>
+                                <Select value={categoryFilter} onValueChange={setCategoryFilter}>
                                     <SelectTrigger className="h-12 rounded-xl border-gray-200 bg-gray-50 focus:ring-0 focus:outline-none focus-visible:ring-0">
-                                        <SelectValue placeholder="All skills" />
+                                        <SelectValue placeholder="All categories" />
                                     </SelectTrigger>
                                     <SelectContent className="rounded-2xl">
-                                        {skillOptions.map((o) => (
+                                        {CATEGORY_OPTIONS.map((o) => (
                                             <SelectItem key={o.value} value={o.value} className="py-2.5">
                                                 {o.label}
                                             </SelectItem>

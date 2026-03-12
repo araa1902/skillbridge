@@ -15,12 +15,14 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MarketplaceSearchBar } from "@/components/browseSearchBar";
+import { ALL_SKILLS } from "@/data/skills";
 
 const BrowseProjects = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [skillFilter, setSkillFilter] = useState("all");
   const [durationFilter, setDurationFilter] = useState("all");
   const [budgetFilter, setBudgetFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [showFilters, setShowFilters] = useState(false);
 
   // We default to showing matching scores if the user is a student
@@ -57,13 +59,6 @@ const BrowseProjects = () => {
     return Math.round((matches / requiredSkills.length) * 100);
   };
 
-  // Collect unique skills for filter dropdown
-  const allSkills = useMemo(() => {
-    const set = new Set<string>();
-    projects.forEach(p => p.required_skills.forEach(s => set.add(s)));
-    return Array.from(set).sort();
-  }, [projects]);
-
   const filtered = useMemo(() => {
     return projects
       .map(p => ({
@@ -82,6 +77,9 @@ const BrowseProjects = () => {
         const matchesSkill =
           skillFilter === "all" || p.required_skills.includes(skillFilter);
 
+        const matchesCategory =
+          categoryFilter === "all" || p.category === categoryFilter;
+
         const matchesDuration =
           durationFilter === "all" ||
           (durationFilter === "short" && p.duration_hours <= 10) ||
@@ -94,14 +92,15 @@ const BrowseProjects = () => {
           (budgetFilter === "500-1000" && p.budget > 500 && p.budget <= 1000) ||
           (budgetFilter === "1000+" && p.budget > 1000);
 
-        return matchesSearch && matchesSkill && matchesDuration && matchesBudget;
+        return matchesSearch && matchesSkill && matchesCategory && matchesDuration && matchesBudget;
       })
       .sort((a, b) => b.matchScore - a.matchScore);
-  }, [projects, searchQuery, skillFilter, durationFilter, budgetFilter, studentSkills]);
+  }, [projects, searchQuery, skillFilter, categoryFilter, durationFilter, budgetFilter, studentSkills]);
 
   const clearFilters = () => {
     setSearchQuery("");
     setSkillFilter("all");
+    setCategoryFilter("all");
     setDurationFilter("all");
     setBudgetFilter("all");
   };
@@ -109,10 +108,11 @@ const BrowseProjects = () => {
   const activeFilterCount = useMemo(() => {
     let count = 0;
     if (skillFilter !== "all") count++;
+    if (categoryFilter !== "all") count++;
     if (durationFilter !== "all") count++;
     if (budgetFilter !== "all") count++;
     return count;
-  }, [skillFilter, durationFilter, budgetFilter]);
+  }, [skillFilter, categoryFilter, durationFilter, budgetFilter]);
 
   const hasActiveFilters =
     searchQuery || activeFilterCount > 0;
@@ -148,7 +148,9 @@ const BrowseProjects = () => {
         setDurationFilter={setDurationFilter}
         budgetFilter={budgetFilter}
         setBudgetFilter={setBudgetFilter}
-        allSkills={allSkills}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        allSkills={ALL_SKILLS}
         hasActiveFilters={!!hasActiveFilters}
         clearFilters={clearFilters}
         activeFilterCount={activeFilterCount}

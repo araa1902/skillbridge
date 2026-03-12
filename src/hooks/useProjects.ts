@@ -317,6 +317,19 @@ export async function updateProject(
   return { data: data as ProjectRow, error: null }
 }
 
+// ─── Delete a project ─────────────────────────────────────────────────────────
+export async function deleteProject(
+  id: string
+): Promise<{ error: string | null }> {
+  const { error } = await supabase
+    .from('projects')
+    .delete()
+    .eq('id', id)
+
+  if (error) return { error: (error as any).message ?? String(error) }
+  return { error: null }
+}
+
 // ─── Aggregate stats for a student dashboard ──────────────────────────────
 export interface StudentStats {
   totalEarnings: number

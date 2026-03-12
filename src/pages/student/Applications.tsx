@@ -166,7 +166,7 @@ export default function StudentApplications() {
   };
 
 
-  const FILTERS = ["all", "pending", "reviewing", "accepted", "completed", "rejected"] as const;
+  const FILTERS = ["all", "pending", "reviewing", "accepted", "completed", "rejected", "withdrawn"] as const;
   type Filter = typeof FILTERS[number];
 
   const STATUS_STYLES: Record<Filter, string> = {
@@ -176,6 +176,7 @@ export default function StudentApplications() {
     accepted: "bg-emerald-100 text-emerald-600",
     completed: "bg-green-100 text-green-600",
     rejected: "bg-red-100 text-red-600",
+    withdrawn: "bg-gray-100 text-gray-600",
   };
 
   const ACTIVE_BADGE_STYLES: Record<Filter, string> = {
@@ -185,6 +186,7 @@ export default function StudentApplications() {
     accepted: "bg-emerald-200 text-emerald-700",
     completed: "bg-green-200 text-green-700",
     rejected: "bg-red-200 text-red-700",
+    withdrawn: "bg-gray-200 text-gray-700",
   };
 
 
@@ -202,6 +204,7 @@ export default function StudentApplications() {
     accepted: applications.filter((a) => a.status === "accepted").length,
     rejected: applications.filter((a) => a.status === "rejected").length,
     completed: applications.filter((a) => a.status === "completed").length,
+    withdrawn: applications.filter((a) => a.status === "withdrawn").length,
   };
 
   const displayName = (app: ApplicationWithDetails) =>
