@@ -4,12 +4,18 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import { Separator } from "@/components/ui/separator"
 import {
   Tooltip,
@@ -17,7 +23,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip"
-import { ArrowLeft, ArrowRight, SpinnerGap as Loader2, Plus as Plus, X, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Sparkle as Sparkles, Lightbulb, CurrencyGbp as PoundSterling, Clock, CalendarBlank as CalendarDays, Checks as ListChecks, Briefcase, Tag as Tag, FileText, Info as Info, Rocket as Rocket, BookmarkSimple as BookMarked, Layout as LayoutTemplate, TrendUp as TrendingUp, ShieldCheck as ShieldCheck, Users, BriefcaseIcon, BinocularsIcon } from "@phosphor-icons/react"
+import { ArrowLeft, ArrowRight, SpinnerGap as Loader2, Plus as Plus, X, CheckCircle as CheckCircle2, CaretRight as ChevronRight, Sparkle as Sparkles, Lightbulb, CurrencyGbp as PoundSterling, Clock, CalendarBlank as CalendarDays, Checks as ListChecks, Briefcase, Tag as Tag, FileText, Info as Info, Rocket as Rocket, BookmarkSimple as BookMarked, Layout as LayoutTemplate, TrendUp as TrendingUp, ShieldCheck as ShieldCheck, Users, BriefcaseIcon, BinocularsIcon, CaretUpDown, Check } from "@phosphor-icons/react"
 import { useAuth } from "@/contexts/AuthContext"
 import { insertProject, updateProject } from "@/hooks/useProjects"
 import { useToast } from "@/hooks/use-toast"
@@ -30,28 +36,86 @@ import { ProjectStatus } from "@/types"
 ───────────────────────────────────────────────────────────────────────────── */
 
 
-export const CATEGORIES = [
-  { value: "software-dev", label: "Software & Web Development" },
-  { value: "data-ai", label: "Data Science & AI" },
-  { value: "design-creative", label: "Design & Creative" },
-  { value: "marketing-pr", label: "Digital Marketing & PR" },
-  { value: "business-finance", label: "Business & Finance" },
-  { value: "writing-translation", label: "Writing & Translation" },
-  { value: "engineering-cad", label: "Engineering & Architecture" },
-  { value: "research-admin", label: "Research & Admin" },
+export const CATEGORY_GROUPS = [
+  {
+    label: "Tech & Development",
+    categories: [
+      { value: "software-dev", label: "Software & Web Development" },
+      { value: "mobile-dev", label: "Mobile App Development" },
+      { value: "game-dev", label: "Game Development" },
+      { value: "cybersecurity", label: "Cybersecurity" },
+      { value: "data-ai", label: "Data Science & AI" },
+      { value: "blockchain", label: "Blockchain & Web3" },
+      { value: "qa-testing", label: "QA & Testing" },
+    ]
+  },
+  {
+    label: "Design & Creative",
+    categories: [
+      { value: "design-creative", label: "Graphic Design & Illustration" },
+      { value: "ui-ux", label: "UI/UX Design" },
+      { value: "multimedia-video", label: "Video Production & Animation" },
+      { value: "photography", label: "Photography" },
+      { value: "architecture-interior", label: "Architecture & Interior Design" },
+      { value: "fashion-apparel", label: "Fashion & Apparel Design" },
+    ]
+  },
+  {
+    label: "Marketing & Writing",
+    categories: [
+      { value: "marketing-seo", label: "Digital Marketing & SEO" },
+      { value: "social-media", label: "Social Media Management" },
+      { value: "content-strategy", label: "Content Strategy & Copywriting" },
+      { value: "pr-communications", label: "PR & Communications" },
+      { value: "translation-languages", label: "Translation & Languages" },
+    ]
+  },
+  {
+    label: "Business & Management",
+    categories: [
+      { value: "business-finance", label: "Business & Finance" },
+      { value: "sales-bizdev", label: "Sales & Business Development" },
+      { value: "project-management", label: "Project Management" },
+      { value: "consulting-strategy", label: "Strategy & Consulting" },
+      { value: "hr-recruitment", label: "HR & Recruitment" },
+      { value: "legal-compliance", label: "Legal & Compliance" },
+    ]
+  },
+  {
+    label: "Research & Specialized",
+    categories: [
+      { value: "engineering", label: "Engineering" },
+      { value: "research-analytics", label: "Research & Analysis" },
+      { value: "sustainability", label: "Sustainability & Environment" },
+      { value: "healthcare-science", label: "Healthcare & Life Sciences" },
+      { value: "education-tutoring", label: "Education & Tutoring" },
+      { value: "event-planning", label: "Event Planning" },
+    ]
+  }
 ];
+
+export const CATEGORIES = CATEGORY_GROUPS.flatMap(g => g.categories);
 
 // Replaced broad categories with specific, highly-searched hard skills
 export const ALL_SKILLS = [
-  // Tech & Data
-  "React", "TypeScript", "Python", "Node.js", "WordPress", "Shopify",
-  "SQL", "Excel", "Machine Learning", "Data Visualization", "PowerBI",
+  // Tech & Software
+  "React", "TypeScript", "Node.js", "Python", "Next.js", "React Native", "Flutter",
+  "Three.js", "Java", "C++", "C#", "Unity", "Unreal Engine", "AWS", "Docker", "Kubernetes",
+  "SQL", "NoSQL", "Git", "GitHub Actions", "WordPress", "Shopify", "PHP", "Laravel",
+  // Data & AI
+  "Machine Learning", "Deep Learning", "Natural Language Processing", "Computer Vision",
+  "Data Visualization", "PowerBI", "Tableau", "Excel", "Pandas", "NumPy", "TensorFlow", "PyTorch",
   // Design & Creative
-  "UI/UX Design", "Figma", "Adobe Creative Suite", "Video Editing", "Animation",
+  "UI/UX Design", "Figma", "Adobe Illustrator", "Adobe Photoshop", "After Effects",
+  "Premiere Pro", "Blender", "3D Modeling", "Video Editing", "Animation", "Logo Design",
   // Marketing & Writing
-  "SEO", "Copywriting", "Social Media Management", "Content Strategy", "Email Marketing",
+  "SEO", "SEM", "Google Analytics", "Content Strategy", "Copywriting", "Social Media Management",
+  "Email Marketing", "Public Relations", "Translation", "Technical Writing",
   // Business & Research
-  "Market Research", "Financial Modeling", "Data Entry", "Project Management", "Business Analysis"
+  "Market Research", "Financial Modeling", "Business Analysis", "Project Management",
+  "Agile/Scrum", "User Research", "Survey Design", "Data Entry", "Strategy Consulting",
+  // Engineering & Science
+  "AutoCAD", "SolidWorks", "MATLAB", "Circuit Design", "Sustainability Research", "BIM"
 ].sort(); // Alphabetical sorting makes the dropdown easier to read
 
 export const DURATIONS = [
@@ -116,34 +180,50 @@ type Template = {
 const TEMPLATES: Record<string, Template> = {
   "Website Development": {
     title: "E-commerce Website Revamp",
-    category: "web-dev",
+    category: "software-dev",
     description: "Redesign and optimise our existing e-commerce website for performance, accessibility, and mobile responsiveness. Implement improved navigation, product filtering, and SEO best practices.",
     deliverables: "1. High-fidelity UI mockups\n2. Responsive React/Next.js implementation\n3. Performance report (Lighthouse score)\n4. Accessibility audit\n5. Deployment instructions",
     skills: ["Web Development", "UI/UX Design"],
     duration: "20", budget: "800",
   },
+  "App Development": {
+    title: "Mobile App MVP Development",
+    category: "mobile-dev",
+    description: "Build a cross-platform mobile app MVP using React Native or Flutter. Focus on core features: user authentication, basic feed, and profile management.",
+    deliverables: "1. Cross-platform mobile app\n2. Source code (GitHub repository)\n3. Basic setup guide\n4. QA test report",
+    skills: ["Mobile App Development", "React Native", "Firebase"],
+    duration: "40", budget: "1500",
+  },
   "Marketing Campaign": {
     title: "Student-Targeted Digital Marketing Campaign",
-    category: "marketing",
-    description: "Design and execute a digital marketing campaign targeting university students to increase sign-ups. Includes channel strategy, content calendar, and performance tracking.",
-    deliverables: "1. Campaign brief & strategy\n2. 4-week content calendar\n3. Ad copy & creative concepts\n4. Analytics tracking plan\n5. Post-campaign performance report",
+    category: "marketing-seo",
+    description: "Design and execute a digital marketing campaign targeting university students. Includes channel strategy, content calendar, and performance tracking.",
+    deliverables: "1. Campaign brief & strategy\n2. 4-week content calendar\n3. Ad copy & creative assets\n4. Analytics tracking setup\n5. Post-campaign summary",
     skills: ["Marketing", "Social Media", "Content Writing", "Data Analysis"],
     duration: "20", budget: "600",
   },
+  "Logo & Branding": {
+    title: "Startup Visual Identity Suite",
+    category: "design-creative",
+    description: "Design a comprehensive visual identity for our new startup. This includes a logo, color palette, typography guidelines, and social media templates.",
+    deliverables: "1. Primary & secondary logos (Vector/PNG)\n2. Brand guidelines PDF\n3. Social media asset kit\n4. Business card design",
+    skills: ["Graphic Design", "Logo Design", "Branding"],
+    duration: "10", budget: "400",
+  },
   "User Research": {
-    title: "User Research for New Mobile App Feature",
-    category: "research",
-    description: "Conduct qualitative and quantitative research to validate a new feature concept for our mobile app. Includes user interviews, survey, and insight synthesis.",
-    deliverables: "1. Research plan\n2. Interview summaries\n3. Survey dataset\n4. Insight report\n5. Feature recommendation memo",
-    skills: ["Research", "UI/UX Design", "Data Analysis"],
+    title: "User Research for New Mobile Feature",
+    category: "research-analytics",
+    description: "Conduct qualitative research to validate a new feature concept. Includes user interviews, insight synthesis, and design recommendations.",
+    deliverables: "1. Research plan & script\n2. Interview summaries\n3. Insight & findings report\n4. Feature recommendation memo",
+    skills: ["User Research", "UI/UX Design", "Data Analysis"],
     duration: "10", budget: "400",
   },
   "Data Analysis": {
     title: "Sales Funnel Performance Analysis",
-    category: "data",
+    category: "data-ai",
     description: "Analyse our sales funnel data to identify drop-off points and recommend optimisation strategies using historical CRM data.",
-    deliverables: "1. Data cleaning notebook\n2. Funnel visualisation\n3. KPI dashboard concept\n4. Findings report\n5. Optimisation recommendations",
-    skills: ["Data Analysis", "Business Analysis", "Research"],
+    deliverables: "1. Data cleaning & processing\n2. Funnel visualisation dashboard\n3. Key performance indicator report\n4. Optimisation recommendations",
+    skills: ["Data Analysis", "Business Analysis", "Python"],
     duration: "20", budget: "900",
   },
 }
@@ -430,6 +510,7 @@ export default function NewProject() {
   const [step, setStep] = useState(1)
   const [form, setForm] = useState<FormState>(INIT_FORM)
   const [selectedSkills, setSelectedSkills] = useState<string[]>([])
+  const [openCategorySelect, setOpenCategorySelect] = useState(false)
   const [customSkill, setCustomSkill] = useState("")
   const [submitting, setSubmitting] = useState(false)
   const [loadingProject, setLoadingProject] = useState(isEditing)
@@ -607,16 +688,54 @@ export default function NewProject() {
             <Label htmlFor="category" className="form-label flex items-center gap-1">
               Category <span className="text-destructive">*</span>
             </Label>
-            <Select value={form.category} onValueChange={(v) => set("category", v)}>
-              <SelectTrigger className="input mt-1.5 flex items-center">
-                <SelectValue placeholder="Select a category…" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c.value} value={c.value}>{c.label}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={openCategorySelect} onOpenChange={setOpenCategorySelect}>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  role="combobox"
+                  aria-expanded={openCategorySelect}
+                  className="input mt-1.5 flex items-center justify-between w-full h-11 px-3 text-left bg-card border-border hover:bg-muted/50 transition-colors"
+                >
+                  <span className={cn(form.category ? "text-foreground" : "text-muted-foreground")}>
+                    {form.category
+                      ? CATEGORIES.find((c) => c.value === form.category)?.label
+                      : "Select a category…"}
+                  </span>
+                  <CaretUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Search categories..." className="h-9" />
+                  <CommandList className="max-h-[300px]">
+                    <CommandEmpty>No category found.</CommandEmpty>
+                    {CATEGORY_GROUPS.map((group) => (
+                      <CommandGroup key={group.label} heading={group.label}>
+                        {group.categories.map((c) => (
+                          <CommandItem
+                            key={c.value}
+                            value={c.label}
+                            onSelect={() => {
+                              set("category", c.value)
+                              setOpenCategorySelect(false)
+                            }}
+                            className="flex items-center justify-between"
+                          >
+                            <span>{c.label}</span>
+                            <Check
+                              className={cn(
+                                "ml-auto h-4 w-4",
+                                form.category === c.value ? "opacity-100" : "opacity-0"
+                              )}
+                            />
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    ))}
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
           <div className="form-group">

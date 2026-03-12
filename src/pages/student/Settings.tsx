@@ -138,7 +138,7 @@ const Settings = () => {
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input id="email" type="email" value={user?.email || ""} readOnly disabled className="bg-muted/50" />
-                    <p className="text-[10px] text-muted-foreground">Email cannot be changed here.</p>
+                    <p className="text-[10px] text-muted-foreground">Email cannot be changed.</p>
                   </div>
 
                   <div className="space-y-2">

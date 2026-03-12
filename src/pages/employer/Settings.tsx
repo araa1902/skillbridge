@@ -102,7 +102,7 @@ export default function EmployerSettings() {
               disabled
               className="bg-muted/50"
             />
-            <p className="text-[10px] text-muted-foreground">Email cannot be changed here.</p>
+            <p className="text-[10px] text-muted-foreground">Email cannot be changed.</p>
           </div>
 
           <div className="space-y-2">

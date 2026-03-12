@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ArrowLeft, ChatCircle as MessageCircle, CheckCircle, XCircle, Eye, User, WarningCircle, FileText } from "@phosphor-icons/react";
+import { ArrowLeft, ChatCircle as MessageCircle, CheckCircle, XCircle, Eye, User, WarningCircle, FileText, WarningCircleIcon } from "@phosphor-icons/react";
 import { useState, useEffect } from "react";
 import {
   AlertDialog,
@@ -466,7 +466,7 @@ export default function Applications() {
 
                         <Button
                           size="sm"
-                          variant="outline"
+                          className="bg-green-600 hover:bg-green-700 text-white"
                           onClick={() => handleNavigateToMessages(app.project_id, app.student_id, app.student_name)}
                         >
                           <MessageCircleIcon className="h-4 w-4 mr-1.5" />
@@ -673,9 +673,9 @@ export default function Applications() {
             </div>
 
             {/* Warning Box */}
-            <div className="flex gap-3 bg-amber-50 border border-amber-100 rounded-xl px-4 py-3">
-              <WarningCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-              <p className="text-xs text-amber-800 leading-relaxed">
+            <div className="flex gap-3 bg-red-50 border border-red-100 rounded-xl px-4 py-3">
+              <WarningCircleIcon className="h-4 w-4 text-red-500 flex-shrink-0 mt-0.5" />
+              <p className="text-xs text-red-800 leading-relaxed">
                 By completing this project, you confirm the deliverables meet your requirements.{" "}
                 <span className="font-semibold">This action cannot be undone.</span>
               </p>
