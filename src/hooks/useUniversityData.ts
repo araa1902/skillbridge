@@ -24,7 +24,7 @@ export function useUniversities() {
     return { universities, loading }
 }
 
-export function useFetchMyStudents(universityId: string | undefined) {
+export function useUniversityStudents(universityId: string | undefined, companyName?: string | null) {
     const [students, setStudents] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
 
@@ -35,7 +35,8 @@ export function useFetchMyStudents(universityId: string | undefined) {
         }
 
         setLoading(true)
-        const { data: studentList, error: studentListError } = await supabase
+        
+        let query = supabase
             .from('profiles')
             .select(`
           id,
@@ -44,7 +45,14 @@ export function useFetchMyStudents(universityId: string | undefined) {
           created_at
         `)
             .eq('role', 'student')
-            .eq('university_id', universityId)
+            
+        if (companyName) {
+            query = query.or(`university_id.eq.${universityId},company_name.eq."${companyName.replace(/"/g, '')}"`)
+        } else {
+            query = query.eq('university_id', universityId)
+        }
+            
+        const { data: studentList, error: studentListError } = await query
             .order('created_at', { ascending: false })
             .limit(20)
 
@@ -68,6 +76,20 @@ export function useFetchMyStudents(universityId: string | undefined) {
                         .eq('student_id', student.id),
                 ])
 
+                // Calculate total earnings
+                const acceptedApps = (appData.data || []).filter((a: any) => a.status === 'accepted')
+                let totalEarnings = 0
+
+                if (acceptedApps.length > 0) {
+                    const projectIds = acceptedApps.map((a: any) => a.project_id)
+                    const { data: projectsData } = await supabase
+                        .from('projects')
+                        .select('budget')
+                        .in('id', projectIds)
+                    
+                    totalEarnings = (projectsData || []).reduce((sum: number, p: any) => sum + (Number(p.budget) || 0), 0)
+                }
+
                 return {
                     id: student.id,
                     full_name: student.full_name,
@@ -75,6 +97,8 @@ export function useFetchMyStudents(universityId: string | undefined) {
                     applications_count: appData.count ?? 0,
                     credentials_earned: credData.count ?? 0,
                     joined_at: student.created_at,
+                    active_placements: acceptedApps.length,
+                    total_earnings: totalEarnings,
                 }
             })
         )
@@ -110,12 +134,12 @@ export function useFetchMyStudents(universityId: string | undefined) {
     return { students, loading }
 }
 
-export function useUniversityStats(universityId: string | undefined) {
+export function useUniversityStats(universityId: string | undefined, companyName?: string | null) {
     const [stats, setStats] = useState({
         totalStudents: 0,
-        totalProjects: 0,
-        totalCredentialsIssued: 0,
-        activeConnections: 0,
+        activePlacements: 0,
+        totalEarnings: 0,
+        averageCompetency: 0,
     })
     const [loading, setLoading] = useState(true)
 
@@ -127,11 +151,18 @@ export function useUniversityStats(universityId: string | undefined) {
 
         setLoading(true)
 
-        const { data: allUnivStudents, error: univStudentsError } = await supabase
+        let studentsQuery = supabase
             .from('profiles')
             .select('id')
             .eq('role', 'student')
-            .eq('university_id', universityId)
+
+        if (companyName) {
+            studentsQuery = studentsQuery.or(`university_id.eq.${universityId},company_name.eq."${companyName.replace(/"/g, '')}"`)
+        } else {
+            studentsQuery = studentsQuery.eq('university_id', universityId)
+        }
+
+        const { data: allUnivStudents, error: univStudentsError } = await studentsQuery
 
         if (univStudentsError) {
             setLoading(false)
@@ -141,43 +172,48 @@ export function useUniversityStats(universityId: string | undefined) {
         const studentIds = allUnivStudents?.map((s: any) => s.id) || []
         const studentCount = studentIds.length
 
-        let projectCount = 0
-        let credentialCount = 0
-        let activeConnections = 0
+        let activePlacements = 0
+        let totalEarnings = 0
+        let averageCompetency = 0
 
         if (studentIds.length > 0) {
-            // Get total credentials issued to these students
-            const { count: cCount } = await supabase
+            // Get credentials to calculate average competency rating
+            const { data: credData } = await supabase
                 .from('credentials')
-                .select('*', { count: 'exact', head: true })
+                .select('rating')
                 .in('student_id', studentIds)
+                .not('rating', 'is', null)
 
-            credentialCount = cCount ?? 0
+            const ratings = (credData || []).map((c: any) => c.rating || 0)
+            if (ratings.length > 0) {
+                averageCompetency = ratings.reduce((sum: number, val: number) => sum + val, 0) / ratings.length
+            }
 
-            // Get projects students have applied to
+            // Get accepted applications to calculate active placements and total earnings
             const { data: appsData } = await supabase
                 .from('applications')
-                .select('project_id, status')
+                .select('project_id')
                 .in('student_id', studentIds)
+                .eq('status', 'accepted')
 
-            projectCount = new Set((appsData ?? []).map((a: any) => a.project_id)).size
+            const acceptedProjectIds = (appsData || []).map((a: any) => a.project_id)
+            activePlacements = acceptedProjectIds.length
 
-            // Get active connections
-            const { data: messageData } = await supabase
-                .from('messages')
-                .select('project_id, sender_id, receiver_id')
-
-            const relevantMessages = (messageData ?? []).filter((m: any) =>
-                studentIds.includes(m.sender_id) || studentIds.includes(m.receiver_id)
-            )
-            activeConnections = new Set(relevantMessages.map((m: any) => m.project_id)).size
+            if (acceptedProjectIds.length > 0) {
+                const { data: projectsData } = await supabase
+                    .from('projects')
+                    .select('budget')
+                    .in('id', acceptedProjectIds)
+                
+                totalEarnings = (projectsData || []).reduce((sum: number, p: any) => sum + (Number(p.budget) || 0), 0)
+            }
         }
 
         setStats({
             totalStudents: studentCount,
-            totalProjects: projectCount,
-            totalCredentialsIssued: credentialCount,
-            activeConnections: activeConnections,
+            activePlacements,
+            totalEarnings,
+            averageCompetency,
         })
         setLoading(false)
     }, [universityId])

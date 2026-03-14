@@ -1,5 +1,5 @@
 import { useAuth } from '@/contexts/AuthContext'
-import { useUniversityStats, useFetchMyStudents } from '@/hooks/useUniversityData'
+import { useUniversityStats, useUniversityStudents } from '@/hooks/useUniversityData'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
@@ -32,8 +32,8 @@ interface StudentData {
 const UniversityDashboard = () => {
   const { user, profile } = useAuth()
 
-  const { stats, loading: statsLoading } = useUniversityStats(user?.id)
-  const { students, loading: studentsLoading } = useFetchMyStudents(user?.id)
+  const { stats, loading: statsLoading } = useUniversityStats(user?.id, profile?.company_name)
+  const { students, loading: studentsLoading } = useUniversityStudents(user?.id, profile?.company_name)
 
   const loading = statsLoading || studentsLoading
   const error = null; // Error handling simplified to fit new hooks
@@ -81,11 +81,11 @@ const UniversityDashboard = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Projects</p>
+              <p className="text-sm text-gray-600">Active Placements</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
-                <p className="mt-2 text-3xl font-bold">{stats.totalProjects}</p>
+                <p className="mt-2 text-3xl font-bold">{stats.activePlacements}</p>
               )}
             </div>
             <Briefcase className="h-12 w-12 text-green-500 opacity-20" />
@@ -95,11 +95,11 @@ const UniversityDashboard = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Credentials Issued</p>
+              <p className="text-sm text-gray-600">Total Student Earnings</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
-                <p className="mt-2 text-3xl font-bold">{stats.totalCredentialsIssued}</p>
+                <p className="mt-2 text-3xl font-bold">${stats.totalEarnings.toLocaleString()}</p>
               )}
             </div>
             <Award className="h-12 w-12 text-purple-500 opacity-20" />
@@ -109,11 +109,11 @@ const UniversityDashboard = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Active Connections</p>
+              <p className="text-sm text-gray-600">Avg. Competency Score</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
-                <p className="mt-2 text-3xl font-bold">{stats.activeConnections}</p>
+                <p className="mt-2 text-3xl font-bold">{stats.averageCompetency.toFixed(1)} / 5.0</p>
               )}
             </div>
             <MessageSquare className="h-12 w-12 text-orange-500 opacity-20" />
@@ -145,7 +145,8 @@ const UniversityDashboard = () => {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Email</TableHead>
-                  <TableHead>Applications</TableHead>
+                  <TableHead>Active Placements</TableHead>
+                  <TableHead>Total Earnings</TableHead>
                   <TableHead>Credentials</TableHead>
                   <TableHead>Joined</TableHead>
                 </TableRow>
@@ -156,7 +157,10 @@ const UniversityDashboard = () => {
                     <TableCell className="font-medium">{student.full_name}</TableCell>
                     <TableCell>{student.email}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{student.applications_count}</Badge>
+                      <Badge variant="outline">{student.active_placements}</Badge>
+                    </TableCell>
+                    <TableCell className="font-medium text-green-700">
+                      ${student.total_earnings.toLocaleString()}
                     </TableCell>
                     <TableCell>
                       <Badge className="bg-purple-100 text-purple-800">

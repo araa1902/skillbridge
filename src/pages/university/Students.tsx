@@ -20,6 +20,8 @@ interface StudentRecord {
   applications_count: number
   credentials_earned: number
   joined_at: string
+  active_placements: number
+  total_earnings: number
 }
 
 export default function UniversityStudents() {
@@ -35,10 +37,18 @@ export default function UniversityStudents() {
         setError(null)
 
         // Get all students
-        const { data: studentList, error: studentError } = await supabase
+        let query = supabase
           .from('profiles')
           .select('id, full_name, created_at')
           .eq('role', 'student')
+
+        if (profile?.company_name) {
+          query = query.or(`university_id.eq.${profile.id},company_name.eq."${profile.company_name.replace(/"/g, '')}"`)
+        } else {
+          query = query.eq('university_id', profile?.id || '')
+        }
+
+        const { data: studentList, error: studentError } = await query
           .order('created_at', { ascending: false })
 
         if (studentError) throw studentError
@@ -57,12 +67,28 @@ export default function UniversityStudents() {
                 .eq('student_id', student.id),
             ])
 
+            // Calculate total earnings
+            const acceptedApps = (appData.data || []).filter((a: any) => a.status === 'accepted')
+            let totalEarnings = 0
+
+            if (acceptedApps.length > 0) {
+              const projectIds = acceptedApps.map((a: any) => a.project_id)
+              const { data: projectsData } = await supabase
+                .from('projects')
+                .select('budget')
+                .in('id', projectIds)
+
+              totalEarnings = (projectsData || []).reduce((sum: number, p: any) => sum + (Number(p.budget) || 0), 0)
+            }
+
             return {
               id: student.id,
               full_name: student.full_name,
               applications_count: appData.count ?? 0,
               credentials_earned: credData.count ?? 0,
               joined_at: student.created_at,
+              active_placements: acceptedApps.length,
+              total_earnings: totalEarnings,
             }
           })
         )
@@ -123,7 +149,8 @@ export default function UniversityStudents() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Applications</TableHead>
+                  <TableHead>Active Placements</TableHead>
+                  <TableHead>Total Earnings</TableHead>
                   <TableHead>Credentials Earned</TableHead>
                   <TableHead>Joined</TableHead>
                 </TableRow>
@@ -133,7 +160,10 @@ export default function UniversityStudents() {
                   <TableRow key={student.id}>
                     <TableCell className="font-medium">{student.full_name}</TableCell>
                     <TableCell>
-                      <Badge variant="outline">{student.applications_count}</Badge>
+                      <Badge variant="outline">{student.active_placements}</Badge>
+                    </TableCell>
+                    <TableCell className="font-medium text-green-700">
+                      ${student.total_earnings.toLocaleString()}
                     </TableCell>
                     <TableCell>
                       <Badge className="bg-green-100 text-green-800">
