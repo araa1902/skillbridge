@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -6,6 +6,7 @@ import { GraduationCap, Buildings as Building2, Student as School, Eye, EyeSlash
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import type { UserRole } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -15,9 +16,10 @@ const ALLOWED_STUDENT_DOMAINS = [".ac.uk"];
 
 // ─── Role Maps ───────────────────────────────────────────────────────────────
 
-const ROLE_MAP: Record<"student" | "employer", UserRole> = {
+const ROLE_MAP: Record<"student" | "employer" | "university", UserRole> = {
   student: "student",
   employer: "business",
+  university: "university",
 };
 
 const DASHBOARD_PATH: Record<UserRole, string> = {
@@ -51,17 +53,17 @@ const USER_TYPE_CONFIG = {
     badge: "text-emerald-700 bg-emerald-50 border-emerald-200",
     description: "Post projects, discover talent, build teams",
   },
-  // university: {
-  //   icon: School,
-  //   label: "University",
-  //   accent: "violet",
-  //   accentClass: "from-violet-500 to-violet-700",
-  //   ringClass: "ring-violet-500/30",
-  //   activeBg: "bg-violet-600",
-  //   activeText: "text-violet-600",
-  //   badge: "text-violet-700 bg-violet-50 border-violet-200",
-  //   description: "Manage programs, track outcomes, connect with industry",
-  // },
+  university: {
+    icon: School,
+    label: "University",
+    accent: "violet",
+    accentClass: "from-violet-500 to-violet-700",
+    ringClass: "ring-violet-500/30",
+    activeBg: "bg-violet-600",
+    activeText: "text-violet-600",
+    badge: "text-violet-700 bg-violet-50 border-violet-200",
+    description: "Manage programs, track outcomes, connect with industry",
+  },
 } as const;
 
 type UserTypeKey = keyof typeof USER_TYPE_CONFIG;
@@ -136,9 +138,18 @@ const Auth = () => {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { session, role } = useAuth();
 
   const config = USER_TYPE_CONFIG[userType];
   const IconComponent = config.icon;
+
+  // ── Redirect if already logged in ──
+  useEffect(() => {
+    if (session && role) {
+      const path = DASHBOARD_PATH[role] || "/student/dashboard";
+      navigate(path);
+    }
+  }, [session, role, navigate]);
 
   const validate = (form: HTMLFormElement, email: string, password: string) => {
     const newErrors: Record<string, string> = {};
@@ -205,6 +216,7 @@ const Auth = () => {
           return;
         }
 
+        // Navigate manually as a fallback for the useEffect to ensure immediate transition
         navigate(DASHBOARD_PATH[expectedRole]);
       } else {
         const fullName = (form.elements.namedItem("name") as HTMLInputElement).value.trim();
@@ -269,26 +281,37 @@ const Auth = () => {
         >
           {/* User type tabs */}
           <div className="px-6 pt-6 pb-4 border-b border-gray-100">
-            <div className="grid grid-cols-2 gap-1.5 p-1 bg-gray-100 rounded-xl">
+            <div className="grid grid-cols-3 gap-2.5">
               {(Object.keys(USER_TYPE_CONFIG) as UserTypeKey[]).map((type) => {
-                const { icon: Icon, label, activeBg } = USER_TYPE_CONFIG[type];
+                const { icon: Icon, label, activeBg, activeText } = USER_TYPE_CONFIG[type];
                 const isActive = userType === type;
+                const isDisabled = type === "university";
                 return (
-                  <button
-                    key={type}
-                    type="button"
-                    onClick={() => setUserType(type)}
-                    className={cn(
-                      "flex items-center justify-center gap-1.5 py-2 px-3 rounded-lg text-sm font-medium",
-                      "transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-offset-1",
-                      isActive
-                        ? `${activeBg} text-white shadow-sm`
-                        : "text-gray-500 hover:text-gray-700"
-                    )}
-                  >
-                    <Icon className="h-4 w-4 shrink-0" />
-                    <span className="hidden sm:inline">{label}</span>
-                  </button>
+                    <div key={type} className="relative">
+                      <button
+                        type="button"
+                        onClick={() => !isDisabled && setUserType(type)}
+                        disabled={isDisabled}
+                        className={cn(
+                          "w-full flex flex-col items-center justify-center gap-1 py-3 px-3 rounded-xl text-xs sm:text-sm font-medium",
+                          "transition-all duration-200 focus:outline-none",
+                          "border-2",
+                          isDisabled 
+                            ? "cursor-not-allowed opacity-50 border-gray-200 bg-gray-50 text-gray-400"
+                            : isActive
+                              ? `${activeBg} text-white border-${activeBg.split('-')[1]}-600 shadow-md hover:shadow-lg`
+                              : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
+                        )}
+                      >
+                        <Icon className="h-4 w-4 shrink-0" />
+                        <span className="text-center leading-tight">{label}</span>
+                      </button>
+                      {isDisabled && (
+                        <span className="absolute -top-2 -right-2 inline-flex items-center rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-800 border border-amber-300 shadow-sm">
+                          Coming Soon
+                        </span>
+                      )}
+                    </div>
                 );
               })}
             </div>

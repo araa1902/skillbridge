@@ -35,23 +35,22 @@ export function useUniversityStudents(universityId: string | undefined, companyN
         }
 
         setLoading(true)
-        
+
         let query = supabase
             .from('profiles')
             .select(`
           id,
           full_name,
-          email,
           created_at
         `)
             .eq('role', 'student')
-            
+
         if (companyName) {
             query = query.or(`university_id.eq.${universityId},company_name.eq."${companyName.replace(/"/g, '')}"`)
         } else {
             query = query.eq('university_id', universityId)
         }
-            
+
         const { data: studentList, error: studentListError } = await query
             .order('created_at', { ascending: false })
             .limit(20)
@@ -68,7 +67,7 @@ export function useUniversityStudents(universityId: string | undefined, companyN
                 const [appData, credData] = await Promise.all([
                     supabase
                         .from('applications')
-                        .select('*', { count: 'exact', head: true })
+                        .select('id, project_id, status')
                         .eq('student_id', student.id),
                     supabase
                         .from('credentials')
@@ -86,15 +85,15 @@ export function useUniversityStudents(universityId: string | undefined, companyN
                         .from('projects')
                         .select('budget')
                         .in('id', projectIds)
-                    
+
+                    console.log(`Student ${student.full_name} projects:`, projectsData)
                     totalEarnings = (projectsData || []).reduce((sum: number, p: any) => sum + (Number(p.budget) || 0), 0)
                 }
 
                 return {
                     id: student.id,
                     full_name: student.full_name,
-                    email: student.email,
-                    applications_count: appData.count ?? 0,
+                    applications_count: appData.data?.length ?? 0,
                     credentials_earned: credData.count ?? 0,
                     joined_at: student.created_at,
                     active_placements: acceptedApps.length,
@@ -105,7 +104,7 @@ export function useUniversityStudents(universityId: string | undefined, companyN
 
         setStudents(studentsWithStats)
         setLoading(false)
-    }, [universityId])
+    }, [universityId, companyName])
 
     useEffect(() => {
         load()
@@ -204,7 +203,7 @@ export function useUniversityStats(universityId: string | undefined, companyName
                     .from('projects')
                     .select('budget')
                     .in('id', acceptedProjectIds)
-                
+
                 totalEarnings = (projectsData || []).reduce((sum: number, p: any) => sum + (Number(p.budget) || 0), 0)
             }
         }
@@ -216,7 +215,7 @@ export function useUniversityStats(universityId: string | undefined, companyName
             averageCompetency,
         })
         setLoading(false)
-    }, [universityId])
+    }, [universityId, companyName])
 
     useEffect(() => {
         load()

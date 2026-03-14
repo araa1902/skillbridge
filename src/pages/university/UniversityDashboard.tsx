@@ -23,7 +23,6 @@ interface Stats {
 interface StudentData {
   id: string
   full_name: string
-  email: string
   applications_count: number
   credentials_earned: number
   joined_at: string
@@ -32,8 +31,8 @@ interface StudentData {
 const UniversityDashboard = () => {
   const { user, profile } = useAuth()
 
-  const { stats, loading: statsLoading } = useUniversityStats(user?.id, profile?.company_name)
-  const { students, loading: studentsLoading } = useUniversityStudents(user?.id, profile?.company_name)
+  const { stats, loading: statsLoading } = useUniversityStats(profile?.id, profile?.company_name)
+  const { students, loading: studentsLoading } = useUniversityStudents(profile?.id, profile?.company_name)
 
   const loading = statsLoading || studentsLoading
   const error = null; // Error handling simplified to fit new hooks
@@ -144,7 +143,6 @@ const UniversityDashboard = () => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Name</TableHead>
-                  <TableHead>Email</TableHead>
                   <TableHead>Active Placements</TableHead>
                   <TableHead>Total Earnings</TableHead>
                   <TableHead>Credentials</TableHead>
@@ -155,7 +153,6 @@ const UniversityDashboard = () => {
                 {students.map((student) => (
                   <TableRow key={student.id}>
                     <TableCell className="font-medium">{student.full_name}</TableCell>
-                    <TableCell>{student.email}</TableCell>
                     <TableCell>
                       <Badge variant="outline">{student.active_placements}</Badge>
                     </TableCell>

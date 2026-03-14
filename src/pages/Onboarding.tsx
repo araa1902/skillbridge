@@ -267,14 +267,16 @@ export default function Onboarding() {
 
     // Student fields
     const [bio, setBio] = useState(profile?.bio || '')
-    const [skills, setSkills] = useState<string[]>([])
+    const [skills, setSkills] = useState<string[]>(profile?.skills || [])
     const { universities: dbUniversities } = useUniversities()
-    const [studentUniName, setStudentUniName] = useState('')
+    const [studentUniName, setStudentUniName] = useState(profile?.company_name || '')
     const isUniversityVerified = !!profile?.university_id
 
     // Business fields
-    const [companyName, setCompanyName] = useState('')
+    const [companyName, setCompanyName] = useState(profile?.company_name || '')
+    const [website, setWebsite] = useState(profile?.website || '')
     const [mission, setMission] = useState(profile?.bio || '')
+
 
     const isStudent = role === 'student'
     const isUniversity = role === 'university'
@@ -339,7 +341,7 @@ export default function Onboarding() {
                     cv_name: cvName
                 }
             } else if (isUniversity) {
-                payload = { company_name: companyName, bio: mission, full_name: companyName, university_id: user.id } // Ensure full_name is also updated for DB lookup
+                payload = { company_name: companyName, website: website, bio: mission, full_name: companyName, university_id: user.id } // Ensure full_name is also updated for DB lookup
             } else {
                 payload = { company_name: companyName, bio: mission }
             }
@@ -362,7 +364,17 @@ export default function Onboarding() {
         }
     }
 
-    if (!role) return null
+    // If we are still resolving the session or profile, show a simple loader
+    if (!role || (isStudent && !csvUnis.length)) {
+        return (
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <div className="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                    <p className="text-sm text-muted-foreground animate-pulse">Setting up your experience...</p>
+                </div>
+            </div>
+        )
+    }
 
     // ── Steps ──────────────────────────────────────────────────────────────────
 
@@ -423,8 +435,9 @@ export default function Onboarding() {
             <NavRow
                 showBack={false}
                 onNext={() => go(2)}
-                nextDisabled={!bio.trim() || (!isUniversityVerified && !studentUniName.trim())}
+                nextDisabled={!(bio || '').trim() || (!isUniversityVerified && !(studentUniName || '').trim())}
             />
+
         </motion.div>,
 
         // Step 2 — Skills
@@ -588,12 +601,24 @@ export default function Onboarding() {
             </div>
 
             {isUniversity ? (
-                <UniversityCombobox
-                    value={companyName}
-                    onChange={setCompanyName}
-                    unis={csvUnis}
-                    placeholder="Search for your university..."
-                />
+                <div className="space-y-4">
+                    <UniversityCombobox
+                        value={companyName}
+                        onChange={setCompanyName}
+                        unis={csvUnis}
+                        placeholder="Search for your university..."
+                    />
+                    <div className="space-y-1.5 mt-4">
+                        <Label className="text-sm font-medium">University Website</Label>
+                        <Input
+                            placeholder="e.g. https://www.bath.ac.uk"
+                            type="url"
+                            value={website}
+                            onChange={(e) => setWebsite(e.target.value)}
+                            className="h-11 text-sm bg-muted/30 border-1 focus-visible:ring-0"
+                        />
+                    </div>
+                </div>
             ) : (
                 <Input
                     placeholder="e.g. Acme Labs"
@@ -606,8 +631,9 @@ export default function Onboarding() {
             <NavRow
                 showBack={false}
                 onNext={() => go(2)}
-                nextDisabled={!companyName.trim()}
+                nextDisabled={!(companyName || '').trim() || (isUniversity && !(website || '').trim())}
             />
+
         </motion.div>,
 
         // Step 2 — Mission
@@ -641,8 +667,9 @@ export default function Onboarding() {
             <NavRow
                 onBack={() => go(1)}
                 onNext={() => go(3)}
-                nextDisabled={!mission.trim()}
+                nextDisabled={!(mission || '').trim()}
             />
+
         </motion.div>,
 
         // Step 3 — Confirm

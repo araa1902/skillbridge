@@ -47,10 +47,18 @@ export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) 
     return <Navigate to="/auth" state={{ from: location }} replace />
   }
 
-  // 3. Authenticated but role not yet loaded (edge-case: DB latency)
-  //    Render nothing – the onAuthStateChange loop will re-render shortly
+  // 3. Authenticated but role not yet loaded
+  //    With the new AuthContext wait logic, this shouldn't happen long, 
+  //    but we still show the skeleton instead of just null to avoid "nothingness"
   if (!role) {
-    return null
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-slate-50">
+        <div className="flex flex-col items-center gap-4 w-64">
+          <Skeleton className="h-12 w-12 rounded-full" />
+          <Skeleton className="h-4 w-48" />
+        </div>
+      </div>
+    )
   }
 
   // 4. Wrong role → redirect to the user's own dashboard
@@ -66,7 +74,7 @@ export function ProtectedRoute({ allowedRoles, children }: ProtectedRouteProps) 
     if (role === 'business' && !profile?.company_name) {
       return <Navigate to="/onboarding" replace />
     }
-    if (role === 'university' && !profile?.company_name) {
+    if (role === 'university' && (!profile?.company_name || !profile?.website)) {
       return <Navigate to="/onboarding" replace />
     }
   }

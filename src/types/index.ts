@@ -22,6 +22,7 @@ export type Database = {
                     full_name: string
                     university_id: string | null // uuid references profiles(id)
                     company_name: string | null
+                    website: string | null
                     bio: string | null
                     skills: string[] | null
                     created_at: string // timestamptz
@@ -33,6 +34,7 @@ export type Database = {
                     full_name: string
                     university_id?: string | null
                     company_name?: string | null
+                    website?: string | null
                     bio?: string | null
                     skills?: string[] | null
                     created_at?: string
@@ -44,6 +46,7 @@ export type Database = {
                     full_name?: string
                     university_id?: string | null
                     company_name?: string | null
+                    website?: string | null
                     bio?: string | null
                     skills?: string[] | null
                     created_at?: string

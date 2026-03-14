@@ -6,19 +6,19 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { TrendUp as TrendingUp, Medal as Award, Briefcase, Users } from "@phosphor-icons/react"
 
 interface Analytics {
-  studentGrowth: number
-  projectGrowth: number
-  credentialGrowth: number
-  applicationGrowth: number
+  totalStudents: number
+  totalApplications: number
+  totalCredentials: number
+  completionRate: number
 }
 
 export default function UniversityAnalytics() {
   const { profile } = useAuth()
   const [analytics, setAnalytics] = useState<Analytics>({
-    studentGrowth: 0,
-    projectGrowth: 0,
-    credentialGrowth: 0,
-    applicationGrowth: 0,
+    totalStudents: 0,
+    totalApplications: 0,
+    totalCredentials: 0,
+    completionRate: 0,
   })
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -29,36 +29,72 @@ export default function UniversityAnalytics() {
         setLoading(true)
         setError(null)
 
-        // Get current stats
-        const [studentCount, projectCount, credentialCount, applicationCount] =
-          await Promise.all([
-            supabase
-              .from('profiles')
-              .select('*', { count: 'exact', head: true })
-              .eq('role', 'student'),
-            supabase
-              .from('projects')
-              .select('*', { count: 'exact', head: true }),
-            supabase
-              .from('credentials')
-              .select('*', { count: 'exact', head: true }),
-            supabase
-              .from('applications')
-              .select('*', { count: 'exact', head: true }),
-          ])
+        if (!profile?.id) {
+          setLoading(false)
+          return
+        }
 
-        // For now, calculate growth as percentage of total
-        // In a real app, you'd track historical data
-        const totalEntities =
-          (studentCount.count ?? 0) +
-          (projectCount.count ?? 0) +
-          (credentialCount.count ?? 0)
+        // Get university students
+        let studentsQuery = supabase
+          .from('profiles')
+          .select('id', { count: 'exact', head: true })
+          .eq('role', 'student')
+          .eq('university_id', profile.id)
+
+        const { count: studentCount, data: studentIds, error: studentError } = await studentsQuery
+
+        if (studentError) throw studentError
+
+        // Get all students for filtering
+        const { data: allStudents } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('role', 'student')
+          .eq('university_id', profile.id)
+
+        const studentIdList = allStudents?.map(s => s.id) || []
+
+        let totalApplications = 0
+        let totalCredentials = 0
+        let completedApplications = 0
+
+        if (studentIdList.length > 0) {
+          // Get total applications
+          const { count: appCount } = await supabase
+            .from('applications')
+            .select('*', { count: 'exact', head: true })
+            .in('student_id', studentIdList)
+
+          totalApplications = appCount ?? 0
+
+          // Get completed applications (accepted status)
+          const { count: completedCount } = await supabase
+            .from('applications')
+            .select('*', { count: 'exact', head: true })
+            .in('student_id', studentIdList)
+            .eq('status', 'accepted')
+
+          completedApplications = completedCount ?? 0
+
+          // Get total credentials issued
+          const { count: credCount } = await supabase
+            .from('credentials')
+            .select('*', { count: 'exact', head: true })
+            .in('student_id', studentIdList)
+
+          totalCredentials = credCount ?? 0
+        }
+
+        // Calculate completion rate
+        const completionRate = totalApplications > 0 
+          ? Math.round((completedApplications / totalApplications) * 100)
+          : 0
 
         setAnalytics({
-          studentGrowth: totalEntities > 0 ? Math.round(((studentCount.count ?? 0) / totalEntities) * 100) : 0,
-          projectGrowth: totalEntities > 0 ? Math.round(((projectCount.count ?? 0) / totalEntities) * 100) : 0,
-          credentialGrowth: totalEntities > 0 ? Math.round(((credentialCount.count ?? 0) / totalEntities) * 100) : 0,
-          applicationGrowth: applicationCount.count ?? 0,
+          totalStudents: studentCount ?? 0,
+          totalApplications,
+          totalCredentials,
+          completionRate,
         })
       } catch (err) {
         console.error('Error loading analytics:', err)
@@ -69,7 +105,7 @@ export default function UniversityAnalytics() {
     }
 
     loadAnalytics()
-  }, [])
+  }, [profile?.id])
 
   if (!profile || profile.role !== 'university') {
     return (
@@ -100,15 +136,15 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Student Activity</p>
+              <p className="text-sm text-gray-600">Total Students</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
-                  <p className="mt-2 text-3xl font-bold">{analytics.studentGrowth}%</p>
+                  <p className="mt-2 text-3xl font-bold">{analytics.totalStudents}</p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Platform share
+                    Registered students
                   </div>
                 </>
               )}
@@ -120,15 +156,15 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Project Activity</p>
+              <p className="text-sm text-gray-600">Total Applications</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
-                  <p className="mt-2 text-3xl font-bold">{analytics.projectGrowth}%</p>
+                  <p className="mt-2 text-3xl font-bold">{analytics.totalApplications}</p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Platform share
+                    Submitted applications
                   </div>
                 </>
               )}
@@ -140,15 +176,15 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Credential Share</p>
+              <p className="text-sm text-gray-600">Total Credentials</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
-                  <p className="mt-2 text-3xl font-bold">{analytics.credentialGrowth}%</p>
+                  <p className="mt-2 text-3xl font-bold">{analytics.totalCredentials}</p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Platform share
+                    Credentials issued
                   </div>
                 </>
               )}
@@ -160,17 +196,17 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Applications</p>
+              <p className="text-sm text-gray-600">Completion Rate</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
                   <p className="mt-2 text-3xl font-bold">
-                    {analytics.applicationGrowth}
+                    {analytics.completionRate}%
                   </p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Active applications
+                    Applications accepted
                   </div>
                 </>
               )}

@@ -18,6 +18,7 @@ interface Profile {
   full_name: string
   role: UserRole
   company_name: string | null
+  website: string | null
   university_id: string | null
   bio: string | null
   skills: string[] | null
@@ -77,7 +78,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('id, full_name, role, company_name, university_id, bio, skills, cv_url, cv_name')
+        .select('id, full_name, role, company_name, website, university_id, bio, skills, cv_url, cv_name')
         .eq('id', userId)
         .single()
 
@@ -128,17 +129,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const initAuth = async () => {
       try {
-        // Try to restore the session from Supabase storage
-        const { data: { session: restoredSession } } = await supabase.auth.getSession()
+        // Use getUser() to force a server-side verification of the session token
+        // instead of just trusting the locally stored session.
+        const { data: { user: verifiedUser }, error } = await supabase.auth.getUser()
 
         if (!mounted) return
 
-        if (restoredSession) {
-          setSession(restoredSession)
-          // Don't await - fire and forget to avoid blocking
-          fetchProfile(restoredSession.user.id).catch(err =>
-            console.error('[AuthContext] Profile fetch error:', err)
-          )
+        if (error) {
+          console.log('[AuthContext] Session verification failed or expired:', error.message)
+          setSession(null)
+          setProfile(null)
+          return
+        }
+
+        if (verifiedUser) {
+          // Get the current session object to keep the state consistent
+          const { data: { session: currentSession } } = await supabase.auth.getSession()
+          setSession(currentSession)
+          
+          // Wait for profile to be fetched before clearing loading state
+          // to prevent ProtectedRoute from flashing/redirecting incorrectly
+          await fetchProfile(verifiedUser.id)
         }
       } catch (err) {
         console.error('[AuthContext] Session restore error:', err)
@@ -170,11 +181,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         setProfile(null)
       }
 
-      // Always mark as initialized when auth state changes
+      // Mark as initialized and stop loading when auth state changes
       if (!authInitialized) {
         authInitialized = true
+        // If we just got a session but hadn't finished init, we might still be loading
+        // but normally onAuthStateChange follows the initial getUser/getSession.
+        setLoading(false)
       }
-      setLoading(false)
     })
 
     return () => {
