@@ -286,11 +286,6 @@ export default function StudentApplications() {
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-3 flex-1">
-                      <div className="h-12 w-12 flex items-center justify-center rounded-full bg-muted">
-                        <span className="text-sm font-semibold">
-                          {displayName(app).slice(0, 2).toUpperCase()}
-                        </span>
-                      </div>
                       <div className="flex-1">
                         <div className="flex items-center gap-2 mb-1 flex-wrap">
                           <CardTitle className="text-lg">{app.project_title ?? "Project"}</CardTitle>
@@ -492,7 +487,7 @@ export default function StudentApplications() {
       <Dialog open={!!viewReference} onOpenChange={(o) => { if (!o) setViewReference(null); }}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>View Reference</DialogTitle>
+            <DialogTitle>Reference for {viewReference?.project_title}</DialogTitle>
           </DialogHeader>
           {viewReference && (
             <div className="mt-4">

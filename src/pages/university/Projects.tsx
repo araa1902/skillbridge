@@ -1,18 +1,11 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUniversityProjects } from '@/hooks/useUniversityData'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Briefcase } from "@phosphor-icons/react"
+import { DataNotice } from '@/components/university/DataNotice'
 
 interface ProjectRecord {
   id: string
@@ -23,66 +16,40 @@ interface ProjectRecord {
   created_at: string
 }
 
+const getStatusBadgeStyles = (status: string) => {
+  switch (status?.toLowerCase()) {
+    case 'open':
+      return {
+        label: 'Active',
+        className: 'border-emerald-200 bg-emerald-50 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400 dark:border-emerald-500/20'
+      }
+    case 'in_progress':
+      return {
+        label: 'In Progress',
+        className: 'border-blue-200 bg-blue-50 text-blue-700 dark:bg-blue-500/10 dark:text-blue-400 dark:border-blue-500/20'
+      }
+    case 'completed':
+      return {
+        label: 'Completed',
+        className: 'border-primary/20 bg-primary/5 text-primary dark:bg-primary/10 dark:text-primary-light dark:border-primary/20'
+      }
+    case 'cancelled':
+    case 'closed':
+      return {
+        label: 'Closed',
+        className: 'border-slate-200 bg-slate-50 text-slate-600 dark:bg-slate-800 dark:text-slate-400 dark:border-slate-700'
+      }
+    default:
+      return {
+        label: (status || 'Unknown').replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase()),
+        className: 'border-gray-200 bg-gray-50 text-gray-600 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700'
+      }
+  }
+}
+
 export default function UniversityProjects() {
   const { profile } = useAuth()
-  const [projects, setProjects] = useState<ProjectRecord[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const loadProjects = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        // Get all projects with business info
-        const { data: projectList, error: projectError } = await supabase
-          .from('projects')
-          .select(
-            `
-            id,
-            title,
-            status,
-            created_at,
-            business:profiles!projects_business_id_fkey (full_name, company_name)
-          `
-          )
-          .order('created_at', { ascending: false })
-
-        if (projectError) throw projectError
-
-        // Fetch application count for each project
-        const projectsWithStats = await Promise.all(
-          (projectList ?? []).map(async (project: any) => {
-            const { count, error: appError } = await supabase
-              .from('applications')
-              .select('*', { count: 'exact', head: true })
-              .eq('project_id', project.id)
-
-            if (appError) console.error('Error fetching applications:', appError)
-
-            return {
-              id: project.id,
-              title: project.title,
-              business_name: project.business?.company_name || project.business?.full_name || 'Unknown',
-              status: project.status,
-              applications_count: count ?? 0,
-              created_at: project.created_at,
-            }
-          })
-        )
-
-        setProjects(projectsWithStats)
-      } catch (err) {
-        console.error('Error loading projects:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load projects')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadProjects()
-  }, [])
+  const { projects, loading, error } = useUniversityProjects(profile?.id, profile?.company_name)
 
   if (!profile || profile.role !== 'university') {
     return (
@@ -100,8 +67,8 @@ export default function UniversityProjects() {
       <div className="flex items-center gap-3">
         <Briefcase className="h-8 w-8 text-blue-600" />
         <div>
-          <h1 className="text-3xl font-bold">Projects</h1>
-          <p className="text-gray-600">All projects posted on the platform</p>
+          <h1 className="text-3xl font-bold">Industry Placements</h1>
+          <p className="text-gray-600">Placements your students are participating in or have applied to</p>
         </div>
       </div>
 
@@ -140,11 +107,14 @@ export default function UniversityProjects() {
                     <TableCell className="font-medium">{project.title}</TableCell>
                     <TableCell>{project.business_name}</TableCell>
                     <TableCell>
-                      <Badge
-                        variant={project.status === 'open' ? 'default' : 'secondary'}
-                      >
-                        {project.status}
-                      </Badge>
+                      {(() => {
+                        const { label, className } = getStatusBadgeStyles(project.status)
+                        return (
+                          <Badge variant="outline" className={`${className} font-medium`}>
+                            {label}
+                          </Badge>
+                        )
+                      })()}
                     </TableCell>
                     <TableCell>
                       <Badge variant="outline">{project.applications_count}</Badge>
@@ -158,6 +128,9 @@ export default function UniversityProjects() {
             </Table>
           </div>
         )}
+        <div className="p-4 border-t">
+          <DataNotice message="This list is filtered to display only industry placements associated with students from your institution." />
+        </div>
       </Card>
     </div>
   )

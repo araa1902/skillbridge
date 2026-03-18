@@ -1,111 +1,28 @@
-import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 import { useAuth } from '@/contexts/AuthContext'
+import { useUniversityStats } from '@/hooks/useUniversityData'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { TrendUp as TrendingUp, Medal as Award, Briefcase, Users } from "@phosphor-icons/react"
+import { TrendUp as TrendingUp, Medal as Award, Briefcase, Users, ChatCircle as MessageSquare } from "@phosphor-icons/react"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend
+} from 'recharts'
+import { DataNotice } from '@/components/university/DataNotice'
 
-interface Analytics {
-  totalStudents: number
-  totalApplications: number
-  totalCredentials: number
-  completionRate: number
-}
+const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6']
 
 export default function UniversityAnalytics() {
   const { profile } = useAuth()
-  const [analytics, setAnalytics] = useState<Analytics>({
-    totalStudents: 0,
-    totalApplications: 0,
-    totalCredentials: 0,
-    completionRate: 0,
-  })
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
-
-  useEffect(() => {
-    const loadAnalytics = async () => {
-      try {
-        setLoading(true)
-        setError(null)
-
-        if (!profile?.id) {
-          setLoading(false)
-          return
-        }
-
-        // Get university students
-        let studentsQuery = supabase
-          .from('profiles')
-          .select('id', { count: 'exact', head: true })
-          .eq('role', 'student')
-          .eq('university_id', profile.id)
-
-        const { count: studentCount, data: studentIds, error: studentError } = await studentsQuery
-
-        if (studentError) throw studentError
-
-        // Get all students for filtering
-        const { data: allStudents } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('role', 'student')
-          .eq('university_id', profile.id)
-
-        const studentIdList = allStudents?.map(s => s.id) || []
-
-        let totalApplications = 0
-        let totalCredentials = 0
-        let completedApplications = 0
-
-        if (studentIdList.length > 0) {
-          // Get total applications
-          const { count: appCount } = await supabase
-            .from('applications')
-            .select('*', { count: 'exact', head: true })
-            .in('student_id', studentIdList)
-
-          totalApplications = appCount ?? 0
-
-          // Get completed applications (accepted status)
-          const { count: completedCount } = await supabase
-            .from('applications')
-            .select('*', { count: 'exact', head: true })
-            .in('student_id', studentIdList)
-            .eq('status', 'accepted')
-
-          completedApplications = completedCount ?? 0
-
-          // Get total credentials issued
-          const { count: credCount } = await supabase
-            .from('credentials')
-            .select('*', { count: 'exact', head: true })
-            .in('student_id', studentIdList)
-
-          totalCredentials = credCount ?? 0
-        }
-
-        // Calculate completion rate
-        const completionRate = totalApplications > 0 
-          ? Math.round((completedApplications / totalApplications) * 100)
-          : 0
-
-        setAnalytics({
-          totalStudents: studentCount ?? 0,
-          totalApplications,
-          totalCredentials,
-          completionRate,
-        })
-      } catch (err) {
-        console.error('Error loading analytics:', err)
-        setError(err instanceof Error ? err.message : 'Failed to load analytics')
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    loadAnalytics()
-  }, [profile?.id])
+  const { stats, loading, error } = useUniversityStats(profile?.id, profile?.company_name)
 
   if (!profile || profile.role !== 'university') {
     return (
@@ -121,8 +38,8 @@ export default function UniversityAnalytics() {
   return (
     <div className="page-container py-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Analytics</h1>
-        <p className="text-gray-600">Platform performance and growth metrics</p>
+        <h1 className="text-3xl font-bold">Strategic Analytics</h1>
+        <p className="text-gray-600">Institutional performance and work-integrated learning outcomes</p>
       </div>
 
       {error && (
@@ -136,15 +53,15 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Students</p>
+              <p className="text-sm text-gray-600">Enrolled Students</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
-                  <p className="mt-2 text-3xl font-bold">{analytics.totalStudents}</p>
+                  <p className="mt-2 text-3xl font-bold">{stats.totalStudents}</p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Registered students
+                    Verified students
                   </div>
                 </>
               )}
@@ -156,15 +73,15 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Applications</p>
+              <p className="text-sm text-gray-600">Active Placements</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
-                  <p className="mt-2 text-3xl font-bold">{analytics.totalApplications}</p>
+                  <p className="mt-2 text-3xl font-bold">{stats.activePlacements}</p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Submitted applications
+                    Ongoing Industry Placements
                   </div>
                 </>
               )}
@@ -176,15 +93,15 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Credentials</p>
+              <p className="text-sm text-gray-600">Total Credentials Earned</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
-                  <p className="mt-2 text-3xl font-bold">{analytics.totalCredentials}</p>
+                  <p className="mt-2 text-3xl font-bold">{stats.totalCredentials}</p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Credentials issued
+                    Verified achievements
                   </div>
                 </>
               )}
@@ -196,33 +113,90 @@ export default function UniversityAnalytics() {
         <Card className="p-6">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-600">Completion Rate</p>
+              <p className="text-sm text-gray-600">Credential Validity Avg.</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
                 <>
                   <p className="mt-2 text-3xl font-bold">
-                    {analytics.completionRate}%
+                    {stats.averageCompetency.toFixed(1)} / 5.0
                   </p>
                   <div className="mt-1 flex items-center gap-1 text-sm text-green-600">
                     <TrendingUp className="h-4 w-4" />
-                    Applications accepted
+                    Standardised competency
                   </div>
                 </>
               )}
             </div>
-            <TrendingUp className="h-12 w-12 text-orange-500 opacity-20" />
+            <MessageSquare className="h-12 w-12 text-orange-500 opacity-20" />
           </div>
         </Card>
       </div>
 
-      {/* Coming Soon */}
-      <Card className="p-6">
-        <h2 className="mb-4 text-lg font-semibold">Advanced Metrics</h2>
-        <p className="text-gray-600">
-          More detailed analytics, historical trends, and custom reports coming soon.
-        </p>
-      </Card>
+      {/* Charts Row */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+        <Card className="p-6">
+          <h3 className="mb-6 text-lg font-semibold">Credentials Earned Over Time</h3>
+          <div className="h-[300px] w-full">
+            {loading ? (
+              <Skeleton className="h-full w-full" />
+            ) : stats.credentialsOverTime.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={stats.credentialsOverTime}>
+                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                  <XAxis dataKey="date" />
+                  <YAxis allowDecimals={false} />
+                  <Tooltip
+                    contentStyle={{ borderRadius: '8px', border: 'none', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+                  />
+                  <Bar dataKey="count" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                No credential data available yet
+              </div>
+            )}
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="mb-6 text-lg font-semibold">Placement Outcomes</h3>
+          <div className="h-[300px] w-full">
+            {loading ? (
+              <Skeleton className="h-full w-full" />
+            ) : stats.placementsByStatus.length > 0 ? (
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={stats.placementsByStatus}
+                    cx="50%"
+                    cy="50%"
+                    innerRadius={60}
+                    outerRadius={80}
+                    paddingAngle={5}
+                    dataKey="value"
+                  >
+                    {stats.placementsByStatus.map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                  <Legend verticalAlign="bottom" height={36} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <div className="flex h-full items-center justify-center text-muted-foreground">
+                No placement data available yet
+              </div>
+            )}
+          </div>
+        </Card>
+      </div>
+      
+      <DataNotice 
+        message="Institutional metrics are synthesized from verified industry partner evaluations and historical achievement data. Ratings are calculated as a mathematical mean across all completed industry placements." 
+      />
     </div>
   )
 }

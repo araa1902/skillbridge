@@ -2,15 +2,7 @@ import { useAuth } from '@/contexts/AuthContext'
 import { useUniversityStats, useUniversityStudents } from '@/hooks/useUniversityData'
 import { Card } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Badge } from '@/components/ui/badge'
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '@/components/ui/table'
+import { StudentRosterTable } from '@/components/university/StudentRosterTable'
 import { Users, Briefcase, Medal as Award, ChatCircle as MessageSquare } from "@phosphor-icons/react"
 
 interface Stats {
@@ -28,14 +20,15 @@ interface StudentData {
   joined_at: string
 }
 
+
 const UniversityDashboard = () => {
   const { user, profile } = useAuth()
 
-  const { stats, loading: statsLoading } = useUniversityStats(profile?.id, profile?.company_name)
-  const { students, loading: studentsLoading } = useUniversityStudents(profile?.id, profile?.company_name)
+  const { stats, loading: statsLoading, error: statsError } = useUniversityStats(profile?.id, profile?.company_name)
+  const { students, loading: studentsLoading, error: studentsError } = useUniversityStudents(profile?.id, profile?.company_name)
 
   const loading = statsLoading || studentsLoading
-  const error = null; // Error handling simplified to fit new hooks
+  const error = statsError || studentsError
 
   if (!profile || profile.role !== 'university') {
     return (
@@ -52,7 +45,7 @@ const UniversityDashboard = () => {
     <div className="page-container py-6 space-y-6">
       <div>
         <h1 className="text-3xl font-bold">University Dashboard</h1>
-        <p className="text-gray-600">Overview of platform activity and student engagement</p>
+        <p className="text-gray-600">Overview of institutional impact and work-integrated learning progress</p>
       </div>
 
       {error && (
@@ -66,7 +59,7 @@ const UniversityDashboard = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Students</p>
+              <p className="text-sm text-gray-600">Enrolled Students</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
@@ -94,11 +87,11 @@ const UniversityDashboard = () => {
         <Card className="p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-600">Total Student Earnings</p>
+              <p className="text-sm text-gray-600">Total Credentials Earned</p>
               {loading ? (
                 <Skeleton className="mt-2 h-8 w-16" />
               ) : (
-                <p className="mt-2 text-3xl font-bold">${stats.totalEarnings.toLocaleString()}</p>
+                <p className="mt-2 text-3xl font-bold">{stats.totalCredentials}</p>
               )}
             </div>
             <Award className="h-12 w-12 text-purple-500 opacity-20" />
@@ -123,8 +116,8 @@ const UniversityDashboard = () => {
       {/* Student List */}
       <Card>
         <div className="border-b p-6">
-          <h2 className="text-xl font-semibold">Recent Students</h2>
-          <p className="text-sm text-gray-600">Latest 20 registered students on the platform</p>
+          <h2 className="text-xl font-semibold">Recent Student Progress</h2>
+          <p className="text-sm text-gray-600">Latest activity from your registered students</p>
         </div>
 
         {loading ? (
@@ -138,42 +131,10 @@ const UniversityDashboard = () => {
             <p>No students registered yet</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Active Placements</TableHead>
-                  <TableHead>Total Earnings</TableHead>
-                  <TableHead>Credentials</TableHead>
-                  <TableHead>Joined</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {students.map((student) => (
-                  <TableRow key={student.id}>
-                    <TableCell className="font-medium">{student.full_name}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline">{student.active_placements}</Badge>
-                    </TableCell>
-                    <TableCell className="font-medium text-green-700">
-                      ${student.total_earnings.toLocaleString()}
-                    </TableCell>
-                    <TableCell>
-                      <Badge className="bg-purple-100 text-purple-800">
-                        {student.credentials_earned}
-                      </Badge>
-                    </TableCell>
-                    <TableCell className="text-sm text-gray-600">
-                      {new Date(student.joined_at).toLocaleDateString()}
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          </div>
+          <StudentRosterTable students={students} />
         )}
       </Card>
+
     </div>
   )
 }

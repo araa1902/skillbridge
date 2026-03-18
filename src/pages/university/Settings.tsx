@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { useToast } from '@/hooks/use-toast'
+import { Badge } from '@/components/ui/badge'
+import { Switch } from '@/components/ui/switch'
 import { Gear as SettingsIcon } from "@phosphor-icons/react"
 import { useState, useEffect } from 'react'
 import { supabase } from '@/lib/supabase'
@@ -108,28 +110,25 @@ export default function UniversitySettings() {
         <h2 className="mb-4 text-xl font-semibold">Platform Preferences</h2>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <Label>Activity Notifications</Label>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="h-4 w-4"
-            />
+            <div className="flex items-center gap-3">
+              <Label>Activity Notifications</Label>
+              <Badge variant="secondary" className="bg-slate-100 text-slate-500 hover:bg-slate-100 border-transparent text-[10px] uppercase tracking-wider font-semibold">Coming in V2</Badge>
+            </div>
+            <Switch disabled checked={true} />
           </div>
           <div className="flex items-center justify-between">
-            <Label>Student Milestone Alerts</Label>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="h-4 w-4"
-            />
+            <div className="flex items-center gap-3">
+              <Label>Student Milestone Alerts</Label>
+              <Badge variant="secondary" className="bg-slate-100 text-slate-500 hover:bg-slate-100 border-transparent text-[10px] uppercase tracking-wider font-semibold">Coming in V2</Badge>
+            </div>
+            <Switch disabled checked={true} />
           </div>
           <div className="flex items-center justify-between">
-            <Label>Credential Issuance Reports</Label>
-            <input
-              type="checkbox"
-              defaultChecked
-              className="h-4 w-4"
-            />
+            <div className="flex items-center gap-3">
+              <Label>Credential Issuance Reports</Label>
+              <Badge variant="secondary" className="bg-slate-100 text-slate-500 hover:bg-slate-100 border-transparent text-[10px] uppercase tracking-wider font-semibold">Coming in V2</Badge>
+            </div>
+            <Switch disabled checked={true} />
           </div>
         </div>
       </Card>

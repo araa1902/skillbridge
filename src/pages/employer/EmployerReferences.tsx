@@ -119,6 +119,7 @@ const EmployerReferences = () => {
 
   // Replaced "selectedRequestId" with the actual request object to trigger the Sheet
   const [activeRequest, setActiveRequest] = useState<any | null>(null);
+  const [selectedReference, setSelectedReference] = useState<any | null>(null);
 
   const [showSuccessDialog, setShowSuccessDialog] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -330,7 +331,11 @@ const EmployerReferences = () => {
               ) : references.length > 0 ? (
                 <div className="space-y-3">
                   {references.map((ref) => (
-                    <div key={ref.id} className="group flex items-start gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors cursor-default">
+                    <button
+                      key={ref.id}
+                      onClick={() => setSelectedReference(ref)}
+                      className="w-full group flex items-start gap-3 p-4 rounded-xl hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 border border-slate-200 text-left bg-white"
+                    >
                       <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-slate-600 flex-shrink-0 text-sm">
                         {ref.student_name?.charAt(0).toUpperCase() ?? "S"}
                       </div>
@@ -339,14 +344,15 @@ const EmployerReferences = () => {
                           <p className="font-semibold text-sm text-slate-900 truncate">
                             {ref.student_name}
                           </p>
-                          <span className="flex items-center gap-0.5 text-sm font-bold text-slate-700 bg-slate-100 px-1.5 rounded">
+                          <span className="flex items-center gap-0.5 text-sm font-bold text-slate-700 bg-slate-100 px-1.5 rounded flex-shrink-0">
                             <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
                             {ref.rating}
                           </span>
                         </div>
                         <p className="text-xs text-slate-500 truncate mt-0.5">{ref.project_title}</p>
                       </div>
-                    </div>
+                      <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors mt-0.5 flex-shrink-0" />
+                    </button>
                   ))}
                 </div>
               ) : (
@@ -633,6 +639,148 @@ const EmployerReferences = () => {
           >
             Back to Dashboard
           </Button>
+        </DialogContent>
+      </Dialog>
+
+      {/* ── Reference Details Dialog ── */}
+      <Dialog open={!!selectedReference} onOpenChange={(open) => !open && setSelectedReference(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl border border-slate-200 shadow-2xl">
+          {selectedReference && (
+            <>
+              <DialogHeader className="border-b border-slate-200 pb-4">
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 rounded-full bg-primary text-white flex items-center justify-center font-bold text-2xl">
+                      {selectedReference.student_name?.charAt(0).toUpperCase() ?? "S"}
+                    </div>
+                    <div>
+                      <DialogTitle className="text-2xl font-bold text-slate-900">{selectedReference.student_name}</DialogTitle>
+                      <p className="text-sm text-slate-500 mt-1">{selectedReference.project_title}</p>
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-5 h-5 fill-amber-400 text-amber-400" />
+                      <span className="text-2xl font-bold text-slate-900">{selectedReference.rating}.0</span>
+                    </div>
+                  </div>
+                </div>
+              </DialogHeader>
+
+              <div className="space-y-6 py-6">
+                {/* Overall Feedback */}
+                <div>
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Overall Feedback</h3>
+                  <p className="text-slate-700 leading-relaxed">{selectedReference.overall_feedback}</p>
+                </div>
+
+                {/* Performance Metrics */}
+                <div className="border-t border-slate-200 pt-6">
+                  <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Performance Metrics</h3>
+                  <div className="grid sm:grid-cols-2 gap-6">
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-slate-700">Work Quality</span>
+                        <span className="text-sm font-bold text-primary">{selectedReference.work_quality}/5</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all" style={{ width: `${(selectedReference.work_quality / 5) * 100}%` }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-slate-700">Communication</span>
+                        <span className="text-sm font-bold text-primary">{selectedReference.communication}/5</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all" style={{ width: `${(selectedReference.communication / 5) * 100}%` }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-slate-700">Professionalism</span>
+                        <span className="text-sm font-bold text-primary">{selectedReference.professionalism}/5</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all" style={{ width: `${(selectedReference.professionalism / 5) * 100}%` }} />
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="text-sm font-semibold text-slate-700">Technical Skills</span>
+                        <span className="text-sm font-bold text-primary">{selectedReference.technical_skills}/5</span>
+                      </div>
+                      <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                        <div className="h-full bg-primary transition-all" style={{ width: `${(selectedReference.technical_skills / 5) * 100}%` }} />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Skills */}
+                {selectedReference.skills && selectedReference.skills.length > 0 && (
+                  <div className="border-t border-slate-200 pt-6">
+                    <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Skills Verified</h3>
+                    <div className="flex flex-wrap gap-2">
+                      {selectedReference.skills.map((skill: string, index: number) => (
+                        <Badge key={index} variant="outline" className="border-slate-300 text-slate-700 font-semibold">
+                          {skill}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Strengths & Growth Areas */}
+                <div className="border-t border-slate-200 pt-6 grid sm:grid-cols-2 gap-6">
+                  {selectedReference.strengths && selectedReference.strengths.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Key Strengths</h3>
+                      <ul className="space-y-2">
+                        {selectedReference.strengths.map((strength: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2 text-sm text-slate-700">
+                            <span className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0" />
+                            <span>{strength}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {selectedReference.areas_for_improvement && selectedReference.areas_for_improvement.length > 0 && (
+                    <div>
+                      <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Areas for Growth</h3>
+                      <ul className="space-y-2">
+                        {selectedReference.areas_for_improvement.map((area: string, index: number) => (
+                          <li key={index} className="flex items-start gap-2 text-sm text-slate-700">
+                            <span className="w-1.5 h-1.5 rounded-full bg-slate-300 mt-1.5 flex-shrink-0" />
+                            <span>{area}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+
+                {/* Would Work Again */}
+                {selectedReference.would_work_again && (
+                  <div className="border-t border-slate-200 pt-6 flex items-center gap-2 bg-emerald-50 p-4 rounded-xl">
+                    <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+                    <span className="text-sm font-bold text-emerald-700">Would work with this student again</span>
+                  </div>
+                )}
+              </div>
+
+              <DialogFooter className="border-t border-slate-200 pt-4">
+                <Button
+                  variant="outline"
+                  onClick={() => setSelectedReference(null)}
+                  className="w-full"
+                >
+                  Close
+                </Button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </div>

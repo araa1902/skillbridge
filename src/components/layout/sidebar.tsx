@@ -121,14 +121,7 @@ const universityNav: NavGroup[] = [
     label: "Manage",
     items: [
       { name: "Students", href: "/university/students", icon: Education },
-      { name: "Projects", href: "/university/projects", icon: Portfolio },
-      { name: "Employers", href: "/university/employers", icon: Enterprise },
-      { name: "Courses", href: "/university/courses", icon: Course },
-    ],
-  },
-  {
-    label: "Data",
-    items: [
+      { name: "Industry Placements", href: "/university/projects", icon: Portfolio },
       { name: "Analytics", href: "/university/analytics", icon: ChartBar },
     ],
   },

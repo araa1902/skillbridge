@@ -257,7 +257,7 @@ function ProjectDetail({
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button size="sm" variant="outline" className="px-2">
+              <Button size="sm" variant="ghost" className="px-2">
                 <DotsThreeVertical className="h-4 w-4 text-muted-foreground" weight="bold" />
               </Button>
             </DropdownMenuTrigger>
