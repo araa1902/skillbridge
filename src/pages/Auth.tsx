@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Badge } from "@/components/ui/badge";
 import { GraduationCap, Buildings as Building2, Student as School, Eye, EyeSlash as EyeOff, SpinnerGap as Loader2, ArrowRight, CheckCircle as CheckCircle2, WarningCircle as AlertCircle } from "@phosphor-icons/react";
 import { Link, useNavigate } from "react-router-dom";
 import { supabase } from "@/lib/supabase";
@@ -285,16 +286,20 @@ const Auth = () => {
               {(Object.keys(USER_TYPE_CONFIG) as UserTypeKey[]).map((type) => {
                 const { icon: Icon, label, activeBg, activeText } = USER_TYPE_CONFIG[type];
                 const isActive = userType === type;
+                const isDisabled = type === 'university';
                 return (
                     <div key={type} className="relative">
                       <button
                         type="button"
-                        onClick={() => setUserType(type)}
+                        onClick={() => !isDisabled && setUserType(type)}
+                        disabled={isDisabled}
                         className={cn(
                           "w-full flex flex-col items-center justify-center gap-1 py-3 px-3 rounded-xl text-xs sm:text-sm font-medium",
                           "transition-all duration-200 focus:outline-none",
                           "border-2",
-                          isActive
+                          isDisabled
+                            ? "border-gray-200 bg-gray-50 text-gray-400 cursor-not-allowed opacity-50"
+                            : isActive
                             ? `${activeBg} text-white border-${activeBg.split('-')[1]}-600 shadow-md hover:shadow-lg`
                             : "border-gray-200 bg-white text-gray-600 hover:border-gray-300 hover:bg-gray-50"
                         )}
@@ -302,6 +307,11 @@ const Auth = () => {
                         <Icon className="h-4 w-4 shrink-0" />
                         <span className="text-center leading-tight">{label}</span>
                       </button>
+                      {isDisabled && (
+                        <Badge className="absolute -top-2 -right-2 bg-yellow-400 text-yellow-900 border-yellow-500 hover:bg-yellow-500">
+                          Coming soon
+                        </Badge>
+                      )}
                     </div>
                 );
               })}
