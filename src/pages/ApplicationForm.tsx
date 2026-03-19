@@ -680,7 +680,7 @@ const ApplicationForm = () => {
                 coverLetter.length < 50 ? "text-muted-foreground" : "text-success"
               )}
             >
-              {coverLetter.length} chars
+              {coverLetter.length} characters
             </span>
           </div>
         </div>

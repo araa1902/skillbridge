@@ -104,7 +104,7 @@ export function EscrowPaymentModal({
                             <form className="space-y-6" onSubmit={(e) => { e.preventDefault(); handleDeposit(); }}>
                                 <div className="space-y-4">
                                     <div className="space-y-2">
-                                        <Label htmlFor="email" className="text-slate-700 font-medium">Email Address</Label>
+                                        <Label htmlFor="email" className="text-slate-700 font-medium">Billing Address</Label>
                                         <Input id="email" type="email" placeholder="you@company.com" defaultValue="employer@example.com" className="h-11 rounded-xl" required disabled={isProcessing} />
                                     </div>
 

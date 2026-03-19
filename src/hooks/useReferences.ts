@@ -194,6 +194,15 @@ export async function writeReference(payload: {
       }
     }
 
+    // Notify Student
+    await supabase.from('notifications' as any).insert({
+      user_id: payload.student_id,
+      type: 'reference',
+      title: 'New Reference Received',
+      content: `${payload.employer_name} from ${payload.company_name} has provided a reference for you!`,
+      action_url: `/student/references`
+    })
+
     return { data: data as ReferenceFromDB, error: null }
   } catch (err) {
     return {
@@ -414,6 +423,14 @@ export async function createReferenceRequest(payload: {
     if (error) {
       return { data: null, error: error.message }
     }
+
+    await supabase.from('notifications' as any).insert({
+      user_id: payload.employer_id,
+      type: 'reference',
+      title: 'Reference Request',
+      content: `${payload.student_name} has requested a reference for ${payload.project_title}`,
+      action_url: `/employer/references`
+    })
 
     return { data, error: null }
   } catch (err) {

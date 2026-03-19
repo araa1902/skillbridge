@@ -136,6 +136,7 @@ export default function StudentApplications() {
   const [selectedFilter, setSelectedFilter] = useState<string>("all");
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [selectedApp, setSelectedApp] = useState<ApplicationWithDetails | null>(null);
+  const [submitApp, setSubmitApp] = useState<ApplicationWithDetails | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
   const [coverLetterApp, setCoverLetterApp] = useState<ApplicationWithDetails | null>(null);
   const [viewReference, setViewReference] = useState<ReferenceFromDB | null>(null);
@@ -348,7 +349,7 @@ export default function StudentApplications() {
                             size="sm"
                             className={app.deliverable_link ? "bg-blue-600 hover:bg-blue-700" : "bg-green-600 hover:bg-green-700"}
                             onClick={() => {
-                              setSelectedApp(app);
+                              setSubmitApp(app);
                             }}
                           >
                             {app.deliverable_link ? (
@@ -498,9 +499,9 @@ export default function StudentApplications() {
       </Dialog>
 
       <SubmitDeliverableDialog
-        applicationId={selectedApp?.id ?? null}
-        initialLink={selectedApp?.deliverable_link || ""}
-        onClose={() => setSelectedApp(null)}
+        applicationId={submitApp?.id ?? null}
+        initialLink={submitApp?.deliverable_link || ""}
+        onClose={() => setSubmitApp(null)}
         onSuccess={refetchAll}
       />
 

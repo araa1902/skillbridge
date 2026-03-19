@@ -286,6 +286,15 @@ export async function sendMessage(payload: {
       return { data: null, error: error.message }
     }
 
+    // Drop an invisible notification
+    await supabase.from('notifications' as any).insert({
+      user_id: payload.receiver_id,
+      type: 'message',
+      title: 'New Message Received',
+      content: 'You have a new unread message.',
+      action_url: `/project/${payload.project_id}/messages`
+    })
+
     return { data, error: null }
   } catch (err) {
     return {

@@ -145,7 +145,7 @@ export default function MessagesPage() {
   // ── Scroll to bottom ───────────────────────────────────────────────────────
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
+    bottomRef.current?.scrollIntoView({ behavior: 'auto' })
   }, [messages])
 
   // ── Auto-grow textarea ─────────────────────────────────────────────────────
@@ -193,6 +193,8 @@ export default function MessagesPage() {
     }
 
     setSending(true)
+    // Clear input immediately for smooth UX
+    setMessageContent('')
 
     const { error: sendError } = await sendMessage({
       project_id: projectId,
@@ -203,14 +205,13 @@ export default function MessagesPage() {
 
     if (sendError) {
       toast({ title: 'Send failed', description: sendError, variant: 'destructive' })
-    } else {
-      setMessageContent('')
-      refetch()
+      // Restore message on error
+      setMessageContent(trimmed)
     }
 
     setSending(false)
     textareaRef.current?.focus()
-  }, [messageContent, projectId, user, targetId, project, threadOtherUserId, toast, refetch])
+  }, [messageContent, projectId, user, targetId, project, threadOtherUserId, toast])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {

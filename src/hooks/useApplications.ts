@@ -50,6 +50,24 @@ export async function insertApplication(payload: {
     .single()
 
   if (error) return { data: null, error: (error as any).message ?? String(error) }
+
+  // Notify the employer
+  const { data: projectData } = await supabase
+    .from('projects')
+    .select('business_id, title')
+    .eq('id', payload.project_id)
+    .single();
+
+  if (projectData && projectData.business_id) {
+    await supabase.from('notifications' as any).insert({
+      user_id: projectData.business_id,
+      type: 'application',
+      title: 'New Application',
+      content: `A student has applied for your project: ${projectData.title}`,
+      action_url: `/employer/applications`
+    });
+  }
+
   return { data: data as ApplicationRow, error: null }
 }
 
@@ -103,6 +121,27 @@ export async function updateApplicationStatus(
       .from('projects')
       .update({ status: 'open', payment_status: 'refunded' })
       .eq('id', projectId)
+  }
+
+  // Send notification to the student if accepted or rejected
+  if (status === 'accepted' || status === 'rejected') {
+    const { data: appData } = await supabase
+      .from('applications')
+      .select('student_id, projects(title)')
+      .eq('id', applicationId)
+      .single();
+
+    if (appData) {
+      const projectTitle = (appData as any).projects?.title || 'a project';
+      // Mute the typescript error with 'any' since our types aren't fully regenerated
+      await supabase.from('notifications' as any).insert({
+        user_id: appData.student_id,
+        type: 'application',
+        title: `Application ${status === 'accepted' ? 'Accepted 🎉' : 'Update'}`,
+        content: `Your application for ${projectTitle} was ${status}.`,
+        action_url: `/student/applications`
+      });
+    }
   }
 
   return { error: null }

@@ -43,14 +43,15 @@ import {
   CirclePlusIcon,
   SendIcon,
   ClipboardPlusIcon,
-  LucideCompass
+  LucideCompass,
+  NotebookPenIcon
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
 import { useAuth } from "@/contexts/AuthContext"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { FeedbackDialog } from "./feedback-dialog"
-import { CompassIcon } from "@phosphor-icons/react"
+import { NotificationsPortal } from "../NotificationsPortal"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    NAV CONFIG
@@ -105,7 +106,7 @@ const employerNav: NavGroup[] = [
     items: [
       { name: "Projects", href: "/employer/projects/manage", icon: BriefcaseBusinessIcon },
       { name: "Applications", href: "/employer/applications", icon: UsersIcon, badge: 5 },
-      { name: "References", href: "/employer/references", icon: NotebookIcon },
+      { name: "References", href: "/employer/references", icon: NotebookPenIcon },
       { name: "Inbox", href: "/employer/messages", icon: InboxIcon, badge: 2, disabled: true },
     ],
   },
@@ -388,6 +389,7 @@ export function Sidebar({ userType }: SidebarProps) {
         "relative z-10 shrink-0 border-t border-border/70 flex flex-col",
         isCollapsed ? "p-2 items-center gap-2" : "p-3 gap-2"
       )}>
+        <NotificationsPortal isCollapsed={isCollapsed} />
         <FeedbackDialog isCollapsed={isCollapsed} />
         {loading ? (
           <UserSkeleton />

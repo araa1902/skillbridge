@@ -1,5 +1,6 @@
 import { useState } from "react"
 import { useLocation } from "react-router-dom"
+import { motion } from "framer-motion"
 import { useAuth } from "@/contexts/AuthContext"
 import { supabase } from "@/lib/supabase"
 import { toast } from "sonner"
@@ -21,10 +22,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { MessageSquarePlus } from "lucide-react"
+import { MessageSquarePlus, MessageSquareTextIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
-import { UserFeedback } from "@carbon/icons-react"
 
 interface FeedbackDialogProps {
   isCollapsed: boolean
@@ -69,17 +69,26 @@ export function FeedbackDialog({ isCollapsed }: FeedbackDialogProps) {
   }
 
   const triggerButton = (
-    <button
+    <motion.button
+      whileHover="hover"
+      initial="initial"
       className={cn(
-        "flex w-full items-center rounded-xl text-sm font-500",
-        "text-muted-foreground hover:bg-muted hover:text-foreground transition-colors duration-150",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-        isCollapsed ? "justify-center p-2" : "gap-3 px-3 py-2"
+        "nav-item flex w-full items-center",
+        "transition-colors duration-150",
+        isCollapsed ? "justify-center px-0 w-10 mx-auto h-10" : "gap-3 px-3 h-10"
       )}
     >
-      <UserFeedback className={cn("flex-shrink-0", isCollapsed ? "w-5 h-5" : "w-4 h-4")} />
+      <motion.div
+        variants={{
+          hover: { scale: 1.1 },
+          initial: { scale: 1 }
+        }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
+      >
+        <MessageSquareTextIcon className="nav-item__icon flex-shrink-0 h-5 w-5" />
+      </motion.div>
       {!isCollapsed && <span>Send feedback</span>}
-    </button>
+    </motion.button>
   )
 
   const content = (

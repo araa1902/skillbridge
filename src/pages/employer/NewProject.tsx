@@ -798,7 +798,7 @@ export default function NewProject() {
                 "text-xs tabular-nums",
                 form.description.length < 100 ? "text-muted-foreground" : "text-success"
               )}>
-                {form.description.length} chars
+                {form.description.length} characters
               </span>
             </div>
           </div>

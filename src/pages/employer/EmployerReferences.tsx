@@ -35,6 +35,7 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { SendFilled } from "@carbon/icons-react";
 import { Input } from "@/components/ui/input";
+import { NotebookPenIcon } from "lucide-react";
 
 /* ─── helpers ──────────────────────────────────────────────────────────── */
 
@@ -299,7 +300,7 @@ const EmployerReferences = () => {
                       onClick={() => handleOpenForm(request)}
                       className="bg-primary hover:bg-blue-700 text-white shadow-sm w-full sm:w-auto"
                     >
-                      <Sparkles className="w-4 h-4 mr-2" />
+                      <NotebookPenIcon className="w-4 h-4 mr-2" />
                       Write Reference
                     </Button>
                   </div>
@@ -469,7 +470,7 @@ const EmployerReferences = () => {
                   <Textarea
                     id="overall-feedback"
                     placeholder="Describe their performance, reliability, and impact..."
-                    className="min-h-[120px] rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 resize-none"
+                    className="min-h-[120px] border-slate-200  resize-none"
                     value={formData.overallFeedback}
                     onChange={(e) => setFormData((prev) => ({ ...prev, overallFeedback: e.target.value }))}
                   />
@@ -487,7 +488,7 @@ const EmployerReferences = () => {
                         <Input
                           id="strengths-input"
                           placeholder="Type a strength and press Enter"
-                          className="rounded-xl border-slate-200 focus:border-blue-500 focus:ring-blue-500 pr-12"
+                          className="rounded-xl border-slate-200 pr-12"
                           onKeyDown={(e) => {
                             if (e.key === 'Enter' || e.key === ',') {
                               e.preventDefault();
@@ -594,7 +595,7 @@ const EmployerReferences = () => {
 
             <div className="flex items-center gap-3 py-4">
               <Button
-                className="flex-1 bg-primary hover:bg-primary/90 text-white h-12 text-base font-bold rounded-xl shadow-lg shadow-blue-500/20"
+                className="flex-1 bg-primary hover:bg-primary/90 text-white h-12 text-base font-bold rounded-xl"
                 onClick={handleSubmitReference}
                 disabled={isSubmitting || !activeRequest}
               >
