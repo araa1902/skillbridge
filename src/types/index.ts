@@ -25,6 +25,8 @@ export type Database = {
                     website: string | null
                     bio: string | null
                     skills: string[] | null
+                    cv_url: string | null
+                    cv_name: string | null
                     created_at: string // timestamptz
                     updated_at: string // timestamptz
                 }
@@ -37,6 +39,8 @@ export type Database = {
                     website?: string | null
                     bio?: string | null
                     skills?: string[] | null
+                    cv_url?: string | null
+                    cv_name?: string | null
                     created_at?: string
                     updated_at?: string
                 }
@@ -49,6 +53,8 @@ export type Database = {
                     website?: string | null
                     bio?: string | null
                     skills?: string[] | null
+                    cv_url?: string | null
+                    cv_name?: string | null
                     created_at?: string
                     updated_at?: string
                 }
@@ -133,6 +139,8 @@ export type Database = {
                     created_at: string // timestamptz
                     updated_at: string // timestamptz
                     deliverable_link: string | null
+                    cv_url: string | null
+                    cv_name: string | null
                 }
                 Insert: {
                     id?: string
@@ -143,6 +151,8 @@ export type Database = {
                     created_at?: string
                     updated_at?: string
                     deliverable_link?: string | null
+                    cv_url?: string | null
+                    cv_name?: string | null
                 }
                 Update: {
                     id?: string
@@ -153,6 +163,8 @@ export type Database = {
                     created_at?: string
                     updated_at?: string
                     deliverable_link?: string | null
+                    cv_url?: string | null
+                    cv_name?: string | null
                 }
                 Relationships: [
                     {

@@ -79,10 +79,12 @@ export function NotificationsPortal({ isCollapsed }: { isCollapsed?: boolean }) 
         <AnimatePresence>
           {unreadCount > 0 && (
             <motion.span
-              initial={{ scale: 0, opacity: 0 }}
+              key="notification-badge"
+              initial={{ scale: 0.6, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0, opacity: 0 }}
-              className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground border-2 border-background shadow-sm"
+              exit={{ scale: 0.6, opacity: 0 }}
+              transition={{ type: "spring", stiffness: 600, damping: 30 }}
+              className="absolute -top-0.5 -right-0.5 flex h-3.5 min-w-[14px] items-center justify-center rounded-full bg-primary px-1 text-[8px] font-bold tabular-nums text-primary-foreground ring-2 ring-background shadow-sm pointer-events-none"
             >
               {unreadCount > 9 ? '9+' : unreadCount}
             </motion.span>
@@ -209,14 +211,6 @@ export function NotificationsPortal({ isCollapsed }: { isCollapsed?: boolean }) 
             )}
           </div>
         </ScrollArea>
-
-        {notifications.length > 0 && (
-          <div className="p-4 border-t border-border/40 bg-muted/20 text-center">
-            <p className="text-[10px] uppercase tracking-widest font-bold text-muted-foreground/60">
-              End of notifications
-            </p>
-          </div>
-        )}
       </SheetContent>
     </Sheet>
   )

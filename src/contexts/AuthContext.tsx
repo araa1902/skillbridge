@@ -11,6 +11,12 @@ import { supabase } from '@/lib/supabase'
 import type { UserRole } from '@/types'
 
 // --------------------------------------------------------------------------
+// Constants for session security
+// --------------------------------------------------------------------------
+const SESSION_TIMEOUT_KEY = 'sb_last_active'
+const INACTIVITY_THRESHOLD = 30 * 60 * 1000 // 30 minutes in milliseconds
+
+// --------------------------------------------------------------------------
 // Shape of a fetched profile row
 // --------------------------------------------------------------------------
 interface Profile {
@@ -111,6 +117,36 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [fetchProfile])
 
+  // Session security: last active timestamp update
+  const updateActivity = useCallback(() => {
+    // Only track activity if we have a session
+    if (session) {
+      localStorage.setItem(SESSION_TIMEOUT_KEY, Date.now().toString())
+    }
+  }, [session])
+
+  // Session security: check if session has timed out
+  const checkSessionTimeout = useCallback(async (): Promise<boolean> => {
+    const lastActive = localStorage.getItem(SESSION_TIMEOUT_KEY)
+    if (lastActive) {
+      const lastActiveTime = parseInt(lastActive, 10)
+      const currentTime = Date.now()
+      
+      if (currentTime - lastActiveTime > INACTIVITY_THRESHOLD) {
+        console.log('[AuthContext] Session timed out due to inactivity')
+        // Clear timestamp first to avoid loop
+        localStorage.removeItem(SESSION_TIMEOUT_KEY)
+        await supabase.auth.signOut()
+        setSession(null)
+        setProfile(null)
+        return true // Timed out
+      }
+    }
+    // Update timestamp as we're active now
+    updateActivity()
+    return false // Not timed out
+  }, [updateActivity])
+
   // Sign-out helper
   const signOut = useCallback(async (): Promise<void> => {
     try {
@@ -129,6 +165,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
     const initAuth = async () => {
       try {
+        // Check for session timeout before doing anything else
+        const timedOut = await checkSessionTimeout()
+        if (timedOut) {
+          if (mounted) setLoading(false)
+          return
+        }
+
         // Use getUser() to force a server-side verification of the session token
         // instead of just trusting the locally stored session.
         const { data: { user: verifiedUser }, error } = await supabase.auth.getUser()
@@ -190,11 +233,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
       }
     })
 
+    // Activity tracking listeners
+    const activityEvents = ['mousedown', 'keydown', 'scroll', 'touchstart']
+    const handleActivity = () => updateActivity()
+
+    activityEvents.forEach(event => {
+      window.addEventListener(event, handleActivity, { passive: true })
+    })
+
     return () => {
       mounted = false
       subscription.unsubscribe()
+      activityEvents.forEach(event => {
+        window.removeEventListener(event, handleActivity)
+      })
     }
-  }, [fetchProfile])
+  }, [fetchProfile, checkSessionTimeout, updateActivity])
 
   const value: AuthContextValue = {
     session,

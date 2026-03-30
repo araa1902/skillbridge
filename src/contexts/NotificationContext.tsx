@@ -1,6 +1,9 @@
-import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react'
+import React, { createContext, useContext, useEffect, useState, useCallback, ReactNode, useRef } from 'react'
 import { supabase } from '@/lib/supabase'
 import { useAuth } from './AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { motion } from 'framer-motion'
+import { toast } from '@/components/ui/sonner'
 
 export interface AppNotification {
   id: string
@@ -33,8 +36,57 @@ export function useNotifications() {
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
   const { user } = useAuth()
+  const navigate = useNavigate()
   const [notifications, setNotifications] = useState<AppNotification[]>([])
   const [loading, setLoading] = useState(true)
+
+  // Use ref for persistent audio object
+  const audioRef = useRef<HTMLAudioElement | null>(null)
+
+  // Pre-load audio on mount
+  useEffect(() => {
+    const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3')
+    audio.crossOrigin = "anonymous"
+    audio.volume = 0.2
+    audioRef.current = audio
+
+    const unlockAudio = () => {
+      if (audioRef.current) {
+        audioRef.current.play()
+          .then(() => {
+            window.removeEventListener('click', unlockAudio)
+            window.removeEventListener('keydown', unlockAudio)
+            audioRef.current?.pause()
+            if (audioRef.current) audioRef.current.currentTime = 0
+          })
+          .catch(err => console.debug('Audio unlock failed:', err))
+      }
+    }
+
+    window.addEventListener('click', unlockAudio)
+    window.addEventListener('keydown', unlockAudio)
+
+    return () => {
+      window.removeEventListener('click', unlockAudio)
+      window.removeEventListener('keydown', unlockAudio)
+    }
+  }, [])
+
+  const playChime = useCallback(() => {
+    if (!audioRef.current) return
+
+    try {
+      audioRef.current.currentTime = 0
+      const playPromise = audioRef.current.play()
+      if (playPromise !== undefined) {
+        playPromise.catch(err => {
+          console.warn('Notification chime failed to play.', err)
+        })
+      }
+    } catch (err) {
+      console.error('Error playing chime:', err)
+    }
+  }, [])
 
   const fetchNotifications = useCallback(async () => {
     if (!user) {
@@ -50,7 +102,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         .select('*')
         .eq('user_id', user.id)
         .order('created_at', { ascending: false })
-        .limit(50) // Fetch top 50 recent notifications
+        .limit(50)
 
       if (error) {
         console.error('Error fetching notifications:', error)
@@ -71,7 +123,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (!user) return
 
-    // Subscribe to realtime inserts
     const channel = supabase
       .channel('public:notifications')
       .on(
@@ -85,6 +136,52 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
         (payload) => {
           const newNotification = payload.new as AppNotification
           setNotifications((prev) => [newNotification, ...prev])
+
+          playChime()
+
+          toast.custom((t) => (
+            <motion.div
+              initial={{ opacity: 0, y: 15, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="relative w-full max-w-[360px] pointer-events-auto bg-background shadow-[0_8px_30px_rgb(0,0,0,0.08)] rounded-2xl p-5"
+            >
+              <div
+                className="cursor-pointer pr-8"
+                onClick={() => {
+                  toast.dismiss(t);
+                  if (newNotification.action_url) {
+                    if (newNotification.action_url.startsWith('http')) {
+                      window.location.href = newNotification.action_url
+                    } else {
+                      navigate(newNotification.action_url)
+                    }
+                  }
+                }}
+              >
+                <h4 className="text-base font-semibold text-foreground tracking-tight mb-1">
+                  {newNotification.title}
+                </h4>
+                <p className="text-sm text-muted-foreground line-clamp-2">
+                  {newNotification.content}
+                </p>
+              </div>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toast.dismiss(t);
+                }}
+                className="absolute top-5 right-5 text-muted-foreground/60 hover:text-foreground transition-colors p-1"
+                aria-label="Close notification"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </motion.div>
+          ), { duration: 6000 })
         }
       )
       .subscribe()
@@ -92,10 +189,9 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
     return () => {
       supabase.removeChannel(channel)
     }
-  }, [user])
+  }, [user, navigate, playChime])
 
   const markAsRead = async (notificationId: string) => {
-    // Optimistic update
     setNotifications((prev) =>
       prev.map((n) => (n.id === notificationId ? { ...n, is_read: true } : n))
     )
@@ -107,7 +203,6 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       console.error('Error marking notification as read:', error)
-      // Rollback optimistic update on failure
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, is_read: false } : n))
       )
@@ -127,7 +222,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     if (error) {
       console.error('Error marking all notifications as read:', error)
-      fetchNotifications() // Reset state if failed
+      fetchNotifications()
     }
   }
 
