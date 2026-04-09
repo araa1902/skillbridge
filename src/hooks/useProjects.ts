@@ -12,6 +12,7 @@ export interface ProjectWithBusiness extends ProjectRow {
   business_name: string | null
   company_name: string | null
   project_documents_url: string | null
+  is_verified: boolean
 }
 
 // ─── Fetch all OPEN projects (Browse Projects page) ─────────────────────────
@@ -31,7 +32,8 @@ export function useFetchOpenProjects() {
         *,
         profiles!projects_business_id_fkey (
           full_name,
-          company_name
+          company_name,
+          is_verified
         )
       `)
       .eq('status', 'open')
@@ -46,6 +48,7 @@ export function useFetchOpenProjects() {
         ...row,
         business_name: row.profiles?.full_name ?? null,
         company_name: row.profiles?.company_name ?? null,
+        is_verified: row.profiles?.is_verified ?? false,
         profiles: undefined,
       })) as ProjectWithBusiness[]
       setProjects(rows)
@@ -426,7 +429,14 @@ export function useFetchProject(projectId: string | null) {
 
     const { data, error: dbError } = await supabase
       .from('projects')
-      .select('*')
+      .select(`
+        *,
+        profiles!projects_business_id_fkey (
+          full_name,
+          company_name,
+          is_verified
+        )
+      `)
       .eq('id', projectId)
       .single()
 
@@ -434,7 +444,13 @@ export function useFetchProject(projectId: string | null) {
       setError(dbError.message)
       setProject(null)
     } else {
-      setProject(data as ProjectRow)
+      const row = data as any;
+      setProject({
+        ...row,
+        business_name: row.profiles?.full_name ?? null,
+        company_name: row.profiles?.company_name ?? null,
+        is_verified: row.profiles?.is_verified ?? false,
+      } as any)
     }
 
     setLoading(false)

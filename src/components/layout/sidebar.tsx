@@ -21,6 +21,7 @@ import {
   Course,
   ChartBar,
   UserAvatar,
+  PiggyBank,
 } from "@carbon/icons-react";
 import {
   LogOut,
@@ -44,7 +45,9 @@ import {
   SendIcon,
   ClipboardPlusIcon,
   LucideCompass,
-  NotebookPenIcon
+  NotebookPenIcon,
+  PoundSterling,
+  PiggyBankIcon
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { Link, useLocation, useNavigate } from "react-router-dom"
@@ -52,6 +55,7 @@ import { useAuth } from "@/contexts/AuthContext"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 import { FeedbackDialog } from "./feedback-dialog"
 import { NotificationsPortal } from "../NotificationsPortal"
+import { MoneyIcon } from "@phosphor-icons/react"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    NAV CONFIG
@@ -78,6 +82,7 @@ const studentNav: NavGroup[] = [
       { name: "Discover", href: "/browse-projects", icon: LucideCompass },
       { name: "Applications", href: "/student/applications", icon: SendIcon },
       { name: "Inbox", href: "/student/messages", icon: InboxIcon },
+      { name: "Earnings", href: "/student/earnings", icon: MoneyIcon },
     ],
   },
   {

@@ -15,8 +15,10 @@ import { supabase } from "@/lib/supabase"
 import { useToast } from "@/hooks/use-toast"
 import { Briefcase, Medal as Award, TrendUp as TrendingUp, Star, ArrowUpRight as ArrowUpRight, CheckCircle as CheckCircle2, ChatCircle as MessageSquare, UploadSimple as Upload, CaretRight as ChevronRight, Sparkle as Sparkles, Target as CircleDot } from "@phosphor-icons/react"
 import { cn } from "@/lib/utils"
+import { AreaChart, Area, XAxis, Tooltip, ResponsiveContainer, BarChart, Bar, Cell, YAxis } from "recharts"
 import { DashboardGreeting } from "@/components/DashboardGreeting"
 import { SubmitDeliverableDialog } from "@/components/SubmitDeliverableDialog"
+import { FeedbackDialog } from "@/components/layout/feedback-dialog"
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -70,26 +72,24 @@ const StatCard = ({
       animate="animate"
       transition={{ duration: 0.3, delay }}
     >
-      <Card className="relative overflow-hidden hover:shadow-sm transition-shadow duration-200 h-full">
-        <CardContent className="pt-5 pb-4 px-5">
-          <div className="flex items-start justify-between mb-3">
-            <p className="text-xs font-medium text-muted-foreground">{label}</p>
-            <div className={cn("p-1.5 rounded-lg", iconClass.replace("text-", "bg-").replace("-600", "-50").replace("-500", "-50"))}>
-              <Icon className={cn("h-3.5 w-3.5", iconClass)} />
+      <Card className="relative overflow-hidden hover:ring-1 hover:ring-primary/20 transition-all duration-300 border-border/40 shadow-sm bg-card">
+        <CardContent className="pt-6 pb-5 px-6">
+          <div className="flex items-center justify-between mb-4">
+            <div className={cn("p-2.5 rounded-xl", iconClass.replace("text-", "bg-").replace("-600", "-50").replace("-500", "-50").replace("-400", "-50"))}>
+              <Icon className={cn("h-5 w-5", iconClass)} />
             </div>
+            {trend && (
+              <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-600 border border-emerald-100">
+                <ArrowUpRight className="h-3 w-3" />
+                {trend}
+              </span>
+            )}
           </div>
-          <p className="text-2xl font-bold tracking-tight text-foreground">{value}</p>
-          {(sub || trend) && (
-            <div className="flex items-center justify-between mt-1.5">
-              {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
-              {trend && (
-                <span className="inline-flex items-center text-xs font-medium text-emerald-600">
-                  <ArrowUpRight className="h-3 w-3" />
-                  {trend}
-                </span>
-              )}
-            </div>
-          )}
+          <div>
+            <p className="text-[10px] font-700 text-foreground/70 uppercase tracking-widest mb-1">{label}</p>
+            <p className="text-3xl font-800 tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>{value}</p>
+            {sub && <p className="text-[11px] text-foreground/60 mt-2 font-500">{sub}</p>}
+          </div>
         </CardContent>
       </Card>
     </motion.div>
@@ -205,253 +205,253 @@ const StudentDashboard = () => {
     (PROFILE_ITEMS.filter((i) => i.done).length / PROFILE_ITEMS.length) * 100
   )
 
+  // Mock data for the earnings chart
+  const earningsData = [
+    { name: 'Nov', total: Math.max(0, totalEarnings - 600) },
+    { name: 'Dec', total: Math.max(0, totalEarnings - 450) },
+    { name: 'Jan', total: Math.max(0, totalEarnings - 300) },
+    { name: 'Feb', total: Math.max(0, totalEarnings - 100) },
+    { name: 'Mar', total: totalEarnings - thisMonthEarnings },
+    { name: 'Apr', total: totalEarnings },
+  ]
+
+  // Mock success rate data if no real data exists
+  const hasHistory = applications.length > 0;
+  const completedCount = applications.filter(a => a.status === 'completed').length;
+  const successRate = applications.length > 0 ? Math.round((completedCount / applications.length) * 100) : 0;
+
+  const successData = [
+    { name: 'Applied', value: applications.length, color: '#6366f1' }, // Indigo
+    { name: 'Accepted', value: applications.filter(a => ['accepted', 'in_progress', 'completed'].includes(a.status as string)).length, color: '#8b5cf6' }, // Violet
+    { name: 'Completed', value: completedCount, color: '#10b981' }, // Emerald
+  ]
+
 
   return (
     <div className="min-h-screen bg-background">
       <div className="page-container py-8 space-y-8">
 
+        {/* ── Welcome Greeting ── */}
         <DashboardGreeting
           firstName={firstName}
-          subtext={
-            activeProjects.length > 0
-              ? `You have ${activeProjects.length} active project${activeProjects.length > 1 ? "s" : ""} ongoing. Keep it up!`
-              : "Here's what's happening with your projects today."
-          }
+          subtext="Track your active projects, earnings, and verified credentials all in one place."
         />
 
-        {/* ── Stat row ── */}
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+        {/* ── Dashboard Stats Grid ── */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <StatCard
-            label="Active Projects"
+            label="Active Engagements"
             value={activeProjects.length}
-            sub={activeProjects.length === 1 ? "project ongoing" : "projects ongoing"}
+            sub={activeProjects.length === 1 ? "1 project in progress" : `${activeProjects.length} projects in progress`}
             icon={Briefcase}
-            iconClass="text-blue-600"
+            iconClass="text-indigo-600"
             delay={0.05}
           />
           <StatCard
-            label="Credits Earned"
+            label="Credits Verified"
             value={credentials.length}
-            sub={`${credentials.length === 1 ? '1 badge' : `${credentials.length} badges`}`}
+            sub={`${credentials.length === 1 ? '1 validated badge' : `${credentials.length} validated badges`}`}
             icon={Award}
             iconClass="text-violet-600"
             delay={0.1}
           />
           <StatCard
-            label="Total Earnings"
+            label="Total Revenue"
             value={`£${totalEarnings.toLocaleString()}`}
-            sub={thisMonthEarnings > 0 ? `+£${thisMonthEarnings.toLocaleString()} this month` : 'No earnings this month'}
+            sub={thisMonthEarnings > 0 ? `+£${thisMonthEarnings.toLocaleString()} this month` : 'All time savings'}
             icon={TrendingUp}
             iconClass="text-emerald-600"
+            trend={thisMonthEarnings > 0 ? "Growth" : undefined}
             delay={0.15}
           />
           <StatCard
-            label="References"
+            label="Peer Feedback"
             value={
-              <span className="flex items-center gap-2">
-                {refCount}
-                <span className="flex items-center gap-0.5">
-                  {[...Array(5)].map((_, i) => (
-                    <Star
-                      key={i}
-                      className={cn(
-                        "h-3 w-3",
-                        i < Math.round(averageRating)
-                          ? "fill-yellow-400 text-yellow-400"
-                          : "text-muted-foreground/30"
-                      )}
-                    />
-                  ))}
+              <span className="flex items-center gap-1.5">
+                {averageRating.toFixed(1)}
+                <span className="flex items-center">
+                  <Star className="h-4 w-4 fill-amber-400 text-amber-400" />
                 </span>
               </span>
             }
-            sub={`${averageRating.toFixed(1)} avg rating`}
+            sub={`From ${refCount} reviews`}
             icon={Star}
-            iconClass="text-yellow-500"
+            iconClass="text-amber-500"
             href="/student/references"
             delay={0.2}
           />
         </div>
 
-        {/* ── Body ── */}
-        <div className="grid lg:grid-cols-3 gap-6">
+        {/* ── Main Layout Split ── */}
+        <div className="grid lg:grid-cols-12 gap-8 items-start">
 
-          {/* ── Left: main content ── */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* ── Primary Activity Feed (Left Column 8/12) ── */}
+          <div className="lg:col-span-8 space-y-8">
 
-            {/* Active Projects */}
-            <motion.div
-              variants={fadeUp}
-              initial="initial"
-              animate="animate"
-              transition={{ duration: 0.3, delay: 0.2 }}
-            >
-              <Card className="shadow-none border-border/60">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-base">Active Projects</CardTitle>
-                      <CardDescription className="text-xs mt-0.5">
-                        Your ongoing work and deliverables
-                      </CardDescription>
-                    </div>
-                    {activeProjects.length > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        {activeProjects.length} active
-                      </Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {activeProjects.length === 0 ? (
-                    <EmptyState
-                      icon={Briefcase}
-                      title="No active projects yet"
-                      description="Apply to open projects to start working and building your portfolio."
-                      action={
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/browse-projects">Browse Projects</Link>
-                        </Button>
-                      }
-                    />
-                  ) : (
-                    activeProjects.map((app) => (
-                      <ActiveProjectRow
-                        key={app.id}
-                        app={app}
-                        onSubmit={setDeliverableDialog}
+            <section className="space-y-4">
+              <div className="flex items-center justify-between px-1">
+                <h2 className="text-lg font-700 tracking-tight flex items-center gap-2 text-foreground">
+                  <CircleDot className="h-5 w-5 text-indigo-500" />
+                  Active Deliverables
+                </h2>
+                {activeProjects.length > 0 && (
+                  <Link to="/student/applications" className="text-xs font-600 text-primary hover:underline">
+                    Manage all
+                  </Link>
+                )}
+              </div>
+
+              <div className="space-y-3">
+                {activeProjects.length === 0 ? (
+                  <Card className="border-dashed bg-muted/20 border-border/60">
+                    <CardContent className="py-12">
+                      <EmptyState
+                        icon={Briefcase}
+                        title="No active work right now"
+                        description="Browse open projects to find your next opportunity and build your portfolio."
+                        action={
+                          <Button size="sm" asChild className="rounded-full px-6">
+                            <Link to="/browse-projects">Discover Projects</Link>
+                          </Button>
+                        }
                       />
+                    </CardContent>
+                  </Card>
+                ) : (
+                  activeProjects.map((app) => (
+                    <ActiveProjectRow
+                      key={app.id}
+                      app={app}
+                      onSubmit={setDeliverableDialog}
+                    />
+                  ))
+                )}
+              </div>
+            </section>
+
+            {/* Performance Hub (Recharts Analytics) */}
+            <section className="space-y-4">
+              <h2 className="text-lg font-700 tracking-tight flex items-center gap-2 text-foreground">
+                <TrendingUp className="h-5 w-5 text-emerald-500" />
+                Performance Insights
+              </h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                <Card className="shadow-none border-border/40 hover:border-border/80 transition-colors bg-card">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-700">Financial Trajectory</CardTitle>
+                    <CardDescription className="text-[11px]">Monthly earnings across all projects</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {totalEarnings > 0 ? (
+                      <div className="h-[200px] w-full mt-2">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <AreaChart data={earningsData} margin={{ top: 5, right: 5, left: -25, bottom: 0 }}>
+                            <defs>
+                              <linearGradient id="colorEarnings" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
+                                <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
+                              </linearGradient>
+                            </defs>
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888888' }} dy={10} />
+                            <Tooltip
+                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                              itemStyle={{ color: '#4f46e5', fontWeight: 600, fontSize: '12px' }}
+                              formatter={(value: number) => [`£${value}`, 'Revenue']}
+                            />
+                            <Area
+                              type="monotone"
+                              dataKey="total"
+                              stroke="#6366f1"
+                              strokeWidth={2.5}
+                              fillOpacity={1}
+                              fill="url(#colorEarnings)"
+                              animationDuration={1000}
+                            />
+                          </AreaChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="py-12 flex flex-col items-center justify-center text-center opacity-60">
+                        <TrendingUp className="h-8 w-8 mb-2" />
+                        <p className="text-xs">No transaction history yet</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+
+                <Card className="shadow-none border-border/40 hover:border-border/80 transition-colors bg-card">
+                  <CardHeader className="pb-2">
+                    <CardTitle className="text-sm font-700">Application Funnel</CardTitle>
+                    <CardDescription className="text-[11px]">Success rate and metrics</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    {hasHistory ? (
+                      <div className="h-[200px] w-full mt-2">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={successData} margin={{ top: 5, right: 5, left: -30, bottom: 0 }}>
+                            <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: '#888888' }} dy={10} />
+                            <Tooltip
+                              cursor={{ fill: 'transparent' }}
+                              contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
+                              itemStyle={{ fontSize: '12px' }}
+                            />
+                            <Bar dataKey="value" radius={[4, 4, 0, 0]} barSize={32} animationDuration={1000}>
+                              {successData.map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={entry.color} />
+                              ))}
+                            </Bar>
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    ) : (
+                      <div className="py-12 flex flex-col items-center justify-center text-center opacity-60">
+                        <Award className="h-8 w-8 mb-2" />
+                        <p className="text-xs">History builds as you apply</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              </div>
+            </section>
+
+            {/* Smart Matches */}
+
+          </div>
+
+          {/* ── Profile & Secondary Sidebar (Right Column 4/12) ── */}
+          <aside className="lg:col-span-4 space-y-6">
+            {/* Portfolio Grid */}
+            <Card className="shadow-none border-border/40 bg-card">
+              <CardHeader className="pb-3 border-b border-border/40 mb-3">
+                <div className="flex items-center justify-between">
+                  <CardTitle className="text-sm font-700">Digital Portfolio</CardTitle>
+                  <Badge variant="outline" className="text-[10px] font-bold px-2 py-0 border-indigo-200 text-indigo-700">
+                    {credentials.length} Badges
+                  </Badge>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-2">
+                  {credentials.length === 0 ? (
+                    <div className="col-span-2 text-center py-6 opacity-40">
+                      <Award className="h-8 w-8 mx-auto mb-2" />
+                      <p className="text-[10px]">No credentials yet</p>
+                    </div>
+                  ) : (
+                    credentials.slice(0, 4).map((cred) => (
+                      <div
+                        key={cred.id}
+                        className="flex flex-col items-center justify-center gap-2 rounded-xl p-3 text-center bg-muted/30 border border-border/40 hover:border-primary/30 transition-all"
+                      >
+                        <Award className="h-5 w-5 text-violet-600" />
+                        <p className="text-[10px] font-700 leading-tight line-clamp-2">{cred.project_title || 'Skill'}</p>
+                      </div>
                     ))
                   )}
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Recommended Projects */}
-            <motion.div
-              variants={fadeUp}
-              initial="initial"
-              animate="animate"
-              transition={{ duration: 0.3, delay: 0.25 }}
-            >
-              <Card className="shadow-none border-border/60">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <CardTitle className="text-base flex items-center gap-2">
-                        <Sparkles className="h-4 w-4 text-violet-500" />
-                        Recommended for You
-                      </CardTitle>
-                      <CardDescription className="text-xs mt-0.5">
-                        Matched to your skills and profile
-                      </CardDescription>
-                    </div>
-                    <Button variant="ghost" size="sm" className="text-xs h-7" asChild>
-                      <Link to="/browse-projects">
-                        View all
-                        <ChevronRight className="h-3 w-3 ml-1" />
-                      </Link>
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {recommendedProjects.length === 0 ? (
-                    <EmptyState
-                      icon={Sparkles}
-                      title="No recommendations yet"
-                      description="Complete your profile so we can surface the best-matched projects for you."
-                      action={
-                        <Button size="sm" variant="outline" asChild>
-                          <Link to="/browse-projects">Browse All Projects</Link>
-                        </Button>
-                      }
-                    />
-                  ) : (
-                    <div className="grid gap-3">
-                      {recommendedProjects.map((p) => (
-                        <ProjectCard key={p.id} {...p} />
-                      ))}
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
-
-          {/* ── Right: sidebar ── */}
-          <div className="space-y-4">
-            {/* Credentials */}
-            <motion.div
-              variants={fadeUp}
-              initial="initial"
-              animate="animate"
-              transition={{ duration: 0.3, delay: 0.35 }}
-            >
-              <Card className="shadow-none border-border/60">
-                <CardHeader className="pb-3">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-sm font-semibold">Credentials</CardTitle>
-                    <Button variant="ghost" size="sm" className="h-7 text-xs" asChild>
-                      <Link to="/student/credentials">
-                        View all
-                        <ChevronRight className="h-3 w-3 ml-1" />
-                      </Link>
-                    </Button>
-                  </div>
-                  <CardDescription className="text-xs">Verifiable micro-credentials</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid grid-cols-2 gap-2">
-                    {credentials.length === 0 ? (
-                      <p className="text-[10px] text-muted-foreground col-span-2 text-center py-2">No credentials earned yet.</p>
-                    ) : (
-                      credentials.slice(0, 4).map((cred) => (
-                        <div
-                          key={cred.id}
-                          className={cn(
-                            "flex flex-col items-center justify-center gap-1.5 rounded-xl p-3 text-center bg-violet-50"
-                          )}
-                        >
-                          <Award className={cn("h-5 w-5 text-violet-600")} />
-                          <p className="text-xs font-semibold leading-tight">{cred.project_title || 'Skill'}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </motion.div>
-
-            {/* Quick links */}
-            <motion.div
-              variants={fadeUp}
-              initial="initial"
-              animate="animate"
-              transition={{ duration: 0.3, delay: 0.4 }}
-            >
-              <Card className="shadow-none border-border/60">
-                <CardContent className="pt-4 pb-3 space-y-1">
-                  {[
-                    { label: "My Applications", href: "/student/applications", icon: Briefcase },
-                    { label: "My Portfolio", href: "/student/credentials", icon: Award },
-                    { label: "References", href: "/student/references", icon: Star },
-                  ].map(({ label, href, icon: Icon }) => (
-                    <Link
-                      key={href}
-                      to={href}
-                      className="flex items-center justify-between px-2 py-2 rounded-lg hover:bg-muted/50 transition-colors group"
-                    >
-                      <span className="flex items-center gap-2.5 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-                        <Icon className="h-3.5 w-3.5" />
-                        {label}
-                      </span>
-                      <ChevronRight className="h-3.5 w-3.5 text-muted-foreground/40 group-hover:text-muted-foreground transition-colors" />
-                    </Link>
-                  ))}
-                </CardContent>
-              </Card>
-            </motion.div>
-          </div>
+                </div>
+              </CardContent>
+            </Card>
+          </aside>
         </div>
       </div>
 

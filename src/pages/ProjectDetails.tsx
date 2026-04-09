@@ -4,12 +4,19 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Separator } from "@/components/ui/separator";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { Buildings as Building2, Calendar, Medal as Award, CheckCircle as CheckCircle2, Clock, Money as Banknote, ArrowLeft, Briefcase, CaretRight as ChevronRight } from "@phosphor-icons/react";
 import { Link, useParams } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { motion } from "framer-motion";
 import { useAuth } from "@/contexts/AuthContext";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 interface ProjectData {
   id: string;
@@ -122,6 +129,7 @@ const ProjectDetails = () => {
   const [error, setError] = useState<string | null>(null);
   const [hasApplied, setHasApplied] = useState(false);
   const [checkingApplication, setCheckingApplication] = useState(false);
+  const [activeApplicationCount, setActiveApplicationCount] = useState(0);
 
   useEffect(() => {
     const fetchProject = async () => {
@@ -129,7 +137,7 @@ const ProjectDetails = () => {
         const { data, error: fetchError } = await supabase
           .from("projects")
           .select(
-            `*, profiles:projects_business_id_fkey (full_name, company_name, bio)`
+            `*, profiles:projects_business_id_fkey (full_name, company_name, bio, is_verified)`
           )
           .eq("id", id)
           .maybeSingle();
@@ -146,6 +154,7 @@ const ProjectDetails = () => {
             company_name:
               profile?.company_name ?? profile?.full_name ?? null,
             company_bio: profile?.bio ?? null,
+            is_verified: profile?.is_verified ?? false,
             profiles: undefined,
           });
         }
@@ -174,6 +183,17 @@ const ProjectDetails = () => {
 
         if (data) {
           setHasApplied(true);
+        }
+
+        // Also check total active applications for the limit check
+        const { count } = await supabase
+          .from("applications")
+          .select("*", { count: "exact", head: true })
+          .eq("student_id", user.id)
+          .in("status", ["pending", "reviewing"]);
+
+        if (count !== null) {
+          setActiveApplicationCount(count);
         }
       } catch (err) {
         console.error("Error checking application status:", err);
@@ -288,9 +308,12 @@ const ProjectDetails = () => {
                   {project.status && <StatusBadge status={project.status} />}
                 </div>
 
-                <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2">
+                <div className="flex flex-wrap gap-x-4 gap-y-1.5 mt-2 items-center">
                   {project.company_name && (
-                    <StatPill icon={Building2} label={project.company_name} />
+                    <>
+                      <StatPill icon={Building2} label={project.company_name} />
+                      <VerifiedBadge verified={project.is_verified} />
+                    </>
                   )}
                   {project.duration_hours != null && project.duration_hours > 0 && (
                     <StatPill
@@ -336,9 +359,32 @@ const ProjectDetails = () => {
                     Applied
                   </Button>
                 ) : (
-                  <Button size="lg" asChild>
-                    <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
-                  </Button>
+                  <TooltipProvider>
+                    <Tooltip delayDuration={0}>
+                      <TooltipTrigger asChild>
+                        <div className="inline-block">
+                          <Button 
+                            size="lg" 
+                            asChild={activeApplicationCount < 5} 
+                            disabled={activeApplicationCount >= 5}
+                            className={activeApplicationCount >= 5 ? "cursor-not-allowed opacity-60" : ""}
+                          >
+                            {activeApplicationCount < 5 ? (
+                              <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
+                            ) : (
+                              <span>Apply Now</span>
+                            )}
+                          </Button>
+                        </div>
+                      </TooltipTrigger>
+                      {activeApplicationCount >= 5 && (
+                        <TooltipContent side="bottom" className="max-w-[280px] p-3 text-xs leading-relaxed">
+                          <p className="font-bold mb-1">Priority Slot Limit</p>
+                          <p>You've used all 5 active application slots. Withdraw an inactive application to apply for this project.</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
                 )
               )}
             </div>
@@ -512,9 +558,30 @@ const ProjectDetails = () => {
                       <Link to="/student/applications">View Applications</Link>
                     </Button>
                   ) : (
-                    <Button className="w-full" asChild>
-                      <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
-                    </Button>
+                    <TooltipProvider>
+                      <Tooltip delayDuration={0}>
+                        <TooltipTrigger asChild>
+                          <div className="w-full">
+                            <Button 
+                              className="w-full" 
+                              asChild={activeApplicationCount < 5}
+                              disabled={activeApplicationCount >= 5}
+                            >
+                              {activeApplicationCount < 5 ? (
+                                <Link to={`/project/${project.id}/apply`}>Apply Now</Link>
+                              ) : (
+                                <span>Apply Now</span>
+                              )}
+                            </Button>
+                          </div>
+                        </TooltipTrigger>
+                        {activeApplicationCount >= 5 && (
+                          <TooltipContent side="top" className="max-w-[240px] p-3 text-xs">
+                            <p>You've used all 5 active application slots. Withdraw an inactive application to apply.</p>
+                          </TooltipContent>
+                        )}
+                      </Tooltip>
+                    </TooltipProvider>
                   )}
                 </CardContent>
               </Card>

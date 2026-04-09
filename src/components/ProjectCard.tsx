@@ -3,6 +3,7 @@ import { Building2, Clock, Tag, Zap } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { VerifiedBadge } from "@/components/ui/VerifiedBadge";
 import { cn } from "@/lib/utils";
 
 interface ProjectCardProps {
@@ -23,6 +24,8 @@ interface ProjectCardProps {
   experienceLevel?: "Entry" | "Intermediate" | "Expert";
   /** ISO date string or relative label e.g. "1 day ago" */
   postedAt?: string;
+  /** True if we consider the SME verified */
+  isVerified?: boolean;
 }
 
 const experienceColor: Record<string, string> = {
@@ -42,6 +45,7 @@ export const ProjectCard = ({
   budgetType = "Fixed-price",
   experienceLevel,
   postedAt,
+  isVerified,
 }: ProjectCardProps) => {
   const durationLabel =
     typeof duration === "number"
@@ -72,6 +76,7 @@ export const ProjectCard = ({
               <Building2 className="w-3.5 h-3.5" />
               {company}
             </span>
+            {isVerified && <VerifiedBadge />}
             {postedAt && (
               <span className="flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5" />

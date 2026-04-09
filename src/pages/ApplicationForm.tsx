@@ -315,6 +315,7 @@ const ApplicationForm = () => {
   const [projectLoading, setProjectLoading] = useState(true)
   const [projectError, setProjectError] = useState<string | null>(null)
   const [hasApplied, setHasApplied] = useState(false)
+  const [activeApplicationCount, setActiveApplicationCount] = useState<number>(0)
 
   const loadProject = useCallback(async () => {
     if (!id) return
@@ -352,6 +353,16 @@ const ApplicationForm = () => {
         .eq("student_id", user.id)
         .maybeSingle()
       if (existing) setHasApplied(true)
+
+      const { count } = await supabase
+        .from("applications")
+        .select("*", { count: "exact", head: true })
+        .eq("student_id", user.id)
+        .in("status", ["pending", "reviewing"])
+      
+      if (count !== null) {
+        setActiveApplicationCount(count)
+      }
     }
 
     setProjectLoading(false)
@@ -629,6 +640,37 @@ const ApplicationForm = () => {
                 onClick={() => navigate("/browse-projects")}
               >
                 Browse Projects
+              </button>
+            </div>
+          </div>
+        </div>
+      </main>
+    )
+  }
+
+  if (activeApplicationCount >= 5) {
+    return (
+      <main className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="surface max-w-md w-full">
+          <div className="empty-state py-14">
+            <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-1 animate-bounce-in bg-amber-50 text-amber-500">
+              <AlertCircle className="w-8 h-8" />
+            </div>
+            <p
+              className="empty-state__title"
+              style={{ fontFamily: "var(--font-display)" }}
+            >
+              Application limit reached
+            </p>
+            <p className="empty-state__body">
+              You can only have up to <strong>5 active applications</strong> (Pending or Reviewing) at a time to ensure quality over quantity. Please wait for an employer to respond or withdraw an existing application.
+            </p>
+            <div className="flex flex-wrap gap-2 justify-center mt-3">
+              <button
+                className="btn btn-primary btn-sm"
+                onClick={() => navigate("/student/applications")}
+              >
+                Manage Applications
               </button>
             </div>
           </div>
@@ -980,6 +1022,38 @@ const ApplicationForm = () => {
                 : <span className="italic opacity-60">Not set</span>}
             </p>
           </ReviewSection>
+
+          {project.budget !== null && project.budget > 0 && (
+            <>
+              <Separator />
+              <div className="flex flex-col gap-2">
+                <p
+                  className="text-xs font-700 uppercase tracking-[0.08em] text-muted-foreground"
+                  style={{ fontFamily: "var(--font-sans)" }}
+                >
+                  Earnings & Fees
+                </p>
+                <div className="bg-emerald-50 text-emerald-900 border border-emerald-200 rounded-xl p-4 mt-1">
+                  <div className="flex justify-between items-center text-sm mb-1.5">
+                    <span>Project Budget</span>
+                    <span className="font-medium">£{Number(project.budget).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center text-sm text-emerald-700/80 mb-2 border-b border-emerald-200 pb-2">
+                    <span>Platform Fee (10%)</span>
+                    <span>-£{(Number(project.budget) * 0.1).toLocaleString()}</span>
+                  </div>
+                  <div className="flex justify-between items-center font-semibold">
+                    <span>Your Estimated Take-Home</span>
+                    <span className="text-lg">£{(Number(project.budget) * 0.9).toLocaleString()}</span>
+                  </div>
+                  <p className="text-xs text-emerald-700/80 mt-3 flex items-start gap-1.5">
+                    <AlertCircle className="w-4 h-4 shrink-0" />
+                    Funds are held in escrow and safely released to your account 48 hours after the employer approves your final deliverables.
+                  </p>
+                </div>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Confirm checkbox */}

@@ -195,27 +195,34 @@ const BrowseProjects = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filtered.map((project) => {
               const company = project.company_name ?? project.business_name ?? "Unknown Company";
-              const showBadge = isStudent && project.matchScore > 0;
+              const hasMatch = project.matchScore > 0;
+              const matchText = hasMatch ? `${project.matchScore}% Match` : "New Opportunity";
 
               return (
                 <div key={project.id} className="relative group transition-all duration-200 hover:-translate-y-0.5">
 
                   {/* Integrated Match Badge */}
-                  {showBadge && (
+                  {isStudent && (
                     <div className="absolute -top-3 right-4 z-10">
                       <div
                         className={cn(
-                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold shadow-md",
-                          "ring-1 ring-inset",
+                          "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold shadow-sm",
+                          "ring-1 ring-inset backdrop-blur-md",
                           project.matchScore >= 80
-                            ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-white ring-emerald-300 shadow-emerald-200"
+                            ? "bg-emerald-500 text-white ring-emerald-400 shadow-emerald-200/50"
                             : project.matchScore >= 50
-                              ? "bg-gradient-to-r from-violet-500 to-indigo-400 text-white ring-violet-300 shadow-violet-200"
-                              : "bg-gradient-to-r from-slate-400 to-slate-500 text-white ring-slate-300 shadow-slate-200"
+                              ? "bg-violet-500 text-white ring-violet-400 shadow-violet-200/50"
+                              : project.matchScore > 0
+                                ? "bg-indigo-500 text-white ring-indigo-400 shadow-indigo-200/50"
+                                : "bg-amber-100 dark:bg-amber-500/10 text-amber-400 dark:text-amber-500 border border-amber-200 dark:border-amber-500/30 ring-amber-200 dark:ring-amber-500/20 shadow-sm shadow-amber-500/5"
                         )}
                       >
-                        <SparkleIcon weight="fill" className="h-3.5 w-3.5 opacity-90" />
-                        {project.matchScore}% Match
+                        {project.matchScore > 0 ? (
+                          <SparkleIcon weight="fill" className="h-3.5 w-3.5 animate-pulse" />
+                        ) : (
+                          <div className="w-1.5 h-1.5 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse ring-2 ring-amber-500/20" />
+                        )}
+                        {matchText}
                       </div>
                     </div>
                   )}
@@ -229,6 +236,8 @@ const BrowseProjects = () => {
                     tags={project.required_skills}
                     description={project.description}
                     budget={project.budget}
+                    isVerified={project.is_verified}
+                    experienceLevel={project.duration_hours <= 20 ? "Entry" : project.duration_hours <= 100 ? "Intermediate" : "Expert"}
                   />
                 </div>
               );

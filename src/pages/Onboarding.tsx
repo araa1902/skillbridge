@@ -280,7 +280,7 @@ export default function Onboarding() {
 
     const isStudent = role === 'student'
     const isUniversity = role === 'university'
-    const maxSteps = isStudent ? 4 : (isUniversity ? 3 : 3)
+    const maxSteps = isStudent ? 4 : 2
 
     const go = (next: number) => {
         setDirection(next > step ? 1 : -1)
@@ -387,24 +387,30 @@ export default function Onboarding() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="space-y-5"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col gap-6"
         >
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">Introduce yourself</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                    A short bio helps businesses understand who you are at a glance.
+                <h2 className="text-2xl sm:text-3xl font-800 tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+                    Hey there! 👋 Let's get you set up. First, what's your university?
+                </h2>
+                <p className="text-base text-muted-foreground mt-2">
+                    We'll match you with projects looking for students from your institution.
                 </p>
             </div>
 
-            <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Your University</Label>
+            <div className="space-y-4 max-w-lg">
                 {isUniversityVerified ? (
-                    <div className="flex items-center gap-2 px-3 py-2 bg-muted/50 rounded-md border text-sm text-foreground">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        <span className="font-medium">{dbUniversities.find(u => u.id === profile?.university_id)?.full_name || 'Verified University'}</span>
-                        <Badge variant="secondary" className="bg-green-100/80 text-green-700 hover:bg-green-100 ml-auto flex items-center gap-1">
-                            <Check className="h-3 w-3" /> Verified
+                    <div className="flex items-center gap-3 p-4 bg-primary/5 rounded-xl border border-primary/20 text-foreground shadow-sm">
+                        <div className="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center">
+                            <Building2 className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                            <p className="font-semibold">{dbUniversities.find(u => u.id === profile?.university_id)?.full_name || 'Verified University'}</p>
+                            <p className="text-[13px] text-muted-foreground mt-0.5">Your account is verified and strictly linked.</p>
+                        </div>
+                        <Badge variant="secondary" className="bg-success/15 text-success hover:bg-success/20 flex items-center gap-1 py-1">
+                            <Check className="h-3.5 w-3.5" /> Verified
                         </Badge>
                     </div>
                 ) : (
@@ -415,32 +421,17 @@ export default function Onboarding() {
                         placeholder="Search for your university..."
                     />
                 )}
-                {isUniversityVerified && (
-                    <p className="text-[11px] text-muted-foreground mt-1">
-                        Your account is verified and strictly linked to this university.
-                    </p>
-                )}
             </div>
 
-            <div className="space-y-1.5">
-                <Label className="text-sm font-medium">Bio</Label>
-                <Textarea
-                    placeholder="e.g. Final-year Computer Science student with a passion for building clean, fast web apps…"
-                    value={bio}
-                    onChange={(e) => setBio(e.target.value)}
-                    className="h-32 text-sm resize-none bg-muted/30 focus-visible:ring-1"
-                />
-            </div>
-            <p className="text-xs text-muted-foreground text-right">{bio.length} / 300</p>
             <NavRow
                 showBack={false}
                 onNext={() => go(2)}
-                nextDisabled={!(bio || '').trim() || (!isUniversityVerified && !(studentUniName || '').trim())}
+                nextDisabled={(!isUniversityVerified && !(studentUniName || '').trim())}
+                nextLabel="Sounds good"
             />
-
         </motion.div>,
 
-        // Step 2 — Skills
+        // Step 2 — Bio
         <motion.div
             key="s2"
             custom={direction}
@@ -448,24 +439,37 @@ export default function Onboarding() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="space-y-5"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col gap-6"
         >
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">Your skills</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Search and select skills that represent your strengths.
+                <h2 className="text-2xl sm:text-3xl font-800 tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+                    Nice! Now, tell us a bit about yourself.
+                </h2>
+                <p className="text-base text-muted-foreground mt-2">
+                    A short bio helps businesses know who they are working with. Keep it casual but professional.
                 </p>
             </div>
-            <SkillPicker selected={skills} onToggle={toggleSkill} />
+
+            <div className="space-y-2 max-w-lg">
+                <Textarea
+                    placeholder="e.g. I'm a final-year Computer Science student passionate about building clean, fast web apps…"
+                    value={bio}
+                    onChange={(e) => setBio(e.target.value)}
+                    className="h-36 text-base resize-none bg-muted/30 focus-visible:ring-primary rounded-xl p-4"
+                />
+                <p className="text-xs text-muted-foreground text-right">{bio.length} / 300 characters</p>
+            </div>
+
             <NavRow
                 onBack={() => go(1)}
                 onNext={() => go(3)}
-                nextDisabled={skills.length === 0}
+                nextDisabled={!(bio || '').trim()}
+                nextLabel="Next up: Skills"
             />
         </motion.div>,
 
-        // Step 3 — CV Upload
+        // Step 3 — Skills
         <motion.div
             key="s3"
             custom={direction}
@@ -473,36 +477,70 @@ export default function Onboarding() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="space-y-5"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col gap-6"
         >
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">Upload your CV</h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                    Having your CV on file makes applying for projects much faster.
+                <h2 className="text-2xl sm:text-3xl font-800 tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+                    What are your superpowers? ⚡
+                </h2>
+                <p className="text-base text-muted-foreground mt-2">
+                    Tag the skills that represent your strengths. We'll use these to match you with the perfect projects.
+                </p>
+            </div>
+            
+            <div className="max-w-xl">
+                <SkillPicker selected={skills} onToggle={toggleSkill} />
+            </div>
+
+            <NavRow
+                onBack={() => go(2)}
+                onNext={() => go(4)}
+                nextDisabled={skills.length === 0}
+                nextLabel="Let's add your CV"
+            />
+        </motion.div>,
+
+        // Step 4 — CV Upload
+        <motion.div
+            key="s4"
+            custom={direction}
+            variants={variants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col gap-6"
+        >
+            <div>
+                <h2 className="text-2xl sm:text-3xl font-800 tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+                    Almost done! Got a CV handy?
+                </h2>
+                <p className="text-base text-muted-foreground mt-2">
+                    Having your CV on file makes applying for projects a one-click breeze. (You can always skip this for now).
                 </p>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-4 max-w-lg">
                 <div
                     className={cn(
-                        "group relative flex flex-col items-center justify-center gap-3 p-8 rounded-xl border-2 border-dashed transition-all duration-150 cursor-pointer bg-muted/20 hover:bg-muted/30",
-                        cvUrl ? "border-primary/50 bg-primary/5" : "border-border hover:border-primary/50"
+                        "group relative flex flex-col items-center justify-center gap-4 p-10 rounded-2xl border-2 border-dashed transition-all duration-300 cursor-pointer",
+                        cvUrl ? "border-primary bg-primary/5" : "border-border bg-muted/20 hover:bg-muted/40 hover:border-primary/40"
                     )}
                     onClick={() => document.getElementById('cv-upload')?.click()}
                 >
                     <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center transition-colors",
-                        cvUrl ? "bg-primary text-white" : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                        "w-16 h-16 rounded-2xl flex items-center justify-center transition-colors shadow-sm",
+                        cvUrl ? "bg-primary text-white" : "bg-background border text-muted-foreground group-hover:bg-primary/10 group-hover:text-primary group-hover:border-primary/20"
                     )}>
-                        {cvUrl ? <Check className="h-6 w-6" /> : <FileText className="h-6 w-6" />}
+                        {cvUrl ? <Check className="h-8 w-8" /> : <FileText className="h-8 w-8" />}
                     </div>
                     <div className="text-center">
-                        <p className="text-sm font-semibold text-foreground">
+                        <p className={cn("text-base font-semibold", cvUrl ? "text-primary" : "text-foreground")}>
                             {cvName || "Click to upload CV"}
                         </p>
-                        <p className="text-xs text-muted-foreground mt-1">
-                            PDF, DOCX · Max 10MB
+                        <p className="text-sm text-muted-foreground mt-1">
+                            PDF or DOCX (Max 10MB)
                         </p>
                     </div>
                     <input
@@ -518,60 +556,16 @@ export default function Onboarding() {
                 </div>
 
                 {cvUrl && (
-                    <p className="text-[11px] text-green-600 flex items-center gap-1 justify-center">
-                        <Check className="h-3 w-3" /> CV attached successfully
-                    </p>
+                    <motion.p initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} className="text-sm font-medium text-success flex items-center justify-center gap-1.5">
+                        <Check className="h-4 w-4" /> Looking good! Your CV is attached.
+                    </motion.p>
                 )}
             </div>
 
             <NavRow
-                onBack={() => go(2)}
-                onNext={() => go(4)}
-                nextLabel={cvUrl ? "Continue" : "Skip for now"}
-            />
-        </motion.div>,
-
-        // Step 4 — Confirm
-        <motion.div
-            key="s4"
-            custom={direction}
-            variants={variants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="space-y-6 text-center py-4"
-        >
-            <div>
-                <h2 className="text-2xl font-semibold tracking-tight">You're all set</h2>
-                <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-                    Your profile is ready. Start browsing live projects and apply in minutes.
-                </p>
-            </div>
-
-            {/* Summary */}
-            <div className="rounded-xl border bg-muted/30 p-4 text-left space-y-3">
-                <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">Bio</p>
-                    <p className="text-sm text-foreground leading-relaxed line-clamp-2">{bio}</p>
-                </div>
-                <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1.5">Skills</p>
-                    <div className="flex flex-wrap gap-1">
-                        {skills.slice(0, 8).map((s) => (
-                            <span key={s} className="text-xs bg-background border rounded-full px-2 py-0.5">{s}</span>
-                        ))}
-                        {skills.length > 8 && (
-                            <span className="text-xs text-muted-foreground px-1">+{skills.length - 8} more</span>
-                        )}
-                    </div>
-                </div>
-            </div>
-
-            <NavRow
-                onBack={() => go(2)}
+                onBack={() => go(3)}
                 onNext={handleSubmit}
-                nextLabel="Go to Dashboard"
+                nextLabel={cvUrl ? "Finish & Browse Projects" : "Skip & Finish"}
                 loading={loading}
             />
         </motion.div>,
@@ -586,54 +580,56 @@ export default function Onboarding() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="space-y-5"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col gap-6"
         >
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">
-                    {isUniversity ? "University Name" : "Company name"}
+                <h2 className="text-2xl sm:text-3xl font-800 tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+                    {isUniversity ? "Welcome! Let's set up your university portal." : "Welcome! 👋 Let's set up your business profile."}
                 </h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-base text-muted-foreground mt-2">
                     {isUniversity
-                        ? "Select your institution to establish your portal."
-                        : "This is what students will see when browsing your projects."}
+                        ? "First, select your institution from the list."
+                        : "What is the name of your company? This is what students will see."}
                 </p>
             </div>
 
-            {isUniversity ? (
-                <div className="space-y-4">
-                    <UniversityCombobox
-                        value={companyName}
-                        onChange={setCompanyName}
-                        unis={csvUnis}
-                        placeholder="Search for your university..."
-                    />
-                    <div className="space-y-1.5 mt-4">
-                        <Label className="text-sm font-medium">University Website</Label>
-                        <Input
-                            placeholder="e.g. https://www.bath.ac.uk"
-                            type="url"
-                            value={website}
-                            onChange={(e) => setWebsite(e.target.value)}
-                            className="h-11 text-sm bg-muted/30 border-1 focus-visible:ring-0"
+            <div className="max-w-lg">
+                {isUniversity ? (
+                    <div className="space-y-5">
+                        <UniversityCombobox
+                            value={companyName}
+                            onChange={setCompanyName}
+                            unis={csvUnis}
+                            placeholder="Search for your university..."
                         />
+                        <div className="space-y-2">
+                            <Label className="text-base font-medium">University Website</Label>
+                            <Input
+                                placeholder="e.g. https://www.bath.ac.uk"
+                                type="url"
+                                value={website}
+                                onChange={(e) => setWebsite(e.target.value)}
+                                className="h-12 text-base bg-muted/30 focus-visible:ring-primary rounded-xl px-4"
+                            />
+                        </div>
                     </div>
-                </div>
-            ) : (
-                <Input
-                    placeholder="e.g. Acme Labs"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
-                    className="h-11 text-sm bg-muted/30 border-1 focus-visible:ring-0"
-                />
-            )}
+                ) : (
+                    <Input
+                        placeholder="e.g. Acme Labs"
+                        value={companyName}
+                        onChange={(e) => setCompanyName(e.target.value)}
+                        className="h-12 text-lg bg-muted/30 focus-visible:ring-primary rounded-xl px-4"
+                    />
+                )}
+            </div>
 
             <NavRow
                 showBack={false}
                 onNext={() => go(2)}
                 nextDisabled={!(companyName || '').trim() || (isUniversity && !(website || '').trim())}
+                nextLabel="Looks great"
             />
-
         </motion.div>,
 
         // Step 2 — Mission
@@ -644,74 +640,35 @@ export default function Onboarding() {
             initial="initial"
             animate="animate"
             exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="space-y-5"
+            transition={{ duration: 0.3, ease: 'easeOut' }}
+            className="flex flex-col gap-6"
         >
             <div>
-                <h2 className="text-lg font-semibold tracking-tight">
-                    {isUniversity ? "Public Description (Bio)" : "Company mission"}
+                <h2 className="text-2xl sm:text-3xl font-800 tracking-tight text-foreground" style={{ fontFamily: "var(--font-display)" }}>
+                    {isUniversity ? "What's the goal of your portal?" : "Awesome. What's your mission?"}
                 </h2>
-                <p className="text-sm text-muted-foreground mt-1">
+                <p className="text-base text-muted-foreground mt-2">
                     {isUniversity
-                        ? "Briefly describe your institution for students."
-                        : "Briefly describe what you do — students use this to decide whether to apply."}
+                        ? "Briefly describe your institution and programs for students."
+                        : "Tell students a bit about what you do. A compelling mission attracts top talent!"}
                 </p>
             </div>
-            <Textarea
-                placeholder={isUniversity ? "Tell students about your institution..." : "We help small businesses automate their operations through…"}
-                value={mission}
-                onChange={(e) => setMission(e.target.value)}
-                className="h-36 text-sm resize-none bg-muted/30 border-1 focus-visible:border-2"
-            />
-            <p className="text-xs text-muted-foreground text-right">{mission.length} / 300</p>
+            
+            <div className="space-y-2 max-w-lg">
+                <Textarea
+                    placeholder={isUniversity ? "Tell students about your institution..." : "e.g. We're on a mission to help small businesses automate their operations…"}
+                    value={mission}
+                    onChange={(e) => setMission(e.target.value)}
+                    className="h-40 text-base resize-none bg-muted/30 focus-visible:ring-primary rounded-xl p-4"
+                />
+                <p className="text-xs text-muted-foreground text-right">{mission.length} / 500 characters</p>
+            </div>
+            
             <NavRow
                 onBack={() => go(1)}
-                onNext={() => go(3)}
-                nextDisabled={!(mission || '').trim()}
-            />
-
-        </motion.div>,
-
-        // Step 3 — Confirm
-        <motion.div
-            key="b3"
-            custom={direction}
-            variants={variants}
-            initial="initial"
-            animate="animate"
-            exit="exit"
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="space-y-6 text-center py-4"
-        >
-            <div>
-                <h2 className="text-lg font-semibold tracking-tight">You're all set</h2>
-                <p className="text-sm text-muted-foreground mt-1 max-w-xs mx-auto">
-                    {isUniversity
-                        ? "Your portal is ready. Check your university dashboard."
-                        : "Post your first project and connect with verified university talent instantly."}
-                </p>
-            </div>
-
-            {/* Summary */}
-            <div className="rounded-xl border bg-muted/30 p-4 text-left space-y-3">
-                <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                        {isUniversity ? "University" : "Company"}
-                    </p>
-                    <p className="text-sm font-semibold">{companyName}</p>
-                </div>
-                <div>
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-1">
-                        {isUniversity ? "Description" : "Mission"}
-                    </p>
-                    <p className="text-sm text-foreground leading-relaxed line-clamp-2">{mission}</p>
-                </div>
-            </div>
-
-            <NavRow
-                onBack={() => go(2)}
                 onNext={handleSubmit}
-                nextLabel="Go to Dashboard"
+                nextDisabled={!(mission || '').trim()}
+                nextLabel="Finish Setup"
                 loading={loading}
             />
         </motion.div>,

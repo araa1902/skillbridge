@@ -20,6 +20,7 @@ import CredentialsPage from "./pages/student/CredentialsPage";
 import ReferencesPage from "./pages/student/ReferencesPage";
 import MessagesPage from "./pages/MessagesPage";
 import StudentApplications from "./pages/student/Applications";
+import EarningsDashboard from "./pages/student/Earnings";
 import Settings from "./pages/student/Settings";
 import EmployerDashboard from "./pages/employer/EmployerDashboard";
 import EmployerReferences from "./pages/employer/EmployerReferences";
@@ -41,7 +42,7 @@ import EmployerMessages from "./pages/employer/Messages";
 import TermsOfService from "./pages/TermsOfService";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import PageTransition from "@/components/layout/PageTransition";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 const queryClient = new QueryClient();
 
@@ -77,16 +78,62 @@ const AppContent = () => {
 
   // If we are globally loading the session, don't even mount the Routes
   // to prevent standard React Router redirects or components from firing
-  if (loading) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-slate-50">
-        <div className="flex flex-col items-center gap-4 w-64 text-center">
-          <div className="h-10 w-10 animate-spin rounded-full border-4 border-primary border-t-transparent" />
-          <p className="text-sm font-medium text-slate-500 animate-pulse">Initialising SkillBridge...</p>
+  <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white">
+    {/* Background Decorative Haze - subtle liveliness */}
+    <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-blue-50/50 blur-[120px] -z-10" />
+    <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-indigo-50/50 blur-[120px] -z-10" />
+
+    <div className="flex flex-col items-center gap-8">
+      {/* Branded Logo Animation */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.5,
+          ease: "easeOut",
+        }}
+        className="relative"
+      >
+
+        {/* Subtle pulse ring around logo */}
+        <motion.div
+          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0, 0.3] }}
+          transition={{ duration: 2, repeat: Infinity }}
+          className="absolute inset-0 rounded-full bg-blue-100 -z-0"
+        />
+      </motion.div>
+
+      {/* Minimal Progress Track */}
+      <div className="w-48 space-y-3">
+        <div className="h-[3px] w-full bg-slate-100 rounded-full overflow-hidden relative">
+          <motion.div
+            className="absolute top-0 left-0 h-full bg-blue-600 rounded-full"
+            initial={{ width: "0%" }}
+            animate={{
+              width: ["0%", "30%", "70%", "100%"],
+            }}
+            transition={{
+              duration: 3,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+          />
+        </div>
+        <div className="flex justify-center items-center gap-2">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-slate-400 ml-1">
+            Securing Connection
+          </span>
         </div>
       </div>
-    );
-  }
+    </div>
+
+    {/* Footer Branding */}
+    <div className="absolute bottom-10 flex flex-col items-center gap-1">
+      <p className="text-[10px] font-semibold text-slate-300 uppercase tracking-widest">
+        Verified Micro-Credentials
+      </p>
+    </div>
+  </div>
 
   return (
     <SidebarLayout>
@@ -179,6 +226,14 @@ const AppContent = () => {
             element={
               <ProtectedRoute allowedRoles={["student"]}>
                 <StudentMessages />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/earnings"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <EarningsDashboard />
               </ProtectedRoute>
             }
           />

@@ -1,5 +1,7 @@
 import { useState, useEffect } from "react"
-import { Link, useNavigate, useParams } from "react-router-dom"
+import { useNavigate, useParams } from "react-router-dom"
+import { DatePicker } from "@/components/ui/date-picker"
+import { format, parseISO } from "date-fns"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -603,7 +605,7 @@ export default function NewProject() {
 
   /* ── Navigation guards ── */
   const canAdvance = () => {
-    if (step === 1) return form.title.trim() !== "" && form.category !== "" && form.description.trim() !== ""
+    if (step === 1) return form.title.trim() !== "" && form.category !== "" && form.description.trim().length >= 200
     if (step === 2) return form.deliverables.trim() !== "" && form.deadline !== ""
     if (step === 3) return selectedSkills.length > 0
     if (step === 4) {
@@ -616,7 +618,7 @@ export default function NewProject() {
   const next = () => {
     if (!canAdvance()) {
       const msgs: Record<number, string> = {
-        1: "Please fill in the title, category and description.",
+        1: "Please fill in the title, category, and a description of at least 200 characters.",
         2: "Please add deliverables and a deadline.",
         3: "Please select at least one skill.",
         4: "Please enter a valid budget (min £200).",
@@ -793,10 +795,10 @@ export default function NewProject() {
               onChange={(e) => set("description", e.target.value)}
             />
             <div className="flex items-center justify-between mt-1.5">
-              <p className="form-hint">Aim for at least 100 characters for a strong listing</p>
+              <p className="form-hint">Minimum 200 characters required</p>
               <span className={cn(
                 "text-xs tabular-nums",
-                form.description.length < 100 ? "text-muted-foreground" : "text-success"
+                form.description.length < 200 ? "text-muted-foreground" : "text-success"
               )}>
                 {form.description.length} characters
               </span>
@@ -848,15 +850,12 @@ export default function NewProject() {
             <Label htmlFor="deadline" className="form-label flex items-center gap-1">
               Project deadline <span className="text-destructive">*</span>
             </Label>
-            <div className="relative mt-1.5">
-              <CalendarDays className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-              <Input
-                id="deadline"
-                type="date"
-                className="input pl-10"
-                value={form.deadline}
-                min={new Date().toISOString().split("T")[0]}
-                onChange={(e) => set("deadline", e.target.value)}
+            <div className="mt-1.5">
+              <DatePicker
+                date={form.deadline ? parseISO(form.deadline) : undefined}
+                onChange={(date) => set("deadline", date ? format(date, "yyyy-MM-dd") : "")}
+                minDate={new Date()}
+                placeholder="Select a deadline"
               />
             </div>
             <p className="form-hint mt-1.5">Allow enough time for quality work — students are part-time</p>
