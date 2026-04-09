@@ -42,13 +42,12 @@ import { cn } from "@/lib/utils"
 import { AlertDialog, AlertDialogContent, AlertDialogDescription, AlertDialogTitle, AlertDialogTrigger } from "@radix-ui/react-alert-dialog"
 import { AlertDialogHeader } from "@/components/ui/alert-dialog"
 import { format } from "date-fns"
-import { Calendar as CalendarIcon } from "lucide-react"
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Calendar as DatePickerCalendar } from "@/components/ui/calendar"
+import { DatePicker } from "@/components/ui/date-picker"
 
 /* ─────────────────────────────────────────────────────────────────────────────
    TYPES
@@ -926,32 +925,12 @@ const ApplicationForm = () => {
             <span className="text-destructive">*</span>
           </Label>
           <div className="mt-1.5">
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  data-empty={!availability}
-                  className={cn(
-                    "w-full justify-start text-left font-normal h-11 px-3 rounded-xl border-border",
-                    !availability && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {availability ? format(availability, "PPP") : <span>Select a date</span>}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <DatePickerCalendar
-                  mode="single"
-                  selected={availability}
-                  onSelect={setAvailability}
-                  disabled={(date) =>
-                    date < new Date(new Date().setHours(0, 0, 0, 0))
-                  }
-                  initialFocus
-                />
-              </PopoverContent>
-            </Popover>
+            <DatePicker
+              value={availability}
+              onChange={setAvailability}
+              minDate={new Date()}
+              placeholder="Select a date"
+            />
           </div>
           <p className="form-hint mt-1.5">
             You can always negotiate the exact start date with the employer.

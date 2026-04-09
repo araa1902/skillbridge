@@ -852,7 +852,7 @@ export default function NewProject() {
             </Label>
             <div className="mt-1.5">
               <DatePicker
-                date={form.deadline ? parseISO(form.deadline) : undefined}
+                value={form.deadline ? parseISO(form.deadline) : undefined}
                 onChange={(date) => set("deadline", date ? format(date, "yyyy-MM-dd") : "")}
                 minDate={new Date()}
                 placeholder="Select a deadline"
