@@ -23,13 +23,23 @@ const Settings = () => {
   const [skills, setSkills] = useState<string[]>([]);
   const [newSkill, setNewSkill] = useState("");
 
+  const filteredSkillsList = useMemo(() => {
+    const search = newSkill.toLowerCase().trim();
+    if (!search) {
+      return ALL_SKILLS.filter(s => !skills.includes(s)).sort();
+    }
+    return ALL_SKILLS.filter(s =>
+      s.toLowerCase().includes(search) && !skills.includes(s)
+    ).sort();
+  }, [newSkill, skills]);
+
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || "");
       setBio(profile.bio || "");
       setSkills(profile.skills || []);
     }
-  }, [profile]);
+  }, [profile?.id]); // Stable dependency to prevent state reset loop
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -55,7 +65,7 @@ const Settings = () => {
 
   const handleAddSkill = () => {
     if (!newSkill.trim() || skills.includes(newSkill.trim())) return;
-    setSkills([...skills, newSkill.trim()]);
+    setSkills(prev => [...prev, newSkill.trim()]);
     setNewSkill("");
   };
 
@@ -79,12 +89,11 @@ const Settings = () => {
   };
 
   const handleRemoveSkill = (skillToRemove: string) => {
-    setSkills(skills.filter((s) => s !== skillToRemove));
+    setSkills(prev => prev.filter((s) => s !== skillToRemove));
   };
 
   return (
     <div className="flex flex-col min-h-screen">
-
       <main className="flex-1 bg-background">
         <div className="page-container py-12">
           <div className="mb-8">
@@ -93,9 +102,10 @@ const Settings = () => {
           </div>
 
           <Tabs defaultValue="profile" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-3 justify-center">
+            <TabsList className="grid w-full grid-cols-4 justify-center">
               <TabsTrigger value="profile">Profile</TabsTrigger>
               <TabsTrigger value="skills">Skills</TabsTrigger>
+              <TabsTrigger value="notifications">Notifications</TabsTrigger>
               <TabsTrigger value="security">Security</TabsTrigger>
             </TabsList>
 
@@ -147,7 +157,6 @@ const Settings = () => {
                     <p className="text-[10px] text-muted-foreground">University is verified and cannot be changed.</p>
                   </div>
 
-
                   <div className="space-y-2">
                     <Label htmlFor="bio">Bio</Label>
                     <Textarea
@@ -186,8 +195,14 @@ const Settings = () => {
                         <Badge key={skill} variant="secondary" className="text-sm py-1.5 px-3 bg-foreground text-background hover:bg-foreground/90 transition-colors">
                           {skill}
                           <button
-                            onClick={() => handleRemoveSkill(skill)}
-                            className="ml-2 hover:text-red-400"
+                            type="button"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              handleRemoveSkill(skill);
+                            }}
+                            className="ml-2 hover:text-red-400 focus:outline-none"
+                            title={`Remove ${skill}`}
                           >
                             <X className="h-3 w-3" />
                           </button>
@@ -208,6 +223,7 @@ const Settings = () => {
                       />
                       {newSkill && (
                         <button
+                          type="button"
                           onClick={() => setNewSkill('')}
                           className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
                         >
@@ -217,59 +233,39 @@ const Settings = () => {
                     </div>
 
                     {/* Filtered Skills List */}
-                    <div className="h-64 overflow-y-auto rounded-xl border bg-muted/10 p-4">
-                      {newSkill.trim() ? (
-                        <div className="flex flex-wrap gap-2">
-                          {ALL_SKILLS.filter(s =>
-                            s.toLowerCase().includes(newSkill.toLowerCase()) && !skills.includes(s)
-                          ).length === 0 ? (
-                            <div className="w-full text-center py-8 space-y-3">
-                              <p className="text-sm text-muted-foreground">No matching skills found.</p>
-                              {!skills.includes(newSkill.trim()) && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  onClick={() => handleAddSkill()}
-                                  className="h-8"
-                                >
-                                  Add "{newSkill}" as a skill
-                                </Button>
-                              )}
-                            </div>
-                          ) : (
-                            ALL_SKILLS
-                              .filter(s => s.toLowerCase().includes(newSkill.toLowerCase()) && !skills.includes(s))
-                              .sort()
-                              .map((skill) => (
-                                <button
-                                  key={skill}
-                                  onClick={() => {
-                                    setSkills([...skills, skill]);
-                                    setNewSkill("");
-                                  }}
-                                  className="rounded-full px-3 py-1.5 text-xs font-medium border bg-background border-border text-foreground hover:border-foreground hover:bg-foreground hover:text-background transition-all"
-                                >
-                                  {skill}
-                                </button>
-                              ))
-                          )}
+                    <div className="h-64 overflow-y-auto rounded-xl border bg-muted/10 p-4 scrollbar-thin scrollbar-thumb-muted">
+                      {newSkill.trim() && filteredSkillsList.length === 0 && !skills.includes(newSkill.trim()) ? (
+                        <div className="w-full text-center py-8 space-y-3">
+                          <p className="text-sm text-muted-foreground">No matching skills found.</p>
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              handleAddSkill();
+                            }}
+                            className="h-8"
+                          >
+                            Add "{newSkill}" as a skill
+                          </Button>
                         </div>
                       ) : (
                         <div className="flex flex-wrap gap-2">
-                          {ALL_SKILLS
-                            .filter(s => !skills.includes(s))
-                            .sort()
-                            .map((skill) => (
-                              <button
-                                key={skill}
-                                onClick={() => {
-                                  setSkills([...skills, skill]);
-                                }}
-                                className="rounded-full px-3 py-1.5 text-xs font-medium border bg-background border-border text-foreground hover:border-foreground hover:bg-foreground hover:text-background transition-all"
-                              >
-                                {skill}
-                              </button>
-                            ))}
+                          {filteredSkillsList.map((skill) => (
+                            <button
+                              key={skill}
+                              type="button"
+                              onClick={(e) => {
+                                e.preventDefault();
+                                setSkills(prev => [...prev, skill]);
+                                if (newSkill) setNewSkill("");
+                              }}
+                              className="rounded-full px-3 py-1.5 text-xs font-medium border bg-background border-border text-foreground hover:border-foreground hover:bg-foreground hover:text-background transition-all active:scale-95"
+                            >
+                              {skill}
+                            </button>
+                          ))}
                         </div>
                       )}
                     </div>

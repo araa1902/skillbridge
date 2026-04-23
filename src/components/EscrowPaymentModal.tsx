@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { LockKey, ShieldCheck, SpinnerGap, CreditCard, CreditCardIcon } from "@phosphor-icons/react";
+import { LockKey, ShieldCheck, SpinnerGap, CreditCard, CreditCardIcon, CheckCircle, Receipt, ArrowRight, Copy } from "@phosphor-icons/react";
 import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
 
 interface EscrowPaymentModalProps {
     isOpen: boolean;
@@ -28,20 +29,103 @@ export function EscrowPaymentModal({
     onSuccess,
 }: EscrowPaymentModalProps) {
     const [isProcessing, setIsProcessing] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+
+    const transactionId = useMemo(() => 
+        `TXN-SB-${Math.random().toString(36).substring(2, 7).toUpperCase()}${Math.floor(1000 + Math.random() * 9000)}`,
+    []);
 
     const handleDeposit = () => {
         setIsProcessing(true);
         // Simulate API call and payment processing
         setTimeout(() => {
             setIsProcessing(false);
-            onSuccess();
+            setShowSuccess(true);
+            // Trigger parent success after a short delay to allow viewing the dialog
+            setTimeout(() => {
+                onSuccess();
+            }, 5000);
         }, 2000);
     };
 
+    const handleClose = () => {
+        setShowSuccess(false);
+        onClose();
+    };
+
     return (
-        <Dialog open={isOpen} onOpenChange={(open) => !isProcessing && !open && onClose()}>
-            <DialogContent className="max-w-4xl p-0 overflow-hidden bg-white border-0 shadow-2xl rounded-2xl">
-                <div className="flex flex-col md:flex-row h-full">
+        <Dialog open={isOpen} onOpenChange={(open) => !isProcessing && !open && handleClose()}>
+            <DialogContent className={cn(
+                "p-0 overflow-hidden bg-white border-0 shadow-2xl rounded-2xl transition-all duration-500",
+                showSuccess ? "max-w-[480px]" : "max-w-4xl"
+            )}>
+                {showSuccess ? (
+                    <div className="flex flex-col items-center justify-center p-8 md:p-12 text-center animate-in fade-in zoom-in duration-500">
+                        <div className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mb-6 relative">
+                            <div className="absolute inset-0 bg-green-100 rounded-full animate-ping opacity-20"></div>
+                            <CheckCircle className="w-12 h-12 text-green-600 relative z-10" weight="fill" />
+                        </div>
+                        
+                        <div className="space-y-1 mb-6">
+                            <h2 className="text-2xl font-bold text-slate-900">Payment Confirmed</h2>
+                            <p className="text-slate-500">Funds are now secured in Escrow</p>
+                        </div>
+
+                        <div className="w-full bg-slate-50 rounded-2xl border border-slate-200 p-5 mb-8 text-left space-y-4">
+                            <div className="flex justify-between items-center border-b border-slate-200 pb-4">
+                                <div className="flex items-center gap-3">
+                                    <div className="w-9 h-9 bg-white border border-slate-200 rounded-lg flex items-center justify-center">
+                                        <Receipt className="w-4 h-4 text-slate-400" />
+                                    </div>
+                                    <div>
+                                        <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold">Transaction ID</p>
+                                        <p className="text-sm font-mono font-medium text-slate-700">{transactionId}</p>
+                                    </div>
+                                </div>
+                                <button type="button" className="text-blue-600 hover:text-blue-700 p-1">
+                                    <Copy className="w-4 h-4" />
+                                </button>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-0.5">Project</p>
+                                    <p className="text-sm font-medium text-slate-800 line-clamp-1">{project.title}</p>
+                                </div>
+                                <div>
+                                    <p className="text-[10px] text-slate-500 uppercase tracking-wider font-bold mb-0.5">Student</p>
+                                    <p className="text-sm font-medium text-slate-800">{application.student_name}</p>
+                                </div>
+                            </div>
+
+                            <div className="pt-4 border-t border-slate-200 flex justify-between items-center">
+                                <span className="text-xs font-bold text-slate-500 uppercase tracking-wider">Amount deposited to escrow</span>
+                                <span className="text-xl font-bold text-green-600">£{project.budget.toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div className="flex flex-col sm:flex-row gap-3 w-full">
+                            <Button 
+                                onClick={handleClose}
+                                className="flex-1 h-11 bg-slate-900 hover:bg-slate-800 text-white rounded-xl font-medium"
+                            >
+                                Go to Dashboard
+                            </Button>
+                            <Button 
+                                variant="outline"
+                                className="flex-1 h-11 rounded-xl border-slate-200 text-slate-600 font-medium"
+                            >
+                                View Contract
+                            </Button>
+                        </div>
+                        
+                        <p className="mt-8 text-xs text-slate-400 flex items-center gap-1">
+                            <ShieldCheck className="w-3 h-3" weight="fill" />
+                            SkillBridge Escrow Protection Active
+                        </p>
+                    </div>
+                ) : (
+                    <div className="flex flex-col md:flex-row h-full">
 
                     {/* Left panel: Order Summary */}
                     <div className="md:w-5/12 bg-slate-50 p-8 border-r border-slate-200/60 flex flex-col justify-between">
@@ -140,7 +224,7 @@ export function EscrowPaymentModal({
                                     </div>
                                 </div>
 
-                                <div className="pt-4">
+                                <div className="pt-4 space-y-3">
                                     <Button
                                         type="submit"
                                         className="w-full h-12 bg-blue-600 hover:bg-blue-700 text-white font-medium text-base rounded-xl transition-all shadow-sm hover:shadow-md disabled:opacity-80 disabled:cursor-not-allowed"
@@ -159,7 +243,8 @@ export function EscrowPaymentModal({
                             </form>
                         </div>
                     </div>
-                </div>
+                    </div>
+                )}
             </DialogContent>
         </Dialog>
     );

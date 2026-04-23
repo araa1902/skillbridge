@@ -4,6 +4,7 @@ import {
   useEffect,
   useState,
   useCallback,
+  useRef,
   type ReactNode,
 } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
@@ -79,6 +80,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const [profile, setProfile] = useState<Profile | null>(null)
   const [loading, setLoading] = useState(true)
 
+  // Track session existence without triggering hook dependency updates
+  const hasSessionRef = useRef<boolean>(false)
+  useEffect(() => {
+    hasSessionRef.current = !!session
+  }, [session])
+
   // Fetch the profiles row for a given user ID
   const fetchProfile = useCallback(async (userId: string): Promise<void> => {
     try {
@@ -120,10 +127,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // Session security: last active timestamp update
   const updateActivity = useCallback(() => {
     // Only track activity if we have a session
-    if (session) {
+    if (hasSessionRef.current) {
       localStorage.setItem(SESSION_TIMEOUT_KEY, Date.now().toString())
     }
-  }, [session])
+  }, [])
 
   // Session security: check if session has timed out
   const checkSessionTimeout = useCallback(async (): Promise<boolean> => {
