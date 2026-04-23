@@ -96,17 +96,21 @@ export function useFetchProjectMessages(projectId: string | null) {
             // Prevent duplicate if message already exists (e.g. from optimistic update or refetch)
             if (prev.some(m => m.id === newRow.id)) return prev
 
+            // Find names from previous messages in the thread to avoid refetching
+            const existingSenderMsg = prev.find(m => m.sender_id === newRow.sender_id)
+            const existingReceiverMsg = prev.find(m => m.receiver_id === newRow.receiver_id)
+
             const newMessage: Message = {
               ...newRow,
-              sender_name: '...', // Fallback since real-time payload lacks joined data
-              receiver_name: '...',
+              sender_name: existingSenderMsg?.sender_name || '...', 
+              receiver_name: existingReceiverMsg?.receiver_name || '...',
               sender_avatar: null,
             }
             return [...prev, newMessage]
           })
-
-          // Trigger a load to fetch the missing joined names/avatars
-          load()
+          
+          // Note: Removed load() here to prevent fetching the entire message history
+          // on every single incoming message.
         }
       )
       .subscribe()

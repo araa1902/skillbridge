@@ -125,10 +125,16 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [fetchProfile])
 
   // Session security: last active timestamp update
+  const lastActivityUpdateRef = useRef<number>(0)
   const updateActivity = useCallback(() => {
     // Only track activity if we have a session
     if (hasSessionRef.current) {
-      localStorage.setItem(SESSION_TIMEOUT_KEY, Date.now().toString())
+      const now = Date.now()
+      // Debounce: max once every 10 seconds
+      if (now - lastActivityUpdateRef.current > 10000) {
+        localStorage.setItem(SESSION_TIMEOUT_KEY, now.toString())
+        lastActivityUpdateRef.current = now
+      }
     }
   }, [])
 
