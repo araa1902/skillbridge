@@ -40,7 +40,7 @@ export function StudentRosterTable({ students }: StudentRosterTableProps) {
               <TableHead>Active Placements</TableHead>
               <TableHead>Experience Level</TableHead>
               <TableHead>Credentials</TableHead>
-              <TableHead>Enrolled Since</TableHead>
+              <TableHead>Registration Date</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
